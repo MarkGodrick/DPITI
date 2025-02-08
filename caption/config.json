@@ -1,0 +1,5 @@
+{
+    "hf_model" : "Salesforce/blip-image-captioning-large",
+    "dataset_path":"dataset/lsun",
+    "lsun_class": "bedroom_train"
+}
