@@ -15,7 +15,10 @@ Following the work [Lin et al.(2024)](https://openreview.net/forum?id=YEhQs8POIo
 
 
 ### ToDo
-* Examine the `textpe/run_pe.py` script to identify the factors contributing to the decline in PE data quality.
-    * Try to use API from OpenAI/DeepSeek
-* Enable Dense Caption in `caption/script.py`
-* Use more agents for image sampling
+* We find running PE decline text quality heavily.
+   * Examine the `textpe/run_pe.py` script to identify the factors contributing to the decline in PE data quality.
+   * Try to use API from OpenAI/DeepSeek.
+* Currently we caption images with normal length.
+   * Enable Dense Caption in `caption/script.py`. 
+* Currently we do sampling using a `diffusers` pipeline.
+   * Use more agents to do image sampling.
