@@ -81,7 +81,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--output',type=str,default="results/text/LSUN_huggingface")
+    parser.add_argument('--output',type=str,default="results/text/LSUN_huggingface/part_0")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train/Salesforce/blip-image-captioning-large")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface'],default='huggingface')
 
