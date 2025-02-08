@@ -1,5 +1,5 @@
 ## Image2Text2Image DP: Differential Privacy Data Synthesis Cross Modality
-We believe that the text modality can introduce greater variation in image generation under DP constraints while not significantly compromising the quality of the generated data.
+We believe that the text modality can introduce greater variation in image generation under DP constraints while not significantly compromising the quality of the generated data. I personally name our proposed method as **Image2Text2Image DP**, or **DPITI** for short.
 
 ### Proposed Methodology
 Following the work [Lin et al.(2024)](https://openreview.net/forum?id=YEhQs8POIo),[Xie et al.(2024)](https://arxiv.org/abs/2403.01749), we aim to exploit more potential from LLM and diffusion models, thus we proposed the following method to enhance the variety of synthesized data while preserving accuracy.
