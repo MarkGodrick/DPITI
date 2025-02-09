@@ -1,0 +1,19 @@
+{
+    "model":{
+        "OpenAI":{
+            "model":"gpt-4o-mini-2024-07-18",
+            "max_completion_tokens":200,
+            "temperature":1.2,
+            "num_threads":4
+        },
+        "Huggingface":{
+            "model_name_or_path":"meta-llama/Meta-Llama-3-8B-Instruct",
+            "max_completion_tokens":200,
+            "temperature":1.0
+        }
+    },
+    "api_prompt":{
+        "random":"random_api_prompt.json",
+        "variation":"variation_api_prompt.json"
+    }
+}

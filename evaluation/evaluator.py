@@ -14,6 +14,30 @@ from torch.utils.data import DataLoader
 from scipy.linalg import sqrtm
 from tqdm import tqdm
 
+IMAGE_SIZE = 256
+
+transform = transforms.Compose([
+    transforms.ToTensor(),  
+    transforms.Resize((299, 299)), 
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
+])
+
+class Images(Dataset):
+    def __init__(self,data):
+        super().__init__()
+        self.isdataset = isinstance(data,Dataset)
+        self.dataset = data
+
+    def __len__(self):
+        return min(20000,len(self.dataset))
+    
+    def __getitem__(self,idx):
+        if self.isdataset:
+            return self.dataset[idx][0]
+            # return np.array(self.dataset[idx][0])
+        else:
+            return transform(self.dataset[idx])
+
 
 # ---- 1. 计算 Inception 网络的特征 ---- #
 def get_inception_model(device):
@@ -32,20 +56,7 @@ def compute_statistics(images, model, device, batch_size=32):
     device: "cuda" or "cpu"
     batch_size: batch size for feature extraction
     """
-    transform = transforms.Compose([
-        transforms.Resize((299, 299)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-    ])
-
-    if isinstance(images, np.ndarray):
-        # 处理 numpy 数组
-        dataset = [transform(img).unsqueeze(0) for img in images]
-    else:
-        # 处理 PyTorch Dataset
-        dataset = [transform(img).unsqueeze(0) for img, _ in images]
-
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    dataloader = DataLoader(images, batch_size=batch_size, shuffle=False)
 
     # 提取特征
     features = []
@@ -81,18 +92,8 @@ def calculate_inception_score(images, model, device, batch_size=32, splits=10):
     """
     计算 Inception Score (IS)
     """
-    transform = transforms.Compose([
-        transforms.Resize((299, 299)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-    ])
 
-    if isinstance(images, np.ndarray):
-        dataset = [transform(img).unsqueeze(0) for img in images]
-    else:
-        dataset = [transform(img).unsqueeze(0) for img, _ in images]
-
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    dataloader = DataLoader(images, batch_size=batch_size, shuffle=False)
 
     preds = []
     softmax = nn.Softmax(dim=1)
@@ -145,8 +146,14 @@ def compute_fid_and_is(real_images, generated_images, device="cuda"):
 
 
 def main(args):
-    dataset = LSUN(args.dataset)
+    dataset = Images(LSUN(root=args.dataset,classes=['bedroom_train'],transform=transform))
+
     samples = np.load(os.path.join(args.input,"images.npz"))
+    samples = samples['arr_0']
+    # samples = np.transpose(samples['arr_0'],axes=(0,3,1,2))
+    samples = Images(samples)
+    # print(samples.shape)
+    # assert samples.shape==(14000,3,512,512)
 
     fid_score, is_score, is_std = compute_fid_and_is(dataset, samples, device="cuda")
 

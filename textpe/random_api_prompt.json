@@ -2,7 +2,7 @@
     "message_template": [
         {
             "role": "user",
-            "content": "Using a variety of sentence structures, write a description for a bedroom:"
+            "content": "Using a variety of sentence structures, write a short description for a bedroom:"
         }
     ]
 }

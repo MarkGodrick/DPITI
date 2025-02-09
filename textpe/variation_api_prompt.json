@@ -2,7 +2,7 @@
     "message_template": [
         {
             "role": "user",
-            "content": "Please rephrase the following sentences {tone} as a description for a bedroom:\n{sample}"
+            "content": "Please rephrase the following sentences {tone} as a short description for a bedroom:\n{sample}"
         }
     ],
     "replacement_rules": [

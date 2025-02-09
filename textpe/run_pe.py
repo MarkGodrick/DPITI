@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import argparse
+import json
 from text import text
 from pe.logging import setup_logging
 from pe.runner import PE
@@ -20,9 +21,9 @@ import numpy as np
 
 pd.options.mode.copy_on_write = True
 
-def main(args):
+def main(args, config):
     
-    exp_folder = args.output
+    exp_folder = os.path.join(args.output,args.llm)
     current_folder = os.path.dirname(os.path.abspath(__file__))
 
     load_dotenv()
@@ -32,16 +33,16 @@ def main(args):
     data = text(root_dir=args.data,file_name='caption_0.csv')
 
     if args.llm=='huggingface':
-        llm = HuggingfaceLLM(max_completion_tokens=448, model_name_or_path="gpt2", temperature=1.0)
+        llm = HuggingfaceLLM(**config["model"]["Huggingface"])
     elif args.llm=='openai':
-        llm = OpenAILLM(max_completion_tokens=1000, model="gpt-4o-mini-2024-07-18", temperature=1.2, num_threads=4)
+        llm = OpenAILLM(**config["model"]["OpenAI"])
     else:
         raise ValueError("llm argument not recognized.")
     
     api = LLMAugPE(
         llm=llm,
-        random_api_prompt_file=os.path.join(current_folder, "random_api_prompt.json"),
-        variation_api_prompt_file=os.path.join(current_folder, "variation_api_prompt.json"),
+        random_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['random']),
+        variation_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['variation']),
     )
     embedding = SentenceTransformer(model="sentence-t5-base")
     histogram = NearestNeighbors(
@@ -73,7 +74,8 @@ def main(args):
     pe_runner.run(
         num_samples_schedule=[2000] * 11,
         delta=delta,
-        epsilon=1.0,
+        # epsilon=1.0,
+        noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )
 
@@ -81,10 +83,13 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--output',type=str,default="results/text/LSUN_huggingface/part_0")
+    parser.add_argument('--output',type=str,default="results/text/LSUN_huggingface/part_1")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train/Salesforce/blip-image-captioning-large")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface'],default='huggingface')
 
     args = parser.parse_args()
 
-    main(args)
+    with open("textpe/config.json",'r',encoding='utf-8') as f:
+        config = json.load(f)
+
+    main(args, config)

@@ -7,18 +7,20 @@ Following the work [Lin et al.(2024)](https://openreview.net/forum?id=YEhQs8POIo
 <img src="docs/images0.png" width="300">
 
 ### Experiment Setup
-* Dataset: We use **LSUN dataset, bedroom class, train split** as our dataset.
-* Caption: We're currently using `Salesforce/lip-image-captioning-large` as our caption llm
-* PE: We use code from [DPSDA](https://github.com/microsoft/DPSDA) and follow its [example](https://github.com/microsoft/DPSDA/blob/main/example/text/pubmed_huggingface/main.py) to run Private Evolution
-* Diffusion: We're currently using `stabilityai/stable-diffusion-xl-base-1.0`
-* Metrics & Benchmarks: We're currently using FID and IS to evaluate the quality of synthetic data, and will use synthetic data for down-stream tasks.
+* **Dataset** : We use **LSUN dataset, bedroom class, train split** as our dataset.
+* **Caption** : We're currently using `Salesforce/blip-image-captioning-large` as our caption llm
+* **PE** : We use code from [DPSDA](https://github.com/microsoft/DPSDA) and follow its [example](https://github.com/microsoft/DPSDA/blob/main/example/text/pubmed_huggingface/main.py) to run Private Evolution
+* **Diffusion** : We're currently using `stabilityai/stable-diffusion-xl-base-1.0`
+* **Metrics & Benchmarks** : We're currently using FID and IS to evaluate the quality of synthetic data, and will use synthetic data for down-stream tasks.
 
 
 ### ToDo
-* We find running PE decline text quality heavily.
+* (Temporally solved) We find running PE decline text quality heavily.
    * Examine the `textpe/run_pe.py` script to identify the factors contributing to the decline in PE data quality.
    * Try to use API from OpenAI/DeepSeek.
+   * `textpe/random_api_prompt.json` and `textpe/variation_api_prompt.json` has given **short** prompt to generate short enough text. Need to delete before final version.
 * Currently we caption images with normal length.
    * Enable Dense Caption in `caption/script.py`. 
 * Currently we do sampling using a `diffusers` pipeline.
    * Use more agents to do image sampling.
+   * find a way to increase `max_token_num` for diffusion models.

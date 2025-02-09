@@ -14,11 +14,7 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 batch_size = 16
 captioner_name = "Salesforce/blip-image-captioning-large"
 
-captioner = pipeline(
-    "image-to-text", 
-    model = captioner_name,
-    device = DEVICE
-)
+
 
 class lsun(Dataset):
     def __init__(self, config):
@@ -44,6 +40,12 @@ def main():
     # dataset = Subset(dataset,indices=list(range(idx*span,(idx+1)*span)))
 
     captions = []
+
+    captioner = pipeline(
+        "image-to-text", 
+        model = captioner_name,
+        device = DEVICE
+        )
 
     for caption in tqdm(captioner(dataset,batch_size=batch_size, num_workers=8, max_new_tokens=500),total=len(dataset)):
         captions.append(caption[0]['generated_text'])

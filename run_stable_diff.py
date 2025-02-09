@@ -15,7 +15,9 @@ def main(args):
     target_file = filenames[np.argmax(files)]
 
     df = pd.read_csv(os.path.join(args.input,"synthetic_text",target_file))
-    text_data = list(df['text'])
+    
+    idx = 3
+    text_data = list(df['text'])[idx*3500:(idx+1)*3500]
 
     # generate images
     pipe = StableDiffusionXLPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True).to("cuda")
@@ -31,13 +33,13 @@ def main(args):
         images.append(np.array(image))
 
     images = np.array(images)
-    np.savez(os.path.join(args.output,"images_0"),images)
+    np.savez(os.path.join(args.output,f"images_{idx}"),images)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()
     
-    parser.add_argument("--input",type=str,default="results/text/LSUN_huggingface/part_0")
-    parser.add_argument("--output",type=str,default="results/image/LSUN_huggingface/part_0")
+    parser.add_argument("--input",type=str,default="results/text/LSUN_huggingface/part_0/huggingface")
+    parser.add_argument("--output",type=str,default="results/image/LSUN_huggingface/part_0/huggingface")
 
     args = parser.parse_args()
 
