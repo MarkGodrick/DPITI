@@ -23,7 +23,7 @@ pd.options.mode.copy_on_write = True
 
 def main(args, config):
     
-    exp_folder = os.path.join(args.output,args.llm)
+    exp_folder = os.path.join(args.output,config['model']['Huggingface']['model_name_or_path'].split("/")[0])
     current_folder = os.path.dirname(os.path.abspath(__file__))
 
     load_dotenv()
@@ -83,7 +83,7 @@ def main(args, config):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--output',type=str,default="results/text/LSUN_huggingface/part_1")
+    parser.add_argument('--output',type=str,default="results/text/LSUN_huggingface")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train/Salesforce/blip-image-captioning-large")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface'],default='huggingface')
 

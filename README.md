@@ -13,14 +13,32 @@ Following the work [Lin et al.(2024)](https://openreview.net/forum?id=YEhQs8POIo
 * **Diffusion** : We're currently using `stabilityai/stable-diffusion-xl-base-1.0`
 * **Metrics & Benchmarks** : We're currently using FID and IS to evaluate the quality of synthetic data, and will use synthetic data for down-stream tasks.
 
+### Environment
+```bash
+# Please prepare torch, transformers and diffusers yourself
 
-### ToDo
+# installing PE...
+conda install -y -c pytorch -c nvidia faiss-gpu=1.8.0
+pip install "private-evolution @ git+https://github.com/microsoft/DPSDA.git"
+pip install "private-evolution[image,text] @ git+https://github.com/microsoft/DPSDA.git"
+
+# Others...
+```
+
+
+### To-Do
+* Currently we caption images with normal length.
+   * Enable Dense Caption in `caption/script.py`. 
+   * use OpenAI API key (gpt-4o) or 千问 API keys to generate dense caption.
 * (Temporally solved) We find running PE decline text quality heavily.
    * Examine the `textpe/run_pe.py` script to identify the factors contributing to the decline in PE data quality.
    * Try to use API from OpenAI/DeepSeek.
    * `textpe/random_api_prompt.json` and `textpe/variation_api_prompt.json` has given **short** prompt to generate short enough text. Need to delete before final version.
-* Currently we caption images with normal length.
-   * Enable Dense Caption in `caption/script.py`. 
 * Currently we do sampling using a `diffusers` pipeline.
-   * Use more agents to do image sampling.
    * find a way to increase `max_token_num` for diffusion models.
+   * Use more agents to do image sampling. Read more papers to see if this strategy greatly improves the quality.
+   * DALL-E / Stable-Diffusion
+* Compute fid on different checkpoints.
+* Use caption to generate image samples directly -> serve as upper bound.
+   * use huggingface llm caption
+   * use OpenAI API caption

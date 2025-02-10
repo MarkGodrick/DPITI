@@ -164,7 +164,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--dataset",type=str,default='dataset/lsun')
-    parser.add_argument("--input",type=str,default="results/image/LSUN_huggingface/part_0")
+    parser.add_argument("--input",type=str,default="results/image/LSUN_huggingface/part_0/huggingface")
 
     args = parser.parse_args()
 
