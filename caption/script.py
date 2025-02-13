@@ -1,19 +1,19 @@
 import os
 import json
 import torch
+import argparse
 import pandas as pd
 from torchvision import transforms
-from torch.utils.data import Dataset, Subset
+from torch.utils.data import Dataset,Subset
 from torchvision.datasets import LSUN
 from transformers import pipeline, BlipProcessor, BlipForConditionalGeneration
 from tqdm import tqdm
+from captioner import Openai_captioner, Huggingface_captioner
 
 IMAGE_SIZE = 256                 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 batch_size = 16
-captioner_name = "Salesforce/blip-image-captioning-large"
-
 
 
 class lsun(Dataset):
@@ -26,40 +26,50 @@ class lsun(Dataset):
         return len(self.dataset)
     
     def __getitem__(self, index):
-        return self.dataset[index][0]
+        images, _ = self.dataset[index]
+        return images
 
-def main():
 
-    with open("caption/config.json",'r',encoding='utf-8') as f:
-        config = json.load(f)
 
-    dataset = lsun(config)
+def main(args, config):
 
-    # idx = 5
-    # span = len(dataset)//6
-    # dataset = Subset(dataset,indices=list(range(idx*span,(idx+1)*span)))
+    dataset = lsun(config) 
 
-    captions = []
+    idx = 0
+    span = (len(dataset)+6-1)//6
+    # span = 128
+    dataset = Subset(dataset,indices=list(range(idx*span,(idx+1)*span)))
 
-    captioner = pipeline(
-        "image-to-text", 
-        model = captioner_name,
-        device = DEVICE
-        )
+    if args.captioner=="huggingface":
+        captioner = Huggingface_captioner(config["captioner"]["huggingface"])
+    elif args.captioner=="openai":
+        captioner = Openai_captioner(config["captioner"]["openai"])
+    else:
+        raise ValueError("Captioner type not recognized.")
 
-    for caption in tqdm(captioner(dataset,batch_size=batch_size, num_workers=8, max_new_tokens=500),total=len(dataset)):
-        captions.append(caption[0]['generated_text'])
+    captions = captioner(dataset)
 
-    save_path = os.path.join("lsun",config['lsun_class'],config['hf_model'])
+
+    save_path = os.path.join("lsun",config['lsun_class'],config["captioner"]["huggingface"]['hf_model']["model"] if args.captioner=="huggingface" else config["captioner"]["openai"]["openai_run"]["model"])
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
     df = pd.DataFrame(captions,columns=['text'])
-    df.to_csv(os.path.join(save_path,f"caption.csv"),index=False)
-    # df.to_csv(os.path.join(save_path,f"caption_{idx}.csv"),index=False)
+    # df.to_csv(os.path.join(save_path,"caption.csv"),index=False)
+    df.to_csv(os.path.join(save_path,f"caption_{idx}.csv"),index=False)
     
     
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--captioner',type=str,choices=['huggingface','openai'],default='huggingface')
+    parser.add_argument('--output',type=str,default="lsun")
+
+    args = parser.parse_args()
+
+    with open("caption/config.json",'r',encoding='utf-8') as f:
+        config = json.load(f)
+
+    main(args, config)

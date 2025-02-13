@@ -25,8 +25,11 @@ pip install "private-evolution[image,text] @ git+https://github.com/microsoft/DP
 # Others...
 ```
 
+### Experiment Results
+We post some experiment results in `doc/examples` directory.
 
 ### To-Do
+* Add a logger.
 * Currently we caption images with normal length.
    * Enable Dense Caption in `caption/script.py`. 
    * use OpenAI API key (gpt-4o) or 千问 API keys to generate dense caption.

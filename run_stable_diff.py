@@ -7,6 +7,7 @@ from diffusers import StableDiffusionXLPipeline, StableDiffusionXLImg2ImgPipelin
 from tqdm import tqdm
 
 batch_size = 1
+MAX_NUM = 40000
 
 def main(args):
     # read the latest PE results
@@ -18,7 +19,10 @@ def main(args):
     
     # idx = 3
     # text_data = list(df['text'])[idx*3500:(idx+1)*3500]
-    text_data = list(df['text'])
+
+    partition = 8
+    idx = 7
+    text_data = list(df['text'])[idx:MAX_NUM:partition]
 
 
     # generate images
@@ -31,7 +35,7 @@ def main(args):
         images.extend(pipe(text_data[batch_idx*batch_size:(batch_idx+1)*batch_size]).images)
 
     images = np.array(images)
-    np.savez(os.path.join(args.output,f"images"),images)
+    np.savez(os.path.join(args.output,f"images_{idx}"),images)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()
