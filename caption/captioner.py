@@ -14,6 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 from transformers import pipeline
 
 from tenacity import retry
+from tenacity import retry_all
 from tenacity import retry_if_not_exception_type
 from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
@@ -25,6 +26,10 @@ from openai import AuthenticationError
 from openai import NotFoundError
 from openai import PermissionDeniedError
 
+from google import genai
+from google.genai import types
+import google.genai.errors as errors
+
 
 class Captioner(ABC):
     @abstractmethod
@@ -34,18 +39,19 @@ class Captioner(ABC):
 class Openai_captioner(Captioner):
     """A wrapper for OpenAI LLM APIs. The following environment variables are required:
 
-    * ``OPENAI_API_KEY``: OpenAI API key. You can get it from https://platform.openai.com/account/api-keys. Multiple
-      keys can be separated by commas, and a key with the lowest current workload will be used for each request."""
+    * ``OPENAI_API_KEY``: OpenAI API key. You can get it from https://platform.openai.com/account/api-keys."""
     
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict, api: str = "OPENAI_API_KEY"):
         """Constructor.
 
         :param config: configurations for running OpenAI API, can be observed in `config.json`
+        :type config: Dict
+        :param api: name for the environment variable that stores API key.
+        :type api: str
         """
         super().__init__()
 
-        self.openai_api_key = os.environ['OPENAI_API_KEY']
-        self.client = openai.OpenAI()
+        self.client = openai.OpenAI(api_key=os.environ[api])
 
         self.config = config
 
@@ -59,11 +65,12 @@ class Openai_captioner(Captioner):
         """
         is_single = isinstance(images, Image.Image)
         images = [images] if is_single else images
+        dataset_len = len(images)
         captions = []
         batch_size = self.config["batch_size"]
 
         for batch_idx in tqdm(range((len(images)+batch_size-1)//batch_size)):
-            imgs = [images[idx] for idx in range(batch_idx*batch_size,(batch_idx+1)*batch_size)]
+            imgs = [images[idx] for idx in range(batch_idx*batch_size,(batch_idx+1)*batch_size) if idx<dataset_len]
             encoded_images = [self.encode_image_from_pil(img) for img in imgs]
 
             with ThreadPoolExecutor(max_workers=self.config["max_workers"]) as executor:
@@ -103,7 +110,7 @@ class Openai_captioner(Captioner):
             )
         ),
         wait=wait_random_exponential(min=8, max=500),
-        stop=stop_after_attempt(30),
+        stop=stop_after_attempt(10),
         # before_sleep=before_sleep_log(execution_logger, logging.DEBUG),
     )
     def _get_response_for_one_request(self, encoded_image):
@@ -134,7 +141,113 @@ class Openai_captioner(Captioner):
         )
         return response.choices[0].message.content
 
+class Gemini_captioner(Captioner):
+    """A wrapper for Gemini LLM APIs. The following environment variables are required:
 
+    * ``GEMINI_API_KEY``: Gemini API key. You can get one from https://aistudio.google.com/app/apikey """
+    
+    def __init__(self, config, api = "GEMINI_API_KEY"):
+        """Constructor
+        
+        :param config: configuration for gemini api
+        :type config: dict"""
+        self.client = genai.Client(api_key=os.environ[api])
+        self.config = config
+    
+    def __call__(self,images: Union[Image.Image, List[Image.Image], Dataset]):
+        """caption the whole dataset.
+        
+        :param images: a single image, a list of images or an image dataset(torch)
+        :type images: Union[Image.Image, List[Image.Image], Dataset]
+        :return: captions of input images
+        :rtype: list[str]
+        """
+        is_single = isinstance(images, Image.Image)
+        images = [images] if is_single else images
+        dataset_len = len(images)
+        captions = []
+        batch_size = self.config["batch_size"]
+
+        for batch_idx in tqdm(range((len(images)+batch_size-1)//batch_size)):
+            imgs = [images[idx] for idx in range(batch_idx*batch_size,(batch_idx+1)*batch_size) if idx<dataset_len]
+
+            # with ThreadPoolExecutor(max_workers=self.config["max_workers"]) as executor:
+            #     responses = list(
+            #         tqdm(
+            #             executor.map(self._get_response_for_one_request, imgs),
+            #             total=len(imgs),
+            #             disable=not self.config["progress_bar"],
+            #         )
+            #     )
+            
+            # captions.extend(responses)
+
+            for img in tqdm(imgs):
+                captions.append(self._get_response_for_one_request(img))
+
+            # captions.extend(self._get_response_for_one_batch(imgs))
+
+        return captions
+    
+    @retry(
+        retry=retry_if_not_exception_type((
+            errors.ClientError,
+            errors.FunctionInvocationError,
+            errors.UnknownFunctionCallArgumentError,
+            errors.UnsupportedFunctionError
+        )),
+        wait=wait_random_exponential(min=8, max=100),
+        stop=stop_after_attempt(5),
+        # before_sleep=before_sleep_log(execution_logger, logging.DEBUG),
+    )
+    def _get_response_for_one_batch(self, images: List[Image.Image]):
+        """Getting captions for a batch.
+
+        :param images: images that needs to be captioned.
+        :type images: List[Image.Image]
+        :return: captions of images
+        :rtype: List[str]
+        """
+        chat = self.client.chats.create(
+            model = self.config["model"],
+            config = types.GenerateContentConfig(**self.config["gemini_run"])
+        )
+
+        responses = []
+        for img in tqdm(images):
+            response = chat.send_message([img,self.config['prompts']])
+            responses.append(response.text)
+
+        return responses
+
+    @retry(
+        retry=retry_if_not_exception_type(
+            (
+                errors.ClientError,
+                errors.FunctionInvocationError,
+                errors.UnknownFunctionCallArgumentError,
+                errors.UnsupportedFunctionError
+            )
+        ),
+        wait=wait_random_exponential(min=8, max=100),
+        stop=stop_after_attempt(5),
+        # before_sleep=before_sleep_log(execution_logger, logging.DEBUG),
+    )
+    def _get_response_for_one_request(self, image: Image.Image):
+        """Get response for one caption request
+
+        :param image: input image for response
+        :type image: PIL.Image.Image
+        :return: response for one request
+        :rtype: str
+        """
+        response = self.client.models.generate_content(
+            model = self.config["model"],
+            contents=[image,self.config["prompts"]],
+            config=types.GenerateContentConfig(**self.config["gemini_run"])
+        )
+        
+        return response.text
 
 class Huggingface_captioner(Captioner):
     def __init__(self, config):

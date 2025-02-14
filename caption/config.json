@@ -10,6 +10,17 @@
             "max_workers":16,
             "progress_bar":true
         },
+        "gemini":{
+            "model":"gemini-2.0-flash",
+            "gemini_run":{
+                "max_output_tokens":100,
+                "temperature":0.1
+            },
+            "prompts":"Please describe the image with detail",
+            "batch_size":16,
+            "max_workers":4,
+            "progress_bar":true
+        },
         "huggingface":{
             "hf_model":{
                 "model":"Salesforce/blip-image-captioning-large",
