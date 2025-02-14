@@ -41,7 +41,7 @@ class Openai_captioner(Captioner):
 
     * ``OPENAI_API_KEY``: OpenAI API key. You can get it from https://platform.openai.com/account/api-keys."""
     
-    def __init__(self, config: Dict, api: str = "OPENAI_API_KEY"):
+    def __init__(self, config: Dict):
         """Constructor.
 
         :param config: configurations for running OpenAI API, can be observed in `config.json`
@@ -51,7 +51,7 @@ class Openai_captioner(Captioner):
         """
         super().__init__()
 
-        self.client = openai.OpenAI(api_key=os.environ[api])
+        self.client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
         self.config = config
 
@@ -146,12 +146,12 @@ class Gemini_captioner(Captioner):
 
     * ``GEMINI_API_KEY``: Gemini API key. You can get one from https://aistudio.google.com/app/apikey """
     
-    def __init__(self, config, api = "GEMINI_API_KEY"):
+    def __init__(self, config: Dict):
         """Constructor
         
         :param config: configuration for gemini api
         :type config: dict"""
-        self.client = genai.Client(api_key=os.environ[api])
+        self.client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
         self.config = config
     
     def __call__(self,images: Union[Image.Image, List[Image.Image], Dataset]):
@@ -248,6 +248,118 @@ class Gemini_captioner(Captioner):
         )
         
         return response.text
+
+
+
+class Qwen_captioner(Captioner):
+    """A wrapper for Qwen LLM APIs. The following environment variables are required:
+
+    * ``DASHSCOPE_API_KEY``: Qwen API key. You can get it from ."""
+    
+    def __init__(self, config: Dict):
+        """Constructor.
+
+        :param config: configurations for running OpenAI API, can be observed in `config.json`
+        :type config: Dict
+        :param api: name for the environment variable that stores API key.
+        :type api: str
+        """
+        super().__init__()
+
+        self.client = openai.OpenAI(
+            api_key=os.environ["DASHSCOPE_API_KEY"],
+            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+            )
+
+        self.config = config
+
+    def __call__(self,images: Union[Image.Image, List[Image.Image], Dataset])-> Union[str, List[str]]:
+        """caption the whole dataset.
+        
+        :param images: a single image, a list of images or an image dataset(torch)
+        :type images: Union[Image.Image, List[Image.Image], Dataset]
+        :return: captions of input images
+        :rtype: list[str]
+        """
+        is_single = isinstance(images, Image.Image)
+        images = [images] if is_single else images
+        dataset_len = len(images)
+        captions = []
+        batch_size = self.config["batch_size"]
+
+        for batch_idx in tqdm(range((len(images)+batch_size-1)//batch_size)):
+            imgs = [images[idx] for idx in range(batch_idx*batch_size,(batch_idx+1)*batch_size) if idx<dataset_len]
+            encoded_images = [self.encode_image_from_pil(img) for img in imgs]
+
+            with ThreadPoolExecutor(max_workers=self.config["max_workers"]) as executor:
+                responses = list(
+                    tqdm(
+                        executor.map(self._get_response_for_one_request, encoded_images),
+                        total=len(encoded_images),
+                        disable=not self.config["progress_bar"],
+                    )
+                )
+            
+            captions.extend(responses)
+
+        return captions
+
+
+    def encode_image_from_pil(self, image: Image.Image) -> str:
+        """Transform PIL.Image object to Base64-encoded strings
+        
+        :param image: The image that needs encoding
+        :type image: PIL.Image
+        :return: encoded string of the image
+        :rtype: str
+        """
+        buffered = io.BytesIO()
+        image.save(buffered, format="JPEG")  
+        return base64.b64encode(buffered.getvalue()).decode("utf-8")
+    
+
+    # @retry(
+    #     retry=retry_if_not_exception_type(
+    #         (
+    #             BadRequestError,
+    #             AuthenticationError,
+    #             NotFoundError,
+    #             PermissionDeniedError,
+    #         )
+    #     ),
+    #     wait=wait_random_exponential(min=8, max=500),
+    #     stop=stop_after_attempt(10),
+    #     # before_sleep=before_sleep_log(execution_logger, logging.DEBUG),
+    # )
+    def _get_response_for_one_request(self, encoded_image):
+        """Get response for one caption request
+
+        :param encoded_image: encoded image for response
+        :type encoded_image: str
+        :return: response for one request
+        :rtype: str
+        """
+        response = self.client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Describe the image.",
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
+                        },
+                    ],
+                }
+            ],
+            **self.config["qwen_run"]
+        )
+        return response.choices[0].message.content
+
+
 
 class Huggingface_captioner(Captioner):
     def __init__(self, config):

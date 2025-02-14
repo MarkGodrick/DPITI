@@ -8,7 +8,7 @@ from torch.utils.data import Dataset,Subset
 from torchvision.datasets import LSUN
 from transformers import pipeline, BlipProcessor, BlipForConditionalGeneration
 from tqdm import tqdm
-from captioner import Openai_captioner, Huggingface_captioner, Gemini_captioner
+from captioner import Openai_captioner, Huggingface_captioner, Gemini_captioner, Qwen_captioner
 
 IMAGE_SIZE = 256                 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -35,9 +35,9 @@ def main(args, config):
 
     dataset = lsun(config) 
 
-    idx = 1
+    idx = 0
     # span = (len(dataset)+6-1)//6
-    span = 16
+    span = 128
     dataset = Subset(dataset,indices=list(range(idx*span,(idx+1)*span)))
 
     if args.captioner=="huggingface":
@@ -47,7 +47,7 @@ def main(args, config):
     elif args.captioner=="gemini":
         captioner = Gemini_captioner(config["captioner"]["gemini"])
     elif args.captioner=="qwen":
-        captioner = Openai_captioner(config["captioner"]["qwen"],api="DASHSCOPE_API_KEY")
+        captioner = Qwen_captioner(config["captioner"]["qwen"])
     else:
         raise ValueError("Captioner type not recognized.")
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     elif args.captioner=="gemini":
         model_name = config["captioner"]["gemini"]["model"]
     elif args.captioner=="qwen":
-        model_name = "qwen"
+        model_name = config["captioner"]["qwen"]["qwen_run"]["model"]
     else:
         raise ValueError()
 

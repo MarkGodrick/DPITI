@@ -21,6 +21,16 @@
             "max_workers":4,
             "progress_bar":true
         },
+        "qwen":{
+            "qwen_run":{
+                "model":"qwen-vl-max",
+                "max_completion_tokens":100,
+                "temperature":1.0
+            },
+            "batch_size":16,
+            "max_workers":2,
+            "progress_bar":true
+        },
         "huggingface":{
             "hf_model":{
                 "model":"Salesforce/blip-image-captioning-large",
