@@ -30,7 +30,7 @@ We post some of our experiment results in the following tables, while example re
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<!-- <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Center Cell Content</title>
@@ -52,34 +52,34 @@ We post some of our experiment results in the following tables, while example re
             font-size: 1.1em;
         }
     </style>
-</head>
+</head> -->
 <body>
 <table>
     <tr>
-        <td rowspan="2" colspan="2">PE</td>    
-        <td colspan="1">OpenAI</td> 
-        <td colspan="1">Ali</td> 
+        <td rowspan="2" colspan="2" style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">PE</td>    
+        <td colspan="1" style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">OpenAI</td> 
+        <td colspan="1" style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">Ali</td> 
     </tr>
     <tr>
-        <td>gpt-4o-mini</td> 
-        <td>qwen-vl-max</td>    
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">gpt-4o-mini</td> 
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">qwen-vl-max</td>    
     </tr>
     <tr>
-        <td colspan="2">Original</td>
-        <td></td>
-        <td></td>
+        <td colspan="2" style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">Original</td>
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;"></td>
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;"></td>
     </tr>
     <tr>
-        <td rowspan="1">Huggingface</td>
-        <td>meta-llama/Meta-Llama-3-8B-Instruct</td>
-        <td></td>
-        <td></td>
+        <td rowspan="1" style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">Huggingface</td>
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">meta-llama/Meta-Llama-3-8B-Instruct</td>
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;"></td>
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;"></td>
     </tr>
     <tr>
-        <td rowspan="1">OpenAI</td>
-        <td>gpt-4o-mini</td>
-        <td></td>
-        <td></td>
+        <td rowspan="1" style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">OpenAI</td>
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;">gpt-4o-mini</td>
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;"></td>
+        <td style="text-align: center; vertical-align: middle; border: 3px solid black; font-weight: bold; font-size: 1.2em;"></td>
     </tr>
     <caption>Table 1: Experiment results using different captioners and PE LLMs. Evaluation is conducted using <b>10,000 generated images</b> and the original <b>LSUN bedroom dataset</b>. Metrics are <b>FID and Inception Score(IS)</b>, following the format <b>FID/IS</b>
     </caption> 
