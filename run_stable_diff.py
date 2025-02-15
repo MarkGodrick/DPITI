@@ -38,7 +38,7 @@ def main(args):
 
     images = np.array(images)
     # np.savez(os.path.join(args.output,f"images_{idx}"),images)
-    np.savez(os.path.join(args.output,f"images_8"),images)
+    np.savez(os.path.join(args.output,f"caption10240_images_0"),images)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()

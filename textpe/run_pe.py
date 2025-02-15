@@ -23,12 +23,7 @@ pd.options.mode.copy_on_write = True
 
 def main(args, config):
     
-    if args.llm=="huggingface":
-        exp_folder = os.path.join(args.output,config['model']['Huggingface']['model_name_or_path'].split("/")[0])
-    elif args.llm=="openai":
-        exp_folder = os.path.join(args.output,config['model']['OpenAI']['model'])
-    else:
-        raise ValueError()
+    exp_folder = args.output
     
     current_folder = os.path.dirname(os.path.abspath(__file__))
 
