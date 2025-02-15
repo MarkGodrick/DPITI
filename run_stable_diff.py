@@ -15,14 +15,16 @@ def main(args):
     # files = [int(filename.split(".")[0]) for filename in filenames]
     # target_file = filenames[np.argmax(files)]
 
-    df = pd.read_csv(os.path.join(args.input))
+    df = pd.read_csv(os.path.join(args.input)).astype(str)
     
     # idx = 3
     # text_data = list(df['text'])[idx*3500:(idx+1)*3500]
 
-    partition = 8
-    idx = 7
-    text_data = list(df['text'])[idx:MAX_NUM:partition]
+    # partition = 8
+    # idx = 7
+    # text_data = list(df['text'])[idx:MAX_NUM:partition]
+
+    text_data = list(df['text'])
 
 
     # generate images
@@ -35,7 +37,8 @@ def main(args):
         images.extend(pipe(text_data[batch_idx*batch_size:(batch_idx+1)*batch_size]).images)
 
     images = np.array(images)
-    np.savez(os.path.join(args.output,f"images_{idx}"),images)
+    # np.savez(os.path.join(args.output,f"images_{idx}"),images)
+    np.savez(os.path.join(args.output,f"images_8"),images)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()

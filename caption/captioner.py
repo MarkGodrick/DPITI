@@ -339,25 +339,29 @@ class Qwen_captioner(Captioner):
         :return: response for one request
         :rtype: str
         """
-        response = self.client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Describe the image.",
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
-                        },
-                    ],
-                }
-            ],
-            **self.config["qwen_run"]
-        )
-        return response.choices[0].message.content
+        try:
+            response = self.client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Describe the image.",
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
+                            },
+                        ],
+                    }
+                ],
+                **self.config["qwen_run"]
+            )
+            return response.choices[0].message.content
+        except BadRequestError as e:
+            print(f"Error occurred: {e}")
+            return ""
 
 
 

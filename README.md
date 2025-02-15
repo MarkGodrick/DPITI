@@ -26,7 +26,56 @@ pip install "private-evolution[image,text] @ git+https://github.com/microsoft/DP
 ```
 
 ### Experiment Results
-We post some experiment results in `doc/examples` directory.
+We post some of our experiment results in the following tables, while example results can be seen in `docs/examples` directory.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Center Cell Content</title>
+    <style>
+        table {
+            width: 100%;
+            height: 100px;
+        }
+        td {
+            text-align: center; /* 水平居中 */
+            vertical-align: middle; /* 垂直居中 */
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<table>
+    <tr>
+        <td rowspan="2" colspan="2">PE</td>    
+  		 <td colspan="1">OpenAI</td> 
+      	 <td colspan="1">Ali</td> 
+    </tr>
+    <tr>
+        <td>gpt-4o-mini</td> 
+        <td>qwen-vl-max</td>    
+    </tr>
+    <tr>
+        <td colspan="2">Original</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td rowspan="1">Huggingface</td>
+        <td>meta-llama/Meta-Llama-3-8B-Instruct</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td rowspan="1">OpenAI</td>
+        <td>gpt-4o-mini</td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
+</html>
+
 
 ### To-Do
 * Add a logger.
@@ -38,7 +87,7 @@ We post some experiment results in `doc/examples` directory.
    * Try to use API from OpenAI/DeepSeek.
    * `textpe/random_api_prompt.json` and `textpe/variation_api_prompt.json` has given **short** prompt to generate short enough text. Need to delete before final version.
 * Currently we do sampling using a `diffusers` pipeline.
-   * find a way to increase `max_token_num` for diffusion models.
+   * find a way to increase `max_token_num` for diffusion models.`
    * Use more agents to do image sampling. Read more papers to see if this strategy greatly improves the quality.
    * DALL-E / Stable-Diffusion
 * Compute fid on different checkpoints.

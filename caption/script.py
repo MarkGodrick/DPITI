@@ -35,9 +35,9 @@ def main(args, config):
 
     dataset = lsun(config) 
 
-    idx = 0
+    idx = 1
     # span = (len(dataset)+6-1)//6
-    span = 128
+    span = 10240
     dataset = Subset(dataset,indices=list(range(idx*span,(idx+1)*span)))
 
     if args.captioner=="huggingface":

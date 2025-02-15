@@ -23,14 +23,20 @@ pd.options.mode.copy_on_write = True
 
 def main(args, config):
     
-    exp_folder = os.path.join(args.output,config['model']['Huggingface']['model_name_or_path'].split("/")[0])
+    if args.llm=="huggingface":
+        exp_folder = os.path.join(args.output,config['model']['Huggingface']['model_name_or_path'].split("/")[0])
+    elif args.llm=="openai":
+        exp_folder = os.path.join(args.output,config['model']['OpenAI']['model'])
+    else:
+        raise ValueError()
+    
     current_folder = os.path.dirname(os.path.abspath(__file__))
 
     load_dotenv()
 
     setup_logging(log_file=os.path.join(exp_folder, "log.txt"))
 
-    data = text(root_dir=args.data,file_name='caption_0.csv')
+    data = text(root_dir=args.data)
 
     if args.llm=='huggingface':
         llm = HuggingfaceLLM(**config["model"]["Huggingface"])
@@ -83,8 +89,8 @@ def main(args, config):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--output',type=str,default="results/text/LSUN_huggingface")
-    parser.add_argument('--data',type=str,default="lsun/bedroom_train/Salesforce/blip-image-captioning-large")
+    parser.add_argument('--output',type=str,default="results/text")
+    parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface'],default='huggingface')
 
     args = parser.parse_args()

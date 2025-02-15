@@ -27,8 +27,8 @@
                 "max_completion_tokens":100,
                 "temperature":1.0
             },
-            "batch_size":16,
-            "max_workers":2,
+            "batch_size":256,
+            "max_workers":4,
             "progress_bar":true
         },
         "huggingface":{
