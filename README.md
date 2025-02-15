@@ -38,19 +38,27 @@ We post some of our experiment results in the following tables, while example re
         table {
             width: 100%;
             height: 100px;
+            border-collapse: collapse;
         }
         td {
             text-align: center; /* 水平居中 */
             vertical-align: middle; /* 垂直居中 */
-            border: 1px solid black;
+            border: 3px solid black;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        caption {
+            caption-side: bottom; /* 将 caption 移动到表格底部 */
+            font-size: 1.1em;
         }
     </style>
 </head>
+<body>
 <table>
     <tr>
         <td rowspan="2" colspan="2">PE</td>    
-  		 <td colspan="1">OpenAI</td> 
-      	 <td colspan="1">Ali</td> 
+        <td colspan="1">OpenAI</td> 
+        <td colspan="1">Ali</td> 
     </tr>
     <tr>
         <td>gpt-4o-mini</td> 
@@ -73,7 +81,10 @@ We post some of our experiment results in the following tables, while example re
         <td></td>
         <td></td>
     </tr>
+    <caption>Table 1: Experiment results using different captioners and PE LLMs. Evaluation is conducted using <b>10,000 generated images</b> and the original <b>LSUN bedroom dataset</b>. Metrics are <b>FID and Inception Score(IS)</b>, following the format <b>FID/IS</b>
+    </caption> 
 </table>
+</body>
 </html>
 
 
