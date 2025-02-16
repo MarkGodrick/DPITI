@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import argparse
 import json
 from text import text
-from pe.logging import setup_logging
+from pe.logging import setup_logging, execution_logger
 from pe.runner import PE
 from pe.population import PEPopulation
 from pe.api.text import LLMAugPE
@@ -17,6 +17,7 @@ from pe.logger import LogPrint
 
 import pandas as pd
 import os
+import sys
 import numpy as np
 
 pd.options.mode.copy_on_write = True
@@ -30,6 +31,8 @@ def main(args, config):
     load_dotenv()
 
     setup_logging(log_file=os.path.join(exp_folder, "log.txt"))
+
+    execution_logger.log("\nExcuting {}...\ninput: {}\npe llm: {}\noutput: {}\n".format(sys.argv[0],args.data,args.llm,args.output))
 
     data = text(root_dir=args.data)
 

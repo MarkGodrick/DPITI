@@ -1,12 +1,14 @@
 import os
+import sys
 import numpy as np
 import torch
 import pandas as pd
 import argparse
 from diffusers import StableDiffusionXLPipeline, StableDiffusionXLImg2ImgPipeline, StableDiffusionPipeline
 from tqdm import tqdm
+from logger import execution_logger, setup_logging
 
-batch_size = 1
+batch_size = 4
 MAX_NUM = 40000
 
 def main(args):
@@ -14,6 +16,8 @@ def main(args):
     # filenames = os.listdir(os.path.join(args.input,"synthetic_text"))
     # files = [int(filename.split(".")[0]) for filename in filenames]
     # target_file = filenames[np.argmax(files)]
+
+    execution_logger.log("Loading Caption data...")
 
     df = pd.read_csv(os.path.join(args.input)).astype(str)
     
@@ -26,19 +30,24 @@ def main(args):
 
     text_data = list(df['text'])
 
+    execution_logger.log("Loading success. Now loading diffusion model...")
 
     # generate images
     pipe = StableDiffusionXLPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True).to("cuda")
     
+    execution_logger.log("Loading success. Start sampling...")
+
     images = []
     batch_num = (len(text_data)+batch_size-1)//batch_size
 
     for batch_idx in tqdm(range(batch_num)):
         images.extend(pipe(text_data[batch_idx*batch_size:(batch_idx+1)*batch_size]).images)
 
+    execution_logger.log("Sampling process accomplished. Saving data...")
+
     images = np.array(images)
     # np.savez(os.path.join(args.output,f"images_{idx}"),images)
-    np.savez(os.path.join(args.output,f"caption10240_images_0"),images)
+    np.savez(os.path.join(args.output,f"caption10240_images0_pe08"),images)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()
@@ -48,7 +57,9 @@ if __name__ =="__main__":
 
     args = parser.parse_args()
 
-    if not os.path.exists(args.output):
-        os.makedirs(args.output)
+    os.makedirs(args.output,exist_ok=True)
     
+    setup_logging(log_file=os.path.join(args.output,"log.txt"))
+    execution_logger.log("Executing {}...\ninput: {}\noutput: {}\n".format(sys.argv[0],args.input,args.output))
+
     main(args)

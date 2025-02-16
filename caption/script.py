@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import torch
 import argparse
@@ -9,6 +10,7 @@ from torchvision.datasets import LSUN
 from transformers import pipeline, BlipProcessor, BlipForConditionalGeneration
 from tqdm import tqdm
 from captioner import Openai_captioner, Huggingface_captioner, Gemini_captioner, Qwen_captioner
+from logger import execution_logger, setup_logging
 
 IMAGE_SIZE = 256                 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -35,10 +37,16 @@ def main(args, config):
 
     dataset = lsun(config) 
 
-    idx = 1
+    idx = 0
     # span = (len(dataset)+6-1)//6
-    span = 10240
+    span = 128
+
+    execution_logger.log(f"Captioning LSUN bedroom dataset spanning {span} elements, part {idx}.")
+    execution_logger.log(f"Loading Dataset...")
+
     dataset = Subset(dataset,indices=list(range(idx*span,(idx+1)*span)))
+
+    execution_logger.log(f"Loading Success. Loading Captioner...")
 
     if args.captioner=="huggingface":
         captioner = Huggingface_captioner(config["captioner"]["huggingface"])
@@ -49,13 +57,19 @@ def main(args, config):
     elif args.captioner=="qwen":
         captioner = Qwen_captioner(config["captioner"]["qwen"])
     else:
-        raise ValueError("Captioner type not recognized.")
+        execution_logger.log("Captioner type not recognized.")
+        raise ValueError()
+
+    execution_logger.log("Loading Success. Start Captioning...")
 
     captions = captioner(dataset)
 
 
     df = pd.DataFrame(captions,columns=['text'])
     # df.to_csv(os.path.join(save_path,"caption.csv"),index=False)
+
+    execution_logger.log("Captions are generated successfully. Saving data as file {}".format(os.path.join(args.save_path,f"caption{span}_part{idx}.csv")))
+
     df.to_csv(os.path.join(args.save_path,f"caption{span}_part{idx}.csv"),index=False)
     
     
@@ -84,9 +98,12 @@ if __name__ == "__main__":
 
     save_path = os.path.join("lsun",config['lsun_class'],args.captioner,model_name)
 
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
+    os.makedirs(save_path, exist_ok=True)
 
     args.save_path = save_path
+
+    setup_logging(log_file=os.path.join(args.save_path,"log.txt"))
+    
+    execution_logger.log("\nExcuting {}...\ncaptioner: {}\noutput: {}\n".format(sys.argv[0],args.captioner,args.save_path))
 
     main(args, config)
