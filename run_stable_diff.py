@@ -17,7 +17,7 @@ def main(args):
     # files = [int(filename.split(".")[0]) for filename in filenames]
     # target_file = filenames[np.argmax(files)]
 
-    execution_logger.log("Loading Caption data...")
+    execution_logger.info("Loading Caption data...")
 
     df = pd.read_csv(os.path.join(args.input)).astype(str)
     
@@ -30,12 +30,12 @@ def main(args):
 
     text_data = list(df['text'])
 
-    execution_logger.log("Loading success. Now loading diffusion model...")
+    execution_logger.info("Loading success. Now loading diffusion model...")
 
     # generate images
     pipe = StableDiffusionXLPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True).to("cuda")
     
-    execution_logger.log("Loading success. Start sampling...")
+    execution_logger.info("Loading success. Start sampling...")
 
     images = []
     batch_num = (len(text_data)+batch_size-1)//batch_size
@@ -43,7 +43,7 @@ def main(args):
     for batch_idx in tqdm(range(batch_num)):
         images.extend(pipe(text_data[batch_idx*batch_size:(batch_idx+1)*batch_size]).images)
 
-    execution_logger.log("Sampling process accomplished. Saving data...")
+    execution_logger.info("Sampling process accomplished. Saving data...")
 
     images = np.array(images)
     # np.savez(os.path.join(args.output,f"images_{idx}"),images)
@@ -60,6 +60,6 @@ if __name__ =="__main__":
     os.makedirs(args.output,exist_ok=True)
     
     setup_logging(log_file=os.path.join(args.output,"log.txt"))
-    execution_logger.log("Executing {}...\ninput: {}\noutput: {}\n".format(sys.argv[0],args.input,args.output))
+    execution_logger.info("Executing {}...\ninput: {}\noutput: {}\n".format(sys.argv[0],args.input,args.output))
 
     main(args)

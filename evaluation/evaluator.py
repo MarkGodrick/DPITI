@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 import numpy as np
 from torchvision import transforms
@@ -13,8 +14,8 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from scipy.linalg import sqrtm
 from tqdm import tqdm
+from logger import execution_logger, setup_logging
 
-IMAGE_SIZE = 256
 
 transform = transforms.Compose([
     transforms.ToTensor(),  
@@ -130,16 +131,16 @@ def compute_fid_and_is(real_images, generated_images, device="cuda"):
     model = get_inception_model(device)
 
     # 计算 FID 统计量
-    print("Computing statistics for real images...")
+    execution_logger.log("Computing statistics for real images...")
     mu_real, sigma_real = compute_statistics(real_images, model, device)
 
-    print("Computing statistics for generated images...")
+    execution_logger.log("Computing statistics for generated images...")
     mu_gen, sigma_gen = compute_statistics(generated_images, model, device)
 
-    print("Computing FID score...")
+    execution_logger.log("Computing FID score...")
     fid = calculate_fid(mu_real, sigma_real, mu_gen, sigma_gen)
 
-    print("Computing Inception Score...")
+    execution_logger.log("Computing Inception Score...")
     inception_score, inception_std = calculate_inception_score(generated_images, model, device)
 
     return fid, inception_score, inception_std
@@ -148,17 +149,18 @@ def compute_fid_and_is(real_images, generated_images, device="cuda"):
 def main(args):
     dataset = Images(LSUN(root=args.dataset,classes=['bedroom_train'],transform=transform))
 
-    samples = np.load(os.path.join(args.input,"images.npz"))
+    samples = np.load(os.path.join(args.input))
     samples = samples['arr_0']
     # samples = np.transpose(samples['arr_0'],axes=(0,3,1,2))
+    execution_logger.info(f"input sample size:{samples.shape}")
+
     samples = Images(samples)
-    # print(samples.shape)
     # assert samples.shape==(14000,3,512,512)
 
     fid_score, is_score, is_std = compute_fid_and_is(dataset, samples, device="cuda")
 
-    print(f"FID Score: {fid_score:.2f}")
-    print(f"Inception Score: {is_score:.2f} ± {is_std:.2f}")
+    execution_logger.info(f"FID Score: {fid_score:.2f}")
+    execution_logger.info(f"Inception Score: {is_score:.2f} ± {is_std:.2f}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -167,5 +169,9 @@ if __name__ == "__main__":
     parser.add_argument("--input",type=str,default="results/image/LSUN_huggingface/part_0/huggingface")
 
     args = parser.parse_args()
+
+    setup_logging(log_file=os.path.join(args.input,"eval_log.txt"))
+
+    execution_logger.info("Executing {}...\ndataset: {}\ninput: {}\n".format(sys.argv[0],args.dataset,args.input))
 
     main(args)

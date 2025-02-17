@@ -32,7 +32,7 @@ def main(args, config):
 
     setup_logging(log_file=os.path.join(exp_folder, "log.txt"))
 
-    execution_logger.log("\nExcuting {}...\ninput: {}\npe llm: {}\noutput: {}\n".format(sys.argv[0],args.data,args.llm,args.output))
+    execution_logger.info("\nExcuting {}...\ninput: {}\npe llm: {}\noutput: {}\n".format(sys.argv[0],args.data,args.llm,args.output))
 
     data = text(root_dir=args.data)
 

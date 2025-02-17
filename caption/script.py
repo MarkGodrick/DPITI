@@ -41,12 +41,12 @@ def main(args, config):
     # span = (len(dataset)+6-1)//6
     span = 128
 
-    execution_logger.log(f"Captioning LSUN bedroom dataset spanning {span} elements, part {idx}.")
-    execution_logger.log(f"Loading Dataset...")
+    execution_logger.info(f"Captioning LSUN bedroom dataset spanning {span} elements, part {idx}.")
+    execution_logger.info(f"Loading Dataset...")
 
     dataset = Subset(dataset,indices=list(range(idx*span,(idx+1)*span)))
 
-    execution_logger.log(f"Loading Success. Loading Captioner...")
+    execution_logger.info(f"Loading Success. Loading Captioner...")
 
     if args.captioner=="huggingface":
         captioner = Huggingface_captioner(config["captioner"]["huggingface"])
@@ -57,10 +57,10 @@ def main(args, config):
     elif args.captioner=="qwen":
         captioner = Qwen_captioner(config["captioner"]["qwen"])
     else:
-        execution_logger.log("Captioner type not recognized.")
+        execution_logger.info("Captioner type not recognized.")
         raise ValueError()
 
-    execution_logger.log("Loading Success. Start Captioning...")
+    execution_logger.info("Loading Success. Start Captioning...")
 
     captions = captioner(dataset)
 
@@ -68,7 +68,7 @@ def main(args, config):
     df = pd.DataFrame(captions,columns=['text'])
     # df.to_csv(os.path.join(save_path,"caption.csv"),index=False)
 
-    execution_logger.log("Captions are generated successfully. Saving data as file {}".format(os.path.join(args.save_path,f"caption{span}_part{idx}.csv")))
+    execution_logger.info("Captions are generated successfully. Saving data as file {}".format(os.path.join(args.save_path,f"caption{span}_part{idx}.csv")))
 
     df.to_csv(os.path.join(args.save_path,f"caption{span}_part{idx}.csv"),index=False)
     
@@ -104,6 +104,6 @@ if __name__ == "__main__":
 
     setup_logging(log_file=os.path.join(args.save_path,"log.txt"))
     
-    execution_logger.log("\nExcuting {}...\ncaptioner: {}\noutput: {}\n".format(sys.argv[0],args.captioner,args.save_path))
+    execution_logger.info("\nExcuting {}...\ncaptioner: {}\noutput: {}\n".format(sys.argv[0],args.captioner,args.save_path))
 
     main(args, config)
