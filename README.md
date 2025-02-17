@@ -36,12 +36,12 @@ We post some of our experiment results in the following tables, while example re
         <td rowspan="2" colspan="3" align="center">PE</td>    
         <td colspan="1" align="center">OpenAI</td> 
         <td colspan="1" align="center">Ali</td> 
-        <td colspan="1" align="center">Meta-llama</td> 
+        <td colspan="1" align="center">Salesforce</td> 
     </tr>
     <tr>
         <td align="center">gpt-4o-mini</td> 
         <td align="center">qwen-vl-max</td> 
-        <td align="center">Meta-Llama-3-8B-Instruct</td>    
+        <td align="center">blip-image-captioning-large</td>    
     </tr>
     <tr>
         <td colspan="3" align="center">Original Caption</td>
