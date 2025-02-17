@@ -53,7 +53,7 @@ We post some of our experiment results in the following tables, while example re
         <td rowspan="2" align="center">Huggingface</td>
         <td rowspan="2" align="center">meta-llama/Meta-Llama-3-8B-Instruct</td>
         <td align="center">noise_multiplier=0.0</td>
-        <td align="center"></td>
+        <td align="center">34.09/1.06</td>
         <td align="center"></td>
         <td align="center"></td>
     </tr>

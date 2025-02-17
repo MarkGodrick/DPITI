@@ -131,16 +131,16 @@ def compute_fid_and_is(real_images, generated_images, device="cuda"):
     model = get_inception_model(device)
 
     # 计算 FID 统计量
-    execution_logger.log("Computing statistics for real images...")
+    execution_logger.info("Computing statistics for real images...")
     mu_real, sigma_real = compute_statistics(real_images, model, device)
 
-    execution_logger.log("Computing statistics for generated images...")
+    execution_logger.info("Computing statistics for generated images...")
     mu_gen, sigma_gen = compute_statistics(generated_images, model, device)
 
-    execution_logger.log("Computing FID score...")
+    execution_logger.info("Computing FID score...")
     fid = calculate_fid(mu_real, sigma_real, mu_gen, sigma_gen)
 
-    execution_logger.log("Computing Inception Score...")
+    execution_logger.info("Computing Inception Score...")
     inception_score, inception_std = calculate_inception_score(generated_images, model, device)
 
     return fid, inception_score, inception_std
@@ -170,8 +170,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    setup_logging(log_file=os.path.join(args.input,"eval_log.txt"))
+    setup_logging(log_file=os.path.join(os.path.dirname(args.input),"eval_log.txt"))
 
-    execution_logger.info("Executing {}...\ndataset: {}\ninput: {}\n".format(sys.argv[0],args.dataset,args.input))
+    execution_logger.info("\nExecuting {}...\ndataset: {}\ninput: {}".format(sys.argv[0],args.dataset,args.input))
 
     main(args)
