@@ -2,7 +2,7 @@
     "message_template": [
         {
             "role": "user",
-            "content": "Please rephrase the following sentences {tone} as a short description for a bedroom:\n{sample}"
+            "content": "Please rephrase the following sentences {tone}, and generate a short, cohesive description for a single bedroom, ensuring the description flows naturally to a conclusion. Avoid repeating the prompt and do not list multiple styles. Example 1:\n\nThe bedroom is spacious and bright, and large windows let in plenty of natural light.\n\nDescription: The bedroom feels open and airy, with big windows that flood the space with natural light. The soft, neutral colors on the walls create a calming atmosphere, making it the perfect space for rest.\n\nExample 2:\n\nDesigned with a cozy, modern aesthetic, the room features a comfortable bed with soft sheets.\n\nDescription: The room is crafted with a warm, contemporary vibe, offering a cozy bed adorned with plush, soft sheets. Now rephrase the following sentences: \n{sample}"
         }
     ],
     "replacement_rules": [

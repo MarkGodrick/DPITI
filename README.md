@@ -91,11 +91,20 @@ We post some of our experiment results in the following tables, while example re
 * (Temporally solved) We find running PE decline text quality heavily.
    * ✅ Examined the `textpe/run_pe.py` script to identify the factors contributing to the decline in PE data quality.
    * ✅ Using API from OpenAI.
-   * `textpe/random_api_prompt.json` and `textpe/variation_api_prompt.json` has given **short** prompt to generate short enough text. Need to delete before final version.
+   * Try using fill-in-the-blanks for the model
+   * change prompt for models
+    * ✅ prompt with word "short" in the model
+    * prompt model to remove header
+    * prompt model to give a fine tail
+    * prompt that the model is going to generate prompt for stable diffusion model
+    * few-shot demonstration
 * Currently we do sampling using a `diffusers` pipeline.
    * find a way to increase `max_token_num` for diffusion models.`
    * Use more agents to do image sampling. Read more papers to see if this strategy greatly improves the quality.
    * DALL-E / Stable-Diffusion
+* We need to find a standard evaluation method
+    * we should resize to 256 first to call fid code
+    * use LSUN preprocess repo 
 * Compute fid on different checkpoints.
 * Use caption to generate image samples directly -> serve as upper bound.
    * ✅ use OpenAI API caption

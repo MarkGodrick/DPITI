@@ -47,7 +47,7 @@ def main(args):
 
     images = np.array(images)
     # np.savez(os.path.join(args.output,f"images_{idx}"),images)
-    np.savez(os.path.join(args.output,f"caption10240_images0_pe08"),images)
+    np.savez(os.path.join(args.output,f"caption10240_images0_pe07"),images)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()
@@ -59,7 +59,7 @@ if __name__ =="__main__":
 
     os.makedirs(args.output,exist_ok=True)
     
-    setup_logging(log_file=os.path.join(args.output,"log.txt"))
+    setup_logging(log_file=os.path.join(args.output,"log07.txt"))
     execution_logger.info("Executing {}...\ninput: {}\noutput: {}\n".format(sys.argv[0],args.input,args.output))
 
     main(args)

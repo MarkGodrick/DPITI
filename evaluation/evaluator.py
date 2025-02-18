@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import numpy as np
+from cleanfid import fid
 from torchvision import transforms
 from torch.utils.data import Dataset, Subset
 from torchvision.datasets import LSUN
@@ -22,6 +23,9 @@ transform = transforms.Compose([
     transforms.Resize((299, 299)), 
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
 ])
+
+# LSUN -> resize/center crop to std size -> preprocess github repo
+# samples -> resize 256x256 & np.uint8 -> fid code
 
 class Images(Dataset):
     def __init__(self,data):
