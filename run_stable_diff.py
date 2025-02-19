@@ -41,12 +41,13 @@ def main(args):
     batch_num = (len(text_data)+batch_size-1)//batch_size
 
     for batch_idx in tqdm(range(batch_num)):
+        # input: a list of text string
+        # output: a list of PIL.Image.Image, each dtype=np.uint8, shape=(1024,1024,3)
         images.extend(pipe(text_data[batch_idx*batch_size:(batch_idx+1)*batch_size]).images)
 
     execution_logger.info("Sampling process accomplished. Saving data...")
 
     images = np.array(images)
-    # np.savez(os.path.join(args.output,f"images_{idx}"),images)
     np.savez(os.path.join(args.output,f"caption10240_images0_pe07"),images)
 
 if __name__ =="__main__":

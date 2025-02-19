@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import numpy as np
+from PIL import Image
 from cleanfid import fid
 from torchvision import transforms
 from torch.utils.data import Dataset, Subset
@@ -11,6 +12,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import inception_v3
+from cleanfid.inception_torchscript import InceptionV3W
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from scipy.linalg import sqrtm
@@ -20,8 +22,12 @@ from logger import execution_logger, setup_logging
 
 transform = transforms.Compose([
     transforms.ToTensor(),  
-    transforms.Resize((299, 299)), 
+    transforms.Resize((299, 299),interpolation=transforms.InterpolationMode.BILINEAR), 
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
+])
+
+transform1 = transforms.Compose([
+    transforms.ToTensor()
 ])
 
 # LSUN -> resize/center crop to std size -> preprocess github repo
@@ -38,17 +44,28 @@ class Images(Dataset):
     
     def __getitem__(self,idx):
         if self.isdataset:
-            return self.dataset[idx][0]
-            # return np.array(self.dataset[idx][0])
+            return self.transform(np.array(self.dataset[idx][0]))
         else:
-            return transform(self.dataset[idx])
-
+            return self.transform(self.dataset[idx])
+        
+    def transform(self, image):
+        def resize_single_channel(x_np):
+            img = Image.fromarray(x_np.astype(np.float32), mode='F')
+            img = img.resize((299,299), resample=Image.BILINEAR)
+            return np.asarray(img).clip(0, 255).reshape(299, 299, 1)
+        
+        x = [resize_single_channel(image[:,:,idx]) for idx in range(3)]
+        # x = np.concatenate(x,axis=2).astype(np.uint8)
+        x = np.concatenate(x,axis=2)/255
+        return transform1(x)
 
 # ---- 1. 计算 Inception 网络的特征 ---- #
 def get_inception_model(device):
     model = inception_v3(pretrained=True, transform_input=False).to(device)
     model.fc = nn.Identity()  # 移除全连接层，只取倒数第二层的特征
     model.eval()
+    # model = InceptionV3W(path="/data/whx/tmp").to(device)
+    # model.eval()
     return model
 
 
@@ -151,15 +168,19 @@ def compute_fid_and_is(real_images, generated_images, device="cuda"):
 
 
 def main(args):
-    dataset = Images(LSUN(root=args.dataset,classes=['bedroom_train'],transform=transform))
+
+    execution_logger.info("Loading LSUN dataset")
+
+    dataset = Images(LSUN(root=args.dataset,classes=['bedroom_train']))
+    
+    execution_logger.info("LSUN dataset loaded. Loading generated samples")
 
     samples = np.load(os.path.join(args.input))
     samples = samples['arr_0']
-    # samples = np.transpose(samples['arr_0'],axes=(0,3,1,2))
     execution_logger.info(f"input sample size:{samples.shape}")
 
     samples = Images(samples)
-    # assert samples.shape==(14000,3,512,512)
+    execution_logger.info("Generated samples loaded.")
 
     fid_score, is_score, is_std = compute_fid_and_is(dataset, samples, device="cuda")
 
