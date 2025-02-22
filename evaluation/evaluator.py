@@ -20,33 +20,32 @@ from tqdm import tqdm
 from logger import execution_logger, setup_logging
 
 
-transform = transforms.Compose([
-    transforms.ToTensor(),  
-    transforms.Resize((299, 299),interpolation=transforms.InterpolationMode.BILINEAR), 
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
-])
+transform1 = transforms.Compose(
+    [transforms.Resize(256),transforms.CenterCrop(256)] 
+)
 
-transform1 = transforms.Compose([
+transform2 = transforms.Compose([
     transforms.ToTensor()
 ])
 
+transform3 = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Resize((299,299)),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
+])
 # LSUN -> resize/center crop to std size -> preprocess github repo
 # samples -> resize 256x256 & np.uint8 -> fid code
 
 class Images(Dataset):
     def __init__(self,data):
         super().__init__()
-        self.isdataset = isinstance(data,Dataset)
         self.dataset = data
 
     def __len__(self):
-        return min(20000,len(self.dataset))
+        return len(self.dataset)
     
     def __getitem__(self,idx):
-        if self.isdataset:
-            return self.transform(np.array(self.dataset[idx][0]))
-        else:
-            return self.transform(self.dataset[idx])
+        return self.transform(np.array(self.dataset[idx]))
         
     def transform(self, image):
         def resize_single_channel(x_np):
@@ -55,9 +54,23 @@ class Images(Dataset):
             return np.asarray(img).clip(0, 255).reshape(299, 299, 1)
         
         x = [resize_single_channel(image[:,:,idx]) for idx in range(3)]
-        # x = np.concatenate(x,axis=2).astype(np.uint8)
         x = np.concatenate(x,axis=2)/255
-        return transform1(x)
+        return transform2(x)
+
+# class Images(Dataset):
+#     def __init__(self,data):
+#         super().__init__()
+#         self.dataset = data
+
+#     def __len__(self):
+#         return len(self.dataset)
+    
+#     def __getitem__(self,idx):
+#         return self.transform(np.array(self.dataset[idx]))
+        
+#     def transform(self, image):
+#         # x = np.concatenate(x,axis=2).astype(np.uint8)
+#         return transform3(image)
 
 # ---- 1. 计算 Inception 网络的特征 ---- #
 def get_inception_model(device):
@@ -128,12 +141,13 @@ def calculate_inception_score(images, model, device, batch_size=32, splits=10):
             preds.append(prob)
 
     preds = np.concatenate(preds, axis=0)
+    p_y = np.mean(preds, axis=0)
     
     scores = []
     chunk_size = preds.shape[0] // splits
     for i in range(splits):
         subset = preds[i * chunk_size:(i + 1) * chunk_size]
-        p_y = np.mean(subset, axis=0)
+        # p_y = np.mean(subset, axis=0)
         kl_div = subset * (np.log(subset) - np.log(p_y))
         scores.append(np.exp(np.mean(np.sum(kl_div, axis=1))))
 
@@ -171,7 +185,11 @@ def main(args):
 
     execution_logger.info("Loading LSUN dataset")
 
-    dataset = Images(LSUN(root=args.dataset,classes=['bedroom_train']))
+    dataset = LSUN(root=args.dataset,classes=['bedroom_train'])
+    _dataset = []
+    for idx in tqdm(range(20000)):
+        _dataset.append(transform1(dataset[idx][0]))
+    dataset = Images(_dataset)
     
     execution_logger.info("LSUN dataset loaded. Loading generated samples")
 
@@ -179,7 +197,10 @@ def main(args):
     samples = samples['arr_0']
     execution_logger.info(f"input sample size:{samples.shape}")
 
-    samples = Images(samples)
+    _samples = []
+    for sample in tqdm(samples):
+        _samples.append(transform1(Image.fromarray(sample)))
+    samples = Images(_samples)
     execution_logger.info("Generated samples loaded.")
 
     fid_score, is_score, is_std = compute_fid_and_is(dataset, samples, device="cuda")

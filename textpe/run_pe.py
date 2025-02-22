@@ -79,8 +79,8 @@ def main(args, config):
     pe_runner.run(
         num_samples_schedule=[2000] * 11,
         delta=delta,
-        # epsilon=1.0,
-        noise_multiplier=0,
+        epsilon=1.0,
+        # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )
 

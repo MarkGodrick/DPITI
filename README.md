@@ -45,8 +45,8 @@ We post some of our experiment results in the following tables, while example re
     </tr>
     <tr>
         <td colspan="3" align="center">Original Caption</td>
-        <td align="center">14.69/1.04</td>
-        <td align="center">14.16/1.05</td>
+        <td align="center">13.57/1.04</td>
+        <td align="center">12.33/1.05</td>
         <td align="center"></td>
     </tr>
     <tr>
@@ -54,13 +54,13 @@ We post some of our experiment results in the following tables, while example re
         <td rowspan="2" align="center">meta-llama/Meta-Llama-3-8B-Instruct</td>
         <td align="center">noise_multiplier=0.0</td>
         <td align="center">29.94/1.05</td>
-        <td align="center"></td>
+        <td align="center">28.22/1.05</td>
         <td align="center"></td>
     </tr>
     <tr>
         <td align="center">epsilon=1.0</td>
         <td align="center"></td>
-        <td align="center"></td>
+        <td align="center">40.31/1.06</td>
         <td align="center"></td>
     </tr>
     <tr>
@@ -112,8 +112,8 @@ We post some of our experiment results in the following tables, while example re
         <td align="center"></td>
         <td align="center"></td>
         <td align="center"></td>
-        <td align="center"></td>
-        <td align="center"></td>
+        <td align="center">31.42/1.05</td>
+        <td align="center">31.29/1.05</td>
         <td align="center">30.56/1.05</td>
         <td align="center">30.51/1.05</td>
         <td align="center">29.94/1.05</td>
