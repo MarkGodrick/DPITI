@@ -37,9 +37,9 @@ def main(args, config):
 
     dataset = lsun(config) 
 
-    idx = 1
+    idx = 6
     # span = (len(dataset)+6-1)//6
-    span = 1024*5
+    span = 1024
 
     execution_logger.info(f"Captioning LSUN bedroom dataset spanning {span} elements, part {idx}.")
     execution_logger.info(f"Loading Dataset...")

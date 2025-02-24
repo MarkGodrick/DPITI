@@ -12,7 +12,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import inception_v3
-from cleanfid.inception_torchscript import InceptionV3W
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from scipy.linalg import sqrtm
@@ -73,9 +72,10 @@ class Images(Dataset):
 #         return transform3(image)
 
 # ---- 1. 计算 Inception 网络的特征 ---- #
-def get_inception_model(device):
+def get_inception_model(device, embedding=True):
     model = inception_v3(pretrained=True, transform_input=False).to(device)
-    model.fc = nn.Identity()  # 移除全连接层，只取倒数第二层的特征
+    if embedding:
+        model.fc = nn.Identity()  # 移除全连接层，只取倒数第二层的特征
     model.eval()
     # model = InceptionV3W(path="/data/whx/tmp").to(device)
     # model.eval()
@@ -123,7 +123,7 @@ def calculate_fid(mu1, sigma1, mu2, sigma2):
 
 
 # ---- 4. 计算 Inception Score (IS) ---- #
-def calculate_inception_score(images, model, device, batch_size=32, splits=10):
+def calculate_inception_score(images, model, device, batch_size=32, splits=10, epsilon=1e-8):
     """
     计算 Inception Score (IS)
     """
@@ -148,7 +148,8 @@ def calculate_inception_score(images, model, device, batch_size=32, splits=10):
     for i in range(splits):
         subset = preds[i * chunk_size:(i + 1) * chunk_size]
         # p_y = np.mean(subset, axis=0)
-        kl_div = subset * (np.log(subset) - np.log(p_y))
+        subset = np.clip(subset, epsilon, 1.0)
+        kl_div = subset * (np.log(subset + epsilon) - np.log(p_y + epsilon))
         scores.append(np.exp(np.mean(np.sum(kl_div, axis=1))))
 
     return np.mean(scores), np.std(scores)
@@ -175,10 +176,11 @@ def compute_fid_and_is(real_images, generated_images, device="cuda"):
     execution_logger.info("Computing FID score...")
     fid = calculate_fid(mu_real, sigma_real, mu_gen, sigma_gen)
 
-    execution_logger.info("Computing Inception Score...")
-    inception_score, inception_std = calculate_inception_score(generated_images, model, device)
+    model = get_inception_model(device,embedding=False)
+    # execution_logger.info("Computing Inception Score...")
+    # inception_score, inception_std = calculate_inception_score(generated_images, model, device)
 
-    return fid, inception_score, inception_std
+    return fid, 0, 0
 
 
 def main(args):
