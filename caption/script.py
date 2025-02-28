@@ -37,7 +37,7 @@ def main(args, config):
 
     dataset = lsun(config) 
 
-    idx = 6
+    idx = 9
     # span = (len(dataset)+6-1)//6
     span = 1024
 

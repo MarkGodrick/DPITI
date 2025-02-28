@@ -14,6 +14,7 @@ from pe.callback import ComputeFID
 from pe.callback import SaveTextToCSV
 from pe.logger import CSVPrint
 from pe.logger import LogPrint
+from pe.constant.data import VARIATION_API_FOLD_ID_COLUMN_NAME
 
 import pandas as pd
 import os
@@ -60,7 +61,8 @@ def main(args, config):
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    compute_fid = ComputeFID(priv_data=data, embedding=embedding)
+    compute_fid_vote = ComputeFID(priv_data=data, embedding=embedding, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
+    compute_fid_variation = ComputeFID(priv_data=data, embedding=embedding, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
@@ -73,14 +75,14 @@ def main(args, config):
         priv_data=data,
         population=population,
         histogram=histogram,
-        callbacks=[save_checkpoints, save_text_to_csv, compute_fid],
+        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[2000] * 11,
+        num_samples_schedule=[2000] * 21,
         delta=delta,
-        epsilon=1.0,
-        # noise_multiplier=0,
+        # epsilon=1.0,
+        noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )
 

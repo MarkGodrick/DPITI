@@ -1,0 +1,33 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Please rephrase the following sentences {tone}, and generate a extremely short description for a single bedroom. Focus on details, and avoid only describing the atmosphere or emotions. Here are 2 examples. Example 1: Given sentence: {example1}. Rephrased sentence: {rephrase1}. Example 2: Given sentence: {example2}. Rephrased sentence: {rephrase2}. Now rephrase the following sentences: \n{sample}.\nGive your answer directly."
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a different way",
+                    "in a different tone",
+                    "in a professional way",
+                    "in a professional tone",
+                    "in a professional style",
+                    "in a concise manner",
+                    "in a creative style",
+                    "using imagination",
+                    "in a storytelling tone",
+                    "in a formal manner",
+                    "using a variety of sentence structures"
+                ],
+                "example1":"The bedroom is filled with natural light from the large windows, casting a warm glow on the soft, neutral-colored walls. A king-sized bed with crisp white linens sits at the center, complemented by a wooden dresser and a plush rug that adds comfort to the space. The overall atmosphere is peaceful, making it a perfect place to relax.",
+                "rephrase1":"Light streams through the wide windows, bathing the room in warmth and highlighting the pale walls. A spacious bed with fresh white sheets takes center stage, surrounded by simple, wooden furniture, including a dresser and a thick, soft rug. The room exudes tranquility, offering a serene retreat for unwinding.",
+                "example2":"The room features a comfortable bed draped in soft, luxurious bedding, with a large armchair placed beside it for reading. The floor-to-ceiling windows allow plenty of light to pour in, while the walls are adorned with subtle artwork, contributing to the room's sophisticated yet cozy vibe.",
+                "rephrase2":"A plush bed with velvety bedding dominates the room, complemented by a cozy armchair perfect for quiet reading. The floor-to-ceiling windows bring in an abundance of light, and minimalist artwork on the walls enhances the room's stylish yet inviting atmosphere, blending elegance with comfort."
+
+            }
+        }
+    ]
+}

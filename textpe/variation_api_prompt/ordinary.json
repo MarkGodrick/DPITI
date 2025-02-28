@@ -2,7 +2,7 @@
     "message_template": [
         {
             "role": "user",
-            "content": "Please rephrase the following sentences {tone}, and generate a extremely short description for a single bedroom, ensuring the description goes naturally to a conclusion. Now rephrase the following sentences: \n{sample}.\nYou must rephrase the sentences directly, and don't start with 'Here is a short description'."
+            "content": "Please rephrase the following sentences {tone}, and generate an extremely short description for a single bedroom. Focus on details, and avoid only describing the atmosphere or emotions. Now rephrase the following sentences: \n{sample}.\nGive your answer directly."
         }
     ],
     "replacement_rules": [
