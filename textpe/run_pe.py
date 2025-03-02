@@ -8,6 +8,7 @@ from pe.population import PEPopulation
 from pe.api.text import LLMAugPE
 from pe.llm import OpenAILLM, HuggingfaceLLM
 from pe.embedding.text import SentenceTransformer
+from ST_text2image import T2I_embedding
 from pe.histogram import NearestNeighbors
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
@@ -50,7 +51,8 @@ def main(args, config):
         random_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['random']),
         variation_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['variation']),
     )
-    embedding = SentenceTransformer(model="sentence-t5-base")
+    # embedding = SentenceTransformer(model="sentence-t5-base")
+    embedding = T2I_embedding(model="stabilityai/sdxl-turbo")
     histogram = NearestNeighbors(
         embedding=embedding,
         mode="L2",

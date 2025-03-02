@@ -27,7 +27,7 @@ def main(args):
 
     text_data = list(df['text'])
 
-    text_data = [text.strip() for text in text_data if len(text)>MIN_LEN][:2000]
+    text_data = [text.strip() for text in text_data if len(text)>MIN_LEN]
 
     if args.filter:
         matches = [re.search(pattern,text,re.DOTALL) for text in text_data]
@@ -54,7 +54,7 @@ def main(args):
     execution_logger.info("Sampling process accomplished. Saving data...")
 
     images = np.array(images)
-    np.savez(os.path.join(args.output,f"caption{len(images)}_images0_pe10_sample_step_8_re"),images)
+    np.savez(os.path.join(args.output,f"caption{len(images)}_images0_pe06_sample_step_8_re"),images)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()

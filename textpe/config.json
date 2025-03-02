@@ -13,7 +13,7 @@
         }
     },
     "api_prompt":{
-        "random":"random_api_prompt.json",
+        "random":"random_api_prompt/oridnary.json",
         "variation":"variation_api_prompt/few_shot_chat_rephrase.json"
     }
 }

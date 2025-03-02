@@ -225,19 +225,20 @@ We post some of our experiment results in the following tables, while example re
 <body>
 <table>
 <tr>
-    <td colspan="3" align="center"></td>
+    <td colspan="4" align="center"></td>
     <td align="center">step=2</td>
     <td align="center">step=4</td>
     <td align="center">step=8</td>
 </tr>
 <tr>
-    <td colspan="3" align="center">original caption</td>
+    <td colspan="4" align="center">original caption</td>
     <td align="center">28.36</td>
     <td align="center">24.51</td>
     <td align="center">24.11</td>
 </tr>
 <tr>
-    <td rowspan="4" align="center">w/ few-shot</td>
+    <td rowspan="8" align="center">w/ few-shot</td>
+    <td rowspan="4" align="center">text voting</td>
     <td rowspan="2" align="center">w/ chat history</td>
     <td align="center">vote</td>
     <td align="center">61.97</td>
@@ -263,6 +264,33 @@ We post some of our experiment results in the following tables, while example re
     <td align="center">41.33</td>
     <td align="center">37.59</td>
 </tr>
+<tr>
+    <td rowspan="4" align="center">image voting</td>
+    <td rowspan="2" align="center">w/ chat history</td>
+    <td align="center">vote</td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+</tr>
+<tr>
+    <td align="center">variation</td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+</tr>
+<tr>
+    <td rowspan="2" align="center">w/o chat history</td>
+    <td align="center">vote</td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+</tr>
+<tr>
+    <td align="center">variation</td>
+    <td align="center"></td>
+    <td align="center"></td>
+    <td align="center"></td>
+</tr>
 <caption>Table 4: <b>(FID)</b> Experiment results on different samples. diffusion:sdxl-turbo
 </caption> 
 </table>
@@ -279,7 +307,7 @@ We post some of our experiment results in the following tables, while example re
 * (Temporally solved) We find running PE decline text quality heavily.
     * Three ways to improve quality:
         * Improve Prompt
-        * Change hyperparameters: iterations
+        * Change hyperparameters: iterations, temperature
         * Use splits that has higher quality
     * Try using fill-in-the-blanks for the model
     * change prompt for models
