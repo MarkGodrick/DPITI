@@ -268,28 +268,28 @@ We post some of our experiment results in the following tables, while example re
     <td rowspan="4" align="center">image voting</td>
     <td rowspan="2" align="center">w/ chat history</td>
     <td align="center">vote</td>
-    <td align="center"></td>
-    <td align="center"></td>
-    <td align="center"></td>
+    <td align="center">47.57</td>
+    <td align="center">40.88</td>
+    <td align="center">37.38</td>
 </tr>
 <tr>
     <td align="center">variation</td>
-    <td align="center"></td>
-    <td align="center"></td>
-    <td align="center"></td>
+    <td align="center">47.89</td>
+    <td align="center">40.48</td>
+    <td align="center">37.21</td>
 </tr>
 <tr>
     <td rowspan="2" align="center">w/o chat history</td>
     <td align="center">vote</td>
-    <td align="center"></td>
-    <td align="center"></td>
-    <td align="center"></td>
+    <td align="center">46.12</td>
+    <td align="center">39.70</td>
+    <td align="center">35.79</td>
 </tr>
 <tr>
     <td align="center">variation</td>
-    <td align="center"></td>
-    <td align="center"></td>
-    <td align="center"></td>
+    <td align="center">45.18</td>
+    <td align="center">38.95</td>
+    <td align="center">34.55</td>
 </tr>
 <caption>Table 4: <b>(FID)</b> Experiment results on different samples. diffusion:sdxl-turbo
 </caption> 

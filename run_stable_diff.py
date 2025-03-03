@@ -14,11 +14,7 @@ MAX_NUM = 40000
 MIN_LEN = 100
 
 def main(args):
-    # read the latest PE results
-    # filenames = os.listdir(os.path.join(args.input,"synthetic_text"))
-    # files = [int(filename.split(".")[0]) for filename in filenames]
-    # target_file = filenames[np.argmax(files)]
-
+    
     execution_logger.info("Loading Caption data...")
 
     df = pd.read_csv(os.path.join(args.input)).astype(str)
@@ -49,12 +45,14 @@ def main(args):
     for batch_idx in tqdm(range(batch_num)):
         # input: a list of text string
         # output: a list of PIL.Image.Image, each dtype=np.uint8, shape=(1024,1024,3)
-        images.extend(pipe(text_list[batch_idx*batch_size:(batch_idx+1)*batch_size], num_inference_steps=8, guidance_scale=0.0).images)
+        images.extend(pipe(text_list[batch_idx*batch_size:(batch_idx+1)*batch_size], num_inference_steps=2, guidance_scale=0.0).images)
 
     execution_logger.info("Sampling process accomplished. Saving data...")
 
     images = np.array(images)
-    np.savez(os.path.join(args.output,f"caption{len(images)}_images0_pe06_sample_step_8_re"),images)
+
+    file_name = args.input.split('/')[-1]
+    np.savez(os.path.join(args.output,f"caption{len(images)}_images0_pe{int(file_name.split('.')[0]):02}_sample_step_2_re"),images)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()
@@ -68,7 +66,7 @@ if __name__ =="__main__":
 
     os.makedirs(args.output,exist_ok=True)
     
-    setup_logging(log_file=os.path.join(args.output,"log_step8.txt"))
+    setup_logging(log_file=os.path.join(args.output,"log_step2.txt"))
     execution_logger.info("\nExecuting {}...\ninput: {}\noutput: {}\nmodel: {}".format(sys.argv[0],args.input,args.output,args.model))
 
     main(args)

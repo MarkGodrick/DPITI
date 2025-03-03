@@ -1,15 +1,17 @@
 from dotenv import load_dotenv
 import argparse
 import json
-from text import text
+from utils.text import text
+from utils.image import data_from_dataset
 from pe.logging import setup_logging, execution_logger
 from pe.runner import PE
 from pe.population import PEPopulation
 from pe.api.text import LLMAugPE
 from pe.llm import OpenAILLM, HuggingfaceLLM
 from pe.embedding.text import SentenceTransformer
-from ST_text2image import T2I_embedding
+from utils.text2image import T2I_embedding
 from pe.histogram import NearestNeighbors
+from utils.image_voting import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
 from pe.callback import SaveTextToCSV
@@ -21,8 +23,14 @@ import pandas as pd
 import os
 import sys
 import numpy as np
+from torchvision.datasets import LSUN
+from torchvision import transforms
+
 
 pd.options.mode.copy_on_write = True
+IMAGE_SIZE = 256
+
+transform = transforms.Compose([transforms.Resize(IMAGE_SIZE),transforms.CenterCrop(IMAGE_SIZE),transforms.ToTensor()])
 
 def main(args, config):
     
@@ -38,6 +46,8 @@ def main(args, config):
 
 
     data = text(root_dir=args.data)
+    dataset = LSUN("dataset/lsun",classes=['bedroom_train'],transform=transform)
+    priv_emb_config = {}
 
     if args.llm=='huggingface':
         llm = HuggingfaceLLM(**config["model"]["Huggingface"])
@@ -53,10 +63,11 @@ def main(args, config):
     )
     # embedding = SentenceTransformer(model="sentence-t5-base")
     embedding = T2I_embedding(model="stabilityai/sdxl-turbo")
-    histogram = NearestNeighbors(
+    histogram = ImageVotingNN(
         embedding=embedding,
         mode="L2",
         lookahead_degree=0,
+        priv_dataset=data_from_dataset(dataset)
     )
     population = PEPopulation(
         api=api, initial_variation_api_fold=6, next_variation_api_fold=6, keep_selected=True, selection_mode="rank"
