@@ -178,7 +178,7 @@ class ImageVotingNN(Histogram):
         :rtype: tuple[:py:class:`pe.data.data.Data`, :py:class:`pe.data.data.Data`]
         """
         execution_logger.info(
-            f"Histogram: computing nearest neighbors histogram for {len(self._priv_dataset)} private "
+            f"Histogram: computing nearest neighbors histogram for {len(self._priv_dataset.data_frame)} private "
             f"samples and {len(syn_data.data_frame)} synthetic samples"
         )
 

@@ -9,11 +9,13 @@ from pe.population import PEPopulation
 from pe.api.text import LLMAugPE
 from pe.llm import OpenAILLM, HuggingfaceLLM
 from pe.embedding.text import SentenceTransformer
-from utils.text2image import T2I_embedding
+from pe.embedding.image import Inception
+from utils.embedding import T2I_embedding
 from pe.histogram import NearestNeighbors
-from utils.image_voting import ImageVotingNN
+from utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
+from utils.callbacks import _ComputeFID
 from pe.callback import SaveTextToCSV
 from pe.logger import CSVPrint
 from pe.logger import LogPrint
@@ -47,7 +49,7 @@ def main(args, config):
 
     data = text(root_dir=args.data)
     dataset = LSUN("dataset/lsun",classes=['bedroom_train'],transform=transform)
-    priv_emb_config = {}
+    data_from_lsun = data_from_dataset(dataset)
 
     if args.llm=='huggingface':
         llm = HuggingfaceLLM(**config["model"]["Huggingface"])
@@ -62,20 +64,21 @@ def main(args, config):
         variation_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['variation']),
     )
     # embedding = SentenceTransformer(model="sentence-t5-base")
-    embedding = T2I_embedding(model="stabilityai/sdxl-turbo")
+    embedding_syn = T2I_embedding(model="stabilityai/sdxl-turbo")
+    embedding_priv = Inception(res=256,batch_size=16)
     histogram = ImageVotingNN(
-        embedding=embedding,
+        embedding=embedding_syn,
         mode="L2",
         lookahead_degree=0,
-        priv_dataset=data_from_dataset(dataset)
+        priv_dataset=data_from_lsun
     )
     population = PEPopulation(
         api=api, initial_variation_api_fold=6, next_variation_api_fold=6, keep_selected=True, selection_mode="rank"
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    compute_fid_vote = ComputeFID(priv_data=data, embedding=embedding, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-    compute_fid_variation = ComputeFID(priv_data=data, embedding=embedding, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
+    compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding_priv=embedding_priv, embedding_syn=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
+    compute_fid_variation = _ComputeFID(priv_data=data_from_lsun, embedding_priv=embedding_priv, embedding_syn=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
