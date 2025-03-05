@@ -14,7 +14,7 @@ from pe.logger import CSVPrint
 from pe.logging import setup_logging, execution_logger
 
 
-PATH = "/data/whx/textDP/lsun/bedroom_train/openai/gpt-4o-mini/pe/meta-llama/noise_multiplier=0/image_voting_lsun_hist/deserted/few_shot_01"
+PATH = "/data/whx/textDP/lsun/bedroom_train/openai/gpt-4o-mini/pe/meta-llama/noise_multiplier=0/image_voting_lsun_hist/deserted/ordinary"
 IMAGE_SIZE = 256
 transform = transforms.Compose([transforms.Resize(IMAGE_SIZE),transforms.CenterCrop(IMAGE_SIZE),transforms.ToTensor()])
 

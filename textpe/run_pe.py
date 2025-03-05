@@ -62,6 +62,9 @@ def main(args, config):
         llm=llm,
         random_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['random']),
         variation_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['variation']),
+        # min_word_count=25,
+        # word_count_std=36,
+        # blank_probabilities=0.5
     )
     # embedding = SentenceTransformer(model="sentence-t5-base")
     embedding_syn = T2I_embedding(model="stabilityai/sdxl-turbo")
