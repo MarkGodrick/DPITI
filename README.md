@@ -186,7 +186,66 @@ We post some of our experiment results in the following tables, while example re
         <td align="center">37.33</td>
     </tr>
     <tr>
-        <td rowspan="2" align="center">fill in the blanks</td>
+        <td rowspan="6" align="center">fill in the blanks</td>
+        <td rowspan="4" align="center">w/ few shot</td>
+        <td rowspan="2" align="center">w/ chat history</td>
+        <td align="center">vote</td>
+        <td align="center">50.71</td>
+        <td align="center">33.72</td>
+        <td align="center">30.43</td>
+        <td align="center">29.06</td>
+        <td align="center">28.32</td>
+        <td align="center">28.08</td>
+        <td align="center">27.20</td>
+        <td align="center">26.92</td>
+        <td align="center">26.88</td>
+        <td align="center">26.88</td>
+        <td align="center"><b>26.52</b></td>
+    </tr>
+    <tr>
+        <td align="center">variation</td>
+        <td align="center">46.74</td>
+        <td align="center">41.31</td>
+        <td align="center">39.19</td>
+        <td align="center">37.43</td>
+        <td align="center">37.15</td>
+        <td align="center">37.38</td>
+        <td align="center">35.14</td>
+        <td align="center">35.58</td>
+        <td align="center">34.72</td>
+        <td align="center">34.95</td>
+        <td align="center">33.55</td>
+    </tr>
+    <tr>
+        <td rowspan="2" align="center">w/o chat history</td>
+        <td align="center">vote</td>
+        <td align="center">51.28</td>
+        <td align="center">34.08</td>
+        <td align="center">32.10</td>
+        <td align="center">31.07</td>
+        <td align="center">30.12</td>
+        <td align="center">29.53</td>
+        <td align="center">29.32</td>
+        <td align="center">28.90</td>
+        <td align="center">28.48</td>
+        <td align="center">28.07</td>
+        <td align="center">28.05</td>
+    </tr>
+    <tr>
+        <td align="center">variation</td>
+        <td align="center">46.73</td>
+        <td align="center">43.26</td>
+        <td align="center">42.49</td>
+        <td align="center">41.64</td>
+        <td align="center">41.82</td>
+        <td align="center">41.73</td>
+        <td align="center">42.82</td>
+        <td align="center">42.18</td>
+        <td align="center">41.10</td>
+        <td align="center">40.79</td>
+        <td align="center">41.90</td>
+    </tr>
+    <tr>
         <td rowspan="2" align="center">w/o few shot</td>
         <td rowspan="2" align="center">w/o chat history</td>
         <td align="center">vote</td>
@@ -198,7 +257,7 @@ We post some of our experiment results in the following tables, while example re
         <td align="center">28.49</td>
         <td align="center">28.14</td>
         <td align="center">27.82</td>
-        <td align="center"><b>27.62</b></td>
+        <td align="center">27.62</td>
         <td align="center">27.69</td>
         <td align="center">27.79</td>
     </tr>
@@ -221,6 +280,125 @@ We post some of our experiment results in the following tables, while example re
     <b>PE LLM: Meta-Llama-3-8B-Instruct</b>,
     <b>noise_multiplier=0</b>
     </caption> 
+</table>
+</body>
+</html>
+
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<table>
+    <tr>
+        <td colspan="4" align="center"></td>    
+        <td colspan="1" align="center">0</td> 
+        <td colspan="1" align="center">1</td> 
+        <td colspan="1" align="center">2</td> 
+        <td colspan="1" align="center">3</td> 
+        <td colspan="1" align="center">4</td> 
+        <td colspan="1" align="center">5</td> 
+        <td colspan="1" align="center">6</td> 
+        <td colspan="1" align="center">7</td> 
+        <td colspan="1" align="center">8</td> 
+        <td colspan="1" align="center">9</td> 
+        <td colspan="1" align="center">10</td> 
+    </tr>
+    <tr>
+        <td rowspan="6" align="center">fill-in-the-blanks</td>
+        <td rowspan="4" align="center">w/ few shot</td>
+        <td rowspan="2" align="center">w/ chat history</td>
+        <td align="center">vote</td>
+        <td align="center">50.03</td>
+        <td align="center">42.56</td>
+        <td align="center">39.42</td>
+        <td align="center">38.83</td>
+        <td align="center">37.63</td>
+        <td align="center">38.06</td>
+        <td align="center">37.54</td>
+        <td align="center">37.24</td>
+        <td align="center">36.79</td>
+        <td align="center">36.68</td>
+        <td align="center"><b>36.45</b></td>
+    </tr>
+    <tr>
+        <td align="center">variation</td>
+        <td align="center">46.08</td>
+        <td align="center">43.12</td>
+        <td align="center">41.90</td>
+        <td align="center">42.53</td>
+        <td align="center">42.34</td>
+        <td align="center">42.06</td>
+        <td align="center">42.00</td>
+        <td align="center">41.73</td>
+        <td align="center">41.98</td>
+        <td align="center">42.74</td>
+        <td align="center">40.36</td>
+    </tr>
+    <tr>
+        <td rowspan="2" align="center">w/o chat history</td>
+        <td align="center">vote</td>
+        <td align="center">52.38</td>
+        <td align="center">43.52</td>
+        <td align="center">40.90</td>
+        <td align="center">40.80</td>
+        <td align="center">40.84</td>
+        <td align="center">40.43</td>
+        <td align="center">41.52</td>
+        <td align="center">42.05</td>
+        <td align="center">42.78</td>
+        <td align="center">42.81</td>
+        <td align="center">41.24</td>
+    </tr>
+    <tr>
+        <td align="center">variation</td>
+        <td align="center">45.20</td>
+        <td align="center">45.10</td>
+        <td align="center">44.92</td>
+        <td align="center">45.41</td>
+        <td align="center">45.20</td>
+        <td align="center">47.44</td>
+        <td align="center">46.97</td>
+        <td align="center">48.41</td>
+        <td align="center">49.25</td>
+        <td align="center">47.03</td>
+        <td align="center">47.77</td>
+    </tr>
+    <tr>
+        <td rowspan="2" align="center">w/o few shot</td>
+        <td rowspan="2" align="center">w/o chat history</td>
+        <td align="center">vote</td>
+        <td align="center">50.70</td>
+        <td align="center">43.21</td>
+        <td align="center">40.31</td>
+        <td align="center">39.14</td>
+        <td align="center">38.39</td>
+        <td align="center">38.53</td>
+        <td align="center">38.41</td>
+        <td align="center">38.39</td>
+        <td align="center">37.66</td>
+        <td align="center">37.63</td>
+        <td align="center">37.80</td>
+    </tr>
+    <tr>
+        <td align="center">variation</td>
+        <td align="center">46.42</td>
+        <td align="center">44.03</td>
+        <td align="center">42.96</td>
+        <td align="center">42.54</td>
+        <td align="center">42.60</td>
+        <td align="center">42.83</td>
+        <td align="center">41.68</td>
+        <td align="center">41.26</td>
+        <td align="center">42.10</td>
+        <td align="center">41.36</td>
+        <td align="center">41.42</td>
+    </tr>
+    <caption>Table 3: Experiment results on different checkpoints of the same settings.
+    <b>Captioner: gpt-4o-mini</b>,
+    <b>PE LLM: Meta-Llama-3-8B-Instruct</b>,
+    <b>epsilon=1.0</b>
+    </caption>
 </table>
 </body>
 </html>
@@ -318,7 +496,7 @@ We post some of our experiment results in the following tables, while example re
         <td align="center">48.21</td>
         <td align="center">42.68</td>
     </tr>
-    <caption>Table 3: <b>(FID)</b> Experiment results on different diffusion models with different sample steps.
+    <caption>Table 4: <b>(FID)</b> Experiment results on different diffusion models with different sample steps.
     </caption> 
 </table>
 </body>
@@ -397,7 +575,7 @@ We post some of our experiment results in the following tables, while example re
     <td align="center">38.95</td>
     <td align="center">34.55</td>
 </tr>
-<caption>Table 4: <b>(FID)</b> Experiment results on different samples. diffusion:sdxl-turbo
+<caption>Table 5: <b>(FID)</b> Experiment results on different samples. diffusion:sdxl-turbo
 </caption> 
 </table>
 </body>

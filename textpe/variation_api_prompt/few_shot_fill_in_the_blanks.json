@@ -1,32 +1,22 @@
 {
     "message_template": [
         {
+            "role": "system",
+            "content": "You are an AI assisstant that helps people generate different description for bedroom based on a given paragraph."
+        },
+        {
             "role": "user",
-            "content": "Please rephrase the following sentences {tone}, and generate a extremely short description for a single bedroom. Focus on details, and avoid only describing the atmosphere or emotions. Here are 2 examples. Example 1: Given sentence: {example1}. Rephrased sentence: {rephrase1}. Example 2: Given sentence: {example2}. Rephrased sentence: {rephrase2}. Now rephrase the following sentences: \n{sample}.\nGive your answer directly."
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions. Here are 2 examples.\nExample 1: Given sentence: \"{example1}\". Give your answer directly and your answer MUST be exactly 46 words. Rephrased sentence: {rephrase1}.\nExample 2: Given sentence: \"{example2}\". Give your answer directly and your answer MUST be exactly 45 words. Rephrased sentence: {rephrase2}.\nNow please fill in the blanks in the following sentences to write a description of a bedroom: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
         }
     ],
     "replacement_rules": [
         {
             "constraints": {},
             "replacements": {
-                "tone": [
-                    "in a different way",
-                    "in a different tone",
-                    "in a professional way",
-                    "in a professional tone",
-                    "in a professional style",
-                    "in a concise manner",
-                    "in a creative style",
-                    "using imagination",
-                    "in a storytelling tone",
-                    "in a formal manner",
-                    "using a variety of sentence structures"
-                ],
-                "example1":"The bedroom is filled with natural light from the large windows, casting a warm glow on the soft, neutral-colored walls. A king-sized bed with crisp white linens sits at the center, complemented by a wooden dresser and a plush rug that adds comfort to the space. The overall atmosphere is peaceful, making it a perfect place to relax.",
-                "rephrase1":"Light streams through the wide windows, bathing the room in warmth and highlighting the pale walls. A spacious bed with fresh white sheets takes center stage, surrounded by simple, wooden furniture, including a dresser and a thick, soft rug. The room exudes tranquility, offering a serene retreat for unwinding.",
-                "example2":"The room features a comfortable bed draped in soft, luxurious bedding, with a large armchair placed beside it for reading. The floor-to-ceiling windows allow plenty of light to pour in, while the walls are adorned with subtle artwork, contributing to the room's sophisticated yet cozy vibe.",
-                "rephrase2":"A plush bed with velvety bedding dominates the room, complemented by a cozy armchair perfect for quiet reading. The floor-to-ceiling windows bring in an abundance of light, and minimalist artwork on the walls enhances the room's stylish yet inviting atmosphere, blending elegance with comfort."
-
+                "example1":"The _ is filled with _ light from the _, casting a _ glow on the _ walls. A _-sized bed with _ _ sits at the _, complemented by a _ and a _ that adds _ to the space. The overall _ is _, making it a _ place to _.",
+                "rephrase1":"The space is filled with gentle light from the windows, casting a soft glow on the textured walls. A large-sized bed with fresh linen sits at the center, complemented by a dresser and a rug that adds warmth to the space. The overall ambiance is calming, making it a perfect place to unwind.",
+                "example2":"The room _ a _ bed draped in _, _ bedding, with a _ armchair placed _ it for _. The _ windows allow plenty of _ to pour in, while the _ are adorned with _, contributing to the room's _ yet _ vibe.",
+                "rephrase2":"The room contains a cozy bed draped in plush, inviting bedding, with a comfortable armchair placed beside it for relaxation. The tall windows allow plenty of daylight to pour in, while the walls are adorned with abstract paintings, contributing to the room's elegant yet soothing vibe."
             }
         }
     ]

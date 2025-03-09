@@ -11,7 +11,7 @@ from pe.constant.data import LABEL_ID_COLUMN_NAME
 from pe.constant.data import HISTOGRAM_NEAREST_NEIGHBORS_VOTING_IDS_COLUMN_NAME
 from pe.logging import execution_logger
 
-from utils.image import emb_from_data
+from textpe.utils.image import emb_from_data
 
 IMAGE_SIZE = 256
 

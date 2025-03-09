@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 import argparse
 import json
-from utils.text import text
-from utils.image import data_from_dataset
+from textpe.utils.text import text
+from textpe.utils.image import data_from_dataset
 from pe.logging import setup_logging, execution_logger
 from pe.runner import PE
 from pe.population import PEPopulation
@@ -10,12 +10,12 @@ from pe.api.text import LLMAugPE
 from pe.llm import OpenAILLM, HuggingfaceLLM
 from pe.embedding.text import SentenceTransformer
 from pe.embedding.image import Inception
-from utils.embedding import T2I_embedding
+from textpe.utils.embedding import T2I_embedding
 from pe.histogram import NearestNeighbors
-from utils.histogram import ImageVotingNN
+from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
-from utils.callbacks import _ComputeFID
+from textpe.utils.callbacks import _ComputeFID
 from pe.callback import SaveTextToCSV
 from pe.logger import CSVPrint
 from pe.logger import LogPrint
@@ -62,9 +62,9 @@ def main(args, config):
         llm=llm,
         random_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['random']),
         variation_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['variation']),
-        # min_word_count=25,
-        # word_count_std=36,
-        # blank_probabilities=0.5
+        min_word_count=25,
+        word_count_std=36,
+        blank_probabilities=0.5
     )
     # embedding = SentenceTransformer(model="sentence-t5-base")
     embedding_syn = T2I_embedding(model="stabilityai/sdxl-turbo")
@@ -100,8 +100,8 @@ def main(args, config):
     pe_runner.run(
         num_samples_schedule=[2000] * 21,
         delta=delta,
-        # epsilon=1.0,
-        noise_multiplier=0,
+        epsilon=1.0,
+        # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )
 

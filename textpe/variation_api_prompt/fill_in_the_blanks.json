@@ -6,7 +6,7 @@
         },
         {
             "role":"user",
-            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original medical abstract.\nPlease fill in the blanks in the following sentences to write a description of a bedroom: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a bedroom: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
         }
     ]
 }
