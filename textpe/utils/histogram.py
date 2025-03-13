@@ -8,10 +8,9 @@ from pe.histogram import Histogram
 from pe.constant.data import CLEAN_HISTOGRAM_COLUMN_NAME
 from pe.constant.data import LOOKAHEAD_EMBEDDING_COLUMN_NAME
 from pe.constant.data import LABEL_ID_COLUMN_NAME
+from pe.constant.data import IMAGE_DATA_COLUMN_NAME
 from pe.constant.data import HISTOGRAM_NEAREST_NEIGHBORS_VOTING_IDS_COLUMN_NAME
 from pe.logging import execution_logger
-
-from textpe.utils.image import emb_from_data
 
 IMAGE_SIZE = 256
 
@@ -77,7 +76,7 @@ class ImageVotingNN(Histogram):
         self._api = api
         self._num_nearest_neighbors = num_nearest_neighbors
         self._priv_dataset = priv_dataset
-        self._priv_dataset_emb = emb_from_data(priv_dataset)
+        self._priv_dataset_emb = np.stack(priv_dataset.data_frame[IMAGE_DATA_COLUMN_NAME].values, axis=0)
         if self._lookahead_degree > 0 and self._api is None:
             raise ValueError("API should be provided when lookahead_degree is greater than 0")
         if backend.lower() == "faiss":

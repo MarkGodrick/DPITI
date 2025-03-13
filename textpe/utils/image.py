@@ -14,63 +14,70 @@ from cleanfid.inception_torchscript import InceptionV3W
 from cleanfid.resize import build_resizer
 from cleanfid.resize import make_resizer
 import tempfile
+import os
 
-def data_from_dataset(dataset, length = 20000)->Data:
-    all_samples = []
+IMAGE_SIZE = 256
+np.random.seed(42)
+
+def data_from_dataset(dataset, length = float("inf"), save_path = "dataset/lsun/embedding", batch_size = 16, random_shuffle = True)->Data:
+    
+    pe_data = Data()
+    total_length = min(length, len(dataset))
+    os.makedirs(os.path.join(save_path,f"length_{total_length:08}"),exist_ok=True)
+    execution_logger.info(f"The length of dataset is {total_length}, and random shuffle is {random_shuffle}")
+
+    if pe_data.load_checkpoint(os.path.join(save_path,f"length_{total_length:08}")):
+        execution_logger.info("Preprocessed data detected, loading preprocessed data.")
+        return pe_data
+    
+    execution_logger.info("No preprocessed data detected. Computing the embeddings of the dataset...")
+
+    if random_shuffle:
+        indices = np.random.choice(len(dataset),total_length,replace=False)
+    else:
+        indices = np.arange(total_length)
+
+    inception = InceptionV3W(path="/data/whx/models", download=True, resize_inside=False).to("cuda")
+    resizer = build_resizer("clean")
+
+    all_embeddings = []
     all_labels = []
+    for batch_ptr in tqdm(range(0,total_length,batch_size)):
+        sample_batch = []
+        label_batch = []
+        for idx in range(batch_ptr,min(total_length,batch_ptr+batch_size)):
+            sample,label = dataset[indices[idx]]
+            if isinstance(sample,torch.Tensor):
+                sample = sample.numpy()
+            elif isinstance(sample,Image):
+                sample = np.array(sample)
+            if sample.dtype!=np.uint8:
+                sample = np.clip(sample * 255, 0, 255).astype(np.uint8)
+            if sample.shape==(3,IMAGE_SIZE,IMAGE_SIZE):
+                sample = np.transpose(sample,(1,2,0))
+            sample = resizer(sample)
+            sample_batch.append(sample)
+            label_batch.append(label)
 
-    execution_logger.info("transforming dataset to data object...")
-    execution_logger.info(f"The length of dataset is {min(length, len(dataset))}")
-    for idx in tqdm(range(min(len(dataset),length))):
-        sample,label = dataset[idx]
-        if isinstance(sample,torch.Tensor):
-            sample = sample.numpy()
-        elif isinstance(sample,Image):
-            sample = np.array(sample)
-        all_samples.append(sample)
-        all_labels.append(label)
-    all_samples = np.array(all_samples)
-    if all_samples.dtype!=np.uint8:
-        execution_logger.info(f"all_samples.shape:{all_samples.shape}")
-        all_samples = np.around(np.clip(all_samples * 255, a_min=0, a_max=255)).astype(np.uint8)
-        all_samples = np.transpose(all_samples, (0, 2, 3, 1))
+        samples = np.array(sample_batch).transpose(0,3,1,2)
+        assert samples.shape[1]==3
+        assert samples.dtype==np.float32
+        embeddings = inception(torch.from_numpy(samples).to("cuda"))
+        all_labels.extend(label_batch)
+        all_embeddings.append(embeddings)
+    all_embeddings = torch.cat(all_embeddings,dim=0)
+    all_embeddings = all_embeddings.cpu().detach().numpy()
+    
+    execution_logger.info(f"embedding shape:{all_embeddings.shape}")
     data_frame = pd.DataFrame({
-        IMAGE_DATA_COLUMN_NAME : list(all_samples),
+        IMAGE_DATA_COLUMN_NAME : list(all_embeddings),
         LABEL_ID_COLUMN_NAME : list(all_labels)
     })
     metadata = {"label_info":[{"name":"None"}]}
 
-    execution_logger.info("dataset transformation succeed.")
+    execution_logger.info("embedding computation complete. Saving computed data.")
 
-    return Data(data_frame=data_frame,metadata=metadata)
+    pe_data = Data(data_frame=data_frame,metadata=metadata)
+    pe_data.save_checkpoint(os.path.join(save_path,f"length_{total_length:08}"))
 
-
-
-def emb_from_data(data: Data, batch_size = 16) -> np.ndarray:
-
-    execution_logger.info("computing the embeddings of the data...")
-    _temp_folder = tempfile.TemporaryDirectory()
-    _inception = InceptionV3W(path=_temp_folder.name, download=True, resize_inside=False).to("cuda")
-    _resizer = build_resizer("clean")
-
-    images = data.data_frame[IMAGE_DATA_COLUMN_NAME].values
-    images = np.stack(images,axis=0)
-
-    execution_logger.info(f"images.shape:{images.shape}")
-
-    if images.shape[3] == 1:
-        images = np.repeat(images, 3, axis=3)
-    embeddings = []
-    for i in tqdm(range(0, len(images), batch_size)):
-        transformed_x = []
-        for j in range(i, min(i + batch_size, len(images))):
-            image = _resizer(images[j])
-            transformed_x.append(image)
-        transformed_x = np.stack(transformed_x, axis=0).transpose((0, 3, 1, 2))
-        embeddings.append(_inception(torch.from_numpy(transformed_x).to("cuda")))
-    embeddings = torch.cat(embeddings, dim=0)
-    embeddings = embeddings.cpu().detach().numpy()
-
-    execution_logger.info("embedding computation complete.")
-
-    return embeddings
+    return pe_data

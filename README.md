@@ -305,99 +305,102 @@ We post some of our experiment results in the following tables, while example re
         <td colspan="1" align="center">10</td> 
     </tr>
     <tr>
-        <td rowspan="6" align="center">fill-in-the-blanks</td>
-        <td rowspan="4" align="center">w/ few shot</td>
+        <td rowspan="4" align="center">fill-in-the-blanks</td>
+        <td rowspan="2" align="center">w/ few shot</td>
         <td rowspan="2" align="center">w/ chat history</td>
         <td align="center">vote</td>
-        <td align="center">50.03</td>
-        <td align="center">42.56</td>
-        <td align="center">39.42</td>
-        <td align="center">38.83</td>
-        <td align="center">37.63</td>
-        <td align="center">38.06</td>
-        <td align="center">37.54</td>
-        <td align="center">37.24</td>
-        <td align="center">36.79</td>
-        <td align="center">36.68</td>
-        <td align="center"><b>36.45</b></td>
+        <td align="center">50.62</td>
+        <td align="center">33.89</td>
+        <td align="center">30.09</td>
+        <td align="center">29.16</td>
+        <td align="center">28.21</td>
+        <td align="center">27.78</td>
+        <td align="center">27.16</td>
+        <td align="center">27.07</td>
+        <td align="center">26.86</td>
+        <td align="center"><b>26.57</b></td>
+        <td align="center">26.68</td>
     </tr>
     <tr>
         <td align="center">variation</td>
-        <td align="center">46.08</td>
-        <td align="center">43.12</td>
-        <td align="center">41.90</td>
-        <td align="center">42.53</td>
-        <td align="center">42.34</td>
-        <td align="center">42.06</td>
-        <td align="center">42.00</td>
-        <td align="center">41.73</td>
-        <td align="center">41.98</td>
-        <td align="center">42.74</td>
-        <td align="center">40.36</td>
-    </tr>
-    <tr>
-        <td rowspan="2" align="center">w/o chat history</td>
-        <td align="center">vote</td>
-        <td align="center">52.38</td>
-        <td align="center">43.52</td>
-        <td align="center">40.90</td>
-        <td align="center">40.80</td>
-        <td align="center">40.84</td>
-        <td align="center">40.43</td>
-        <td align="center">41.52</td>
-        <td align="center">42.05</td>
-        <td align="center">42.78</td>
-        <td align="center">42.81</td>
-        <td align="center">41.24</td>
-    </tr>
-    <tr>
-        <td align="center">variation</td>
-        <td align="center">45.20</td>
-        <td align="center">45.10</td>
-        <td align="center">44.92</td>
-        <td align="center">45.41</td>
-        <td align="center">45.20</td>
-        <td align="center">47.44</td>
-        <td align="center">46.97</td>
-        <td align="center">48.41</td>
-        <td align="center">49.25</td>
-        <td align="center">47.03</td>
-        <td align="center">47.77</td>
+        <td align="center">45.49</td>
+        <td align="center">40.88</td>
+        <td align="center">38.66</td>
+        <td align="center">37.16</td>
+        <td align="center">36.24</td>
+        <td align="center">36.00</td>
+        <td align="center">34.77</td>
+        <td align="center">34.59</td>
+        <td align="center">33.97</td>
+        <td align="center">33.30</td>
+        <td align="center">33.46</td>
     </tr>
     <tr>
         <td rowspan="2" align="center">w/o few shot</td>
         <td rowspan="2" align="center">w/o chat history</td>
         <td align="center">vote</td>
-        <td align="center">50.70</td>
-        <td align="center">43.21</td>
-        <td align="center">40.31</td>
-        <td align="center">39.14</td>
-        <td align="center">38.39</td>
-        <td align="center">38.53</td>
-        <td align="center">38.41</td>
-        <td align="center">38.39</td>
-        <td align="center">37.66</td>
-        <td align="center">37.63</td>
-        <td align="center">37.80</td>
+        <td align="center">50.54</td>
+        <td align="center">34.10</td>
+        <td align="center">31.37</td>
+        <td align="center">30.11</td>
+        <td align="center">29.33</td>
+        <td align="center">28.78</td>
+        <td align="center">28.23</td>
+        <td align="center">28.24</td>
+        <td align="center">27.86</td>
+        <td align="center">27.58</td>
+        <td align="center">27.24</td>
     </tr>
     <tr>
         <td align="center">variation</td>
-        <td align="center">46.42</td>
-        <td align="center">44.03</td>
-        <td align="center">42.96</td>
-        <td align="center">42.54</td>
-        <td align="center">42.60</td>
-        <td align="center">42.83</td>
-        <td align="center">41.68</td>
-        <td align="center">41.26</td>
-        <td align="center">42.10</td>
-        <td align="center">41.36</td>
-        <td align="center">41.42</td>
+        <td align="center">45.91</td>
+        <td align="center">41.37</td>
+        <td align="center">40.91</td>
+        <td align="center">39.82</td>
+        <td align="center">39.52</td>
+        <td align="center">39.27</td>
+        <td align="center">39.09</td>
+        <td align="center">38.11</td>
+        <td align="center">38.30</td>
+        <td align="center">38.35</td>
+        <td align="center">37.48</td>
+    </tr>
+    <tr>
+        <td rowspan="2" align="center">rephrase</td>
+        <td rowspan="2" align="center">w/o few shot</td>
+        <td rowspan="2" align="center">w/o chat history</td>
+        <td align="center">vote</td>
+        <td align="center">50.30</td>
+        <td align="center">33.10</td>
+        <td align="center">30.26</td>
+        <td align="center">29.07</td>
+        <td align="center">28.57</td>
+        <td align="center">27.96</td>
+        <td align="center">27.96</td>
+        <td align="center">27.79</td>
+        <td align="center">27.74</td>
+        <td align="center">27.73</td>
+        <td align="center">27.49</td>
+    </tr>
+    <tr>
+        <td align="center">variation</td>
+        <td align="center">43.79</td>
+        <td align="center">40.08</td>
+        <td align="center">38.73</td>
+        <td align="center">36.70</td>
+        <td align="center">36.05</td>
+        <td align="center">34.74</td>
+        <td align="center">35.46</td>
+        <td align="center">34.09</td>
+        <td align="center">34.82</td>
+        <td align="center">33.95</td>
+        <td align="center">33.40</td>
     </tr>
     <caption>Table 3: Experiment results on different checkpoints of the same settings.
     <b>Captioner: gpt-4o-mini</b>,
     <b>PE LLM: Meta-Llama-3-8B-Instruct</b>,
-    <b>epsilon=1.0</b>
+    <b>epsilon=1.0</b>,
+    with <b>300,000</b> samples from lsun bedroom
     </caption>
 </table>
 </body>
@@ -410,7 +413,7 @@ We post some of our experiment results in the following tables, while example re
 <body>
 <table>
     <tr>
-        <td colspan="4" align="center"></td>
+        <td colspan="3" align="center"></td>
         <td align="center">original</td>
         <td align="center">step=1</td>
         <td align="center">step=2</td>
@@ -418,7 +421,7 @@ We post some of our experiment results in the following tables, while example re
         <td align="center">step=8</td>
     </tr>
     <tr>
-        <td colspan="4" align="center">original caption</td>
+        <td colspan="3" align="center">original caption</td>
         <td align="center">13.57</td>
         <td align="center"></td>
         <td align="center">24.50</td>
@@ -426,7 +429,6 @@ We post some of our experiment results in the following tables, while example re
         <td align="center">19.56</td>
     </tr>
     <tr>
-        <td rowspan="8" align="center">noise_multiplier=0</td>
         <td rowspan="4" align="center">w/o filter</td>
         <td rowspan="2" align="center">w/o few-shot</td>
         <td align="center">w/o chat history</td>

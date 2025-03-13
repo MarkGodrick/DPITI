@@ -1,58 +1,76 @@
-import pandas as pd
 import os
-import sys
 import numpy as np
 from torchvision.datasets import LSUN
 from torchvision import transforms
-from textpe.utils.image import data_from_dataset
-from textpe.utils.callbacks import _ComputeFID
-from textpe.utils.embedding import T2I_embedding
-from pe.embedding.image import Inception
-from pe.constant.data import VARIATION_API_FOLD_ID_COLUMN_NAME
-from pe.data import Data
-from pe.logger import CSVPrint
-from pe.logging import setup_logging, execution_logger
+from cleanfid.inception_torchscript import InceptionV3W
+from cleanfid.resize import build_resizer
+from PIL import Image
+import torch
+from tqdm import tqdm
+import cleanfid.fid
 
 
-PATH = "/data/whx/textDP/lsun/bedroom_train/openai/gpt-4o-mini/pe/meta-llama/noise_multiplier=0/image_voting_lsun_hist/deserted/ordinary"
+np.random.seed(42)
+num_samples = 20000
 IMAGE_SIZE = 256
-transform = transforms.Compose([transforms.Resize(IMAGE_SIZE),transforms.CenterCrop(IMAGE_SIZE),transforms.ToTensor()])
-
-setup_logging(log_file=os.path.join(PATH,"logs","log.txt"))
-
-execution_logger.info("Preparing private dataset...")
-
-dataset = LSUN("dataset/lsun",classes=['bedroom_train'],transform=transform)
-data = data_from_dataset(dataset)
-
-execution_logger.info("Private dataset preparation complete.")
-
-embedding_priv = Inception(res=256, batch_size=16)
-embedding_syn = T2I_embedding(model="stabilityai/sdxl-turbo")
-
-execution_logger.info("Preparing ComputeFID object...")
-
-compute_fid = _ComputeFID(priv_data=data,embedding_priv=embedding_priv,embedding_syn=embedding_syn)
-compute_fid_vote = _ComputeFID(priv_data=data,embedding_priv=embedding_priv,embedding_syn=embedding_syn,filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-compute_fid_variation = _ComputeFID(priv_data=data,embedding_priv=embedding_priv,embedding_syn=embedding_syn,filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
-
-execution_logger.info("ComputeFID object complete.")
-
-csv_print = CSVPrint(output_folder=os.path.join(PATH,"logs"))
-
-syn_data = Data()
-ckpt_ptr = 3
-callbacks = [compute_fid, compute_fid_vote, compute_fid_variation]
-loggers = [csv_print]
-
-while os.path.exists(os.path.join(PATH,"checkpoint",f"{ckpt_ptr:09}")):
-    ckpt_path = os.path.join(PATH,"checkpoint",f"{ckpt_ptr:09}")
-    syn_data.load_checkpoint(ckpt_path)
-    metric_items = []
-    for callback in callbacks:
-        metric_items.extend(callback(syn_data) or [])
-    for logger in loggers:
-        logger.log(iteration=syn_data.metadata.iteration,metric_items=metric_items)
+BATCH_SIZE = 32
+SAVE_PATH = f"dataset/lsun/embedding/length_{num_samples:08}"
+transform = transforms.Compose([transforms.Resize(IMAGE_SIZE),transforms.CenterCrop(IMAGE_SIZE)])
+inception = InceptionV3W(path="/data/whx/models", download=True, resize_inside=False).to("cuda")
+resizer = build_resizer("clean")
 
 
-    ckpt_ptr+=1
+dataset = LSUN(root="dataset/lsun",classes=["bedroom_train"],transform=transform)
+indices_1 = np.arange(num_samples)
+indices_2 = np.random.choice(len(dataset),num_samples)
+indices_3 = np.random.choice(len(dataset),num_samples)
+indices_list = [indices_1,indices_2,indices_3]
+# compute embeddings of indices_1
+emb_list_for_indices = []
+os.makedirs(SAVE_PATH,exist_ok=True)
+
+for num_idx, indices in enumerate(indices_list):
+    
+    if os.path.exists(os.path.join(SAVE_PATH,f"indices_{num_idx}.npy")):
+        embedding_list = np.load(os.path.join(SAVE_PATH,f"indices_{num_idx}.npy"))
+        mu = np.mean(embedding_list, axis=0)
+        sigma = np.cov(embedding_list, rowvar=False)
+        emb_list_for_indices.append((mu,sigma))
+        continue
+
+    embedding_list = []
+    for batch_ptr in tqdm(range(0,num_samples,BATCH_SIZE)):
+        images = []
+        for idx in range(batch_ptr,min(num_samples,batch_ptr+BATCH_SIZE)):
+            image,_ = dataset[indices[idx]]
+            assert isinstance(image,Image.Image)
+            image = resizer(np.array(image))
+            images.append(image)
+        images = np.array(images).transpose(0,3,1,2)
+        assert images.shape[1]==3
+        assert images.dtype==np.float32
+        embeddings = inception(torch.from_numpy(images).to("cuda"))
+        embedding_list.append(embeddings)
+    embedding_list = torch.cat(embedding_list,dim=0)
+    embedding_list = embedding_list.cpu().detach().numpy()
+    np.save(os.path.join(SAVE_PATH,f"indices_{num_idx}"),embedding_list)
+    mu = np.mean(embedding_list, axis=0)
+    sigma = np.cov(embedding_list, rowvar=False)
+    emb_list_for_indices.append((mu,sigma))
+
+fid1 = cleanfid.fid.frechet_distance(
+    emb_list_for_indices[1][0],
+    emb_list_for_indices[1][1],
+    emb_list_for_indices[0][0],
+    emb_list_for_indices[0][1]
+)
+
+fid2 = cleanfid.fid.frechet_distance(
+    emb_list_for_indices[1][0],
+    emb_list_for_indices[1][1],
+    emb_list_for_indices[2][0],
+    emb_list_for_indices[2][1]
+)
+
+print(f"FID value for previous {num_samples} samples and random {num_samples} samples is {fid1}")
+print(f"FID value for random {num_samples} samples and random {num_samples} samples is {fid2}")
