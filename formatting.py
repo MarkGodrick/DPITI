@@ -1,5 +1,7 @@
 import re
 import pandas as pd
+from pe.logging import setup_logging, execution_logger
+
 
 FILE_NAME = "lsun/bedroom_train/openai/gpt-4o-mini/pe/meta-llama/noise_multiplier=0/few_shot_chat/synthetic_text/000000010.csv"
 MIN_LEN = 100
