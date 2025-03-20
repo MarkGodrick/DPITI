@@ -583,21 +583,215 @@ We post some of our experiment results in the following tables, while example re
 </body>
 </html>
 
+---
 
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<table>
+<tr>
+    <td colspan="2" align="center"></td>
+    <td align="center">0</td>
+    <td align="center">1</td>
+    <td align="center">2</td>
+    <td align="center">3</td>
+    <td align="center">4</td>
+    <td align="center">5</td>
+    <td align="center">6</td>
+    <td align="center">7</td>
+    <td align="center">8</td>
+    <td align="center">9</td>
+    <td align="center">10</td>
+    <td align="center">11</td>
+    <td align="center">12</td>
+    <td align="center">13</td>
+    <td align="center">14</td>
+    <td align="center">15</td>
+    <td align="center">16</td>
+    <td align="center">17</td>
+    <td align="center">18</td>
+    <td align="center">19</td>
+    <td align="center">20</td>
+</tr>
+<tr>
+<td rowspan="2" align="center">look_ahead=0</td>
+<td align="center">vote</td>
+<td align="center">50.62</td>
+<td align="center">33.89</td>
+<td align="center">30.09</td>
+<td align="center">29.17</td>
+<td align="center">28.22</td>
+<td align="center">27.79</td>
+<td align="center">27.16</td>
+<td align="center">27.07</td>
+<td align="center">26.87</td>
+<td align="center">26.58</td>
+<td align="center">26.68</td>
+<td align="center">26.31</td>
+<td align="center">26.43</td>
+<td align="center">26.02</td>
+<td align="center">26.1</td>
+<td align="center">26.46</td>
+<td align="center">26.42</td>
+<td align="center">26.16</td>
+<td align="center"><b>25.82</b></td>
+<td align="center">25.91</td>
+<td align="center">25.96</td>
+</tr>
+<tr>
+<td align="center">variation</td>
+<td align="center">45.5</td>
+<td align="center">40.89</td>
+<td align="center">38.66</td>
+<td align="center">37.16</td>
+<td align="center">36.25</td>
+<td align="center">36.0</td>
+<td align="center">34.77</td>
+<td align="center">34.59</td>
+<td align="center">33.98</td>
+<td align="center">33.31</td>
+<td align="center">33.46</td>
+<td align="center">33.25</td>
+<td align="center">32.68</td>
+<td align="center">32.34</td>
+<td align="center">32.72</td>
+<td align="center">31.6</td>
+<td align="center">31.66</td>
+<td align="center">31.44</td>
+<td align="center">31.46</td>
+<td align="center">31.65</td>
+<td align="center">30.96</td>
+</tr>
+<tr>
+<td align="center">look_ahead=4</td>
+<td align="center">vote</td>
+<td align="center">49.77</td>
+<td align="center">49.93</td>
+<td align="center">45.04</td>
+<td align="center">41.44</td>
+<td align="center">38.33</td>
+<td align="center">36.3</td>
+<td align="center">35.31</td>
+<td align="center">34.2</td>
+<td align="center">33.2</td>
+<td align="center">31.66</td>
+<td align="center">31.73</td>
+<td align="center">30.65</td>
+<td align="center">30.73</td>
+<td align="center">30.39</td>
+<td align="center">30.07</td>
+<td align="center">29.42</td>
+<td align="center">29.1</td>
+<td align="center">28.86</td>
+<td align="center">28.54</td>
+<td align="center">28.11</td>
+<td align="center">27.92</td>
+</tr>
+<tr>
+<td align="center">look_ahead=8</td>
+<td align="center">vote</td>
+<td align="center">50.25</td>
+<td align="center">50.21</td>
+<td align="center">45.05</td>
+<td align="center">41.44</td>
+<td align="center">37.81</td>
+<td align="center">36.18</td>
+<td align="center">34.24</td>
+<td align="center">32.85</td>
+<td align="center">32.32</td>
+<td align="center">31.37</td>
+<td align="center">30.76</td>
+<td align="center">29.85</td>
+<td align="center">29.14</td>
+<td align="center">28.9</td>
+<td align="center">28.46</td>
+<td align="center">28.35</td>
+<td align="center">28.2</td>
+<td align="center">27.73</td>
+<td align="center">27.06</td>
+<td align="center">27.4</td>
+<td align="center">27.26</td>
+</tr>
+<caption>Table 6: <b>(FID)</b> Image-to-text-to-image PE results with different look-ahead degrees.
+</caption> 
+</table>
+</body>
+</html>
+
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<table>
+<tr>
+    <td colspan="2" align="center"></td>
+    <td align="center">0</td>
+    <td align="center">1</td>
+    <td align="center">2</td>
+    <td align="center">3</td>
+    <td align="center">4</td>
+    <td align="center">5</td>
+    <td align="center">6</td>
+    <td align="center">7</td>
+</tr>
+<tr>
+<td align="center">look_ahead=4</td>
+<td align="center">vote</td>
+<td align="center">55.74</td>
+<td align="center">48.92</td>
+<td align="center">47.48</td>
+<td align="center">46.51</td>
+<td align="center">44.72</td>
+<td align="center">40.23</td>
+<td align="center">39.23</td>
+<td align="center">39.49</td>
+</tr>
+<tr>
+<td align="center">look_ahead=8</td>
+<td align="center">vote</td>
+<td align="center">56.71</td>
+<td align="center">48.19</td>
+<td align="center">44.57</td>
+<td align="center">43.83</td>
+<td align="center">43.88</td>
+<td align="center">39.79</td>
+<td align="center">38.74</td>
+<td align="center">38.76</td>
+</tr>
+<caption>Table 7: <b>(FID)</b> Original image PE results with different look-ahead degrees.
+</caption> 
+</table>
+</body>
+</html>
 
 ### To-Do
+* Test on various benchmarks
+    * FID: Cat dataset / ...
+        * generate the original dataset and evaluate FID score
+        * possible datasets: Cat
+    * Downstream: Medical/... dataset
+        * generate a new dataset, and train the downstream model with the following strategies:
+            * Original dataset only
+            * Generated dataset only
+            * Original and Generated mixed
+        * check model's accuracy or whatever
+        * possible datasets: Camelyon17, CT, Headscan
+* Compare with baseline
+    * DPSGD diffusion model
+#### Done
 * ✅ Add a logger.
 * ✅ Currently we caption images with normal length.
-   * ✅ Enable Dense Caption in `caption/script.py`. 
-   * ✅ use OpenAI API key (gpt-4o) or 千问 API keys to generate dense caption.
-* (Temporally solved) We find running PE decline text quality heavily.
+   * Enable Dense Caption in `caption/script.py`. 
+   * use OpenAI API key (gpt-4o) or 千问 API keys to generate dense caption.
+* ✅ We find running PE decline text quality heavily.
     * Three ways to improve quality:
         * Improve Prompt
         * Change hyperparameters: iterations, temperature
         * Use splits that has higher quality
     * Try using fill-in-the-blanks for the model
     * change prompt for models
-        * ✅ prompt with word "short" in the model
+        * prompt with word "short" in the model
         * prompt model to remove header
         * prompt model to give a fine tail
         * prompt that the model is going to generate prompt for stable diffusion model
@@ -606,9 +800,9 @@ We post some of our experiment results in the following tables, while example re
     * find a way to increase `max_token_num` for diffusion models.`
     * Use more agents to do image sampling. Read more papers to see if this strategy greatly improves the quality.
     * DALL-E / Stable-Diffusion
-* We need to find a standard evaluation method
+* ✅ We need to find a standard evaluation method
     * we should resize to 256 first to call fid code
     * use LSUN preprocess repo
-* Compute fid on different checkpoints.
-* Use caption to generate image samples directly -> serve as upper bound.
-    * ✅ use OpenAI API caption
+* ✅ Compute fid on different checkpoints.
+* ✅ Use caption to generate image samples directly -> serve as upper bound.
+    * use OpenAI API caption

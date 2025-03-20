@@ -8,6 +8,8 @@ import os
 from pe.data import Data
 from pe.constant.data import LABEL_ID_COLUMN_NAME
 from pe.constant.data import IMAGE_DATA_COLUMN_NAME
+from pe.logging import execution_logger
+
 
 np.random.seed(42)
 
@@ -30,6 +32,7 @@ class LSUN_bedroom(Data):
         
         save_path = os.path.join(root_dir,"preprocessed",split)
         if os.path.exists(os.path.join(root_dir,"preprocessed",split)):
+            execution_logger.info("Processed dataset detected. Loading preprocessed dataset.")
             super().__init__()
             self.load_checkpoint(save_path)
             return

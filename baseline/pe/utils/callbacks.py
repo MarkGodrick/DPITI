@@ -4,6 +4,7 @@ import cleanfid.fid
 from pe.callback.callback import Callback
 from pe.metric_item import FloatMetricItem
 from pe.logging import execution_logger
+from pe.constant.data import IMAGE_DATA_COLUMN_NAME
 
 np.random.seed(42)
 
@@ -21,7 +22,11 @@ class _ComputeFID(Callback):
             filtering. Defaults to None
         :type filter_criterion: dict, optional
         """
-        self._priv_data = priv_data
+        execution_logger.info("ComputeFID metircs: Loading embeddings of private dataset")
+        emb_priv_data = np.stack(priv_data.data_frame[IMAGE_DATA_COLUMN_NAME].values,axis=0)
+        indices = np.random.choice(len(emb_priv_data), fid_sample_num, replace=False)
+        self._priv_data = emb_priv_data[indices]
+
         self._embedding = embedding
         self._filter_criterion = filter_criterion
         self._filter_criterion_str = str(filter_criterion).replace(" ", "")
@@ -31,15 +36,9 @@ class _ComputeFID(Callback):
             else f"fid_{self._embedding.column_name}"
         )
 
-        self._priv_data = self._embedding.compute_embedding(self._priv_data)
-        priv_embedding = np.stack(self._priv_data.data_frame[self._embedding.column_name].values, axis=0).astype(
-            np.float32
-        )
-        
-        indices = np.random.choice(len(priv_embedding),fid_sample_num, replace=False)
-        priv_embedding = priv_embedding[indices]
-        self._real_mu = np.mean(priv_embedding, axis=0)
-        self._real_sigma = np.cov(priv_embedding, rowvar=False)
+        self._real_mu = np.mean(self._priv_data, axis=0)
+        self._real_sigma = np.cov(self._priv_data, rowvar=False)
+        execution_logger.info("ComputeFID metircs: Embeddings of private dataset loaded successfully")
 
     def __call__(self, syn_data):
         """This function is called after each PE iteration that computes the FID between the private and synthetic

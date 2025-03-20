@@ -43,6 +43,14 @@
             }
         }
     },
-    "dataset_path":"dataset/lsun",
-    "lsun_class": "bedroom_train"
+    "dataset":{
+        "lsun":{
+            "root_dir":"dataset/lsun",
+            "lsun_class":["bedroom_train"]
+        },
+        "cat":{
+            "root_dir":"dataset/cat",
+            "res":512
+        }
+    }
 }

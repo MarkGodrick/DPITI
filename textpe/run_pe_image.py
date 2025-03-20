@@ -77,12 +77,11 @@ def main(args, config):
         priv_dataset=data_from_lsun
     )
     population = PEPopulation(
-        api=api, initial_variation_api_fold=6, next_variation_api_fold=6, keep_selected=True, selection_mode="rank"
+        api=api, keep_selected=True, selection_mode="rank"
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
     compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-    compute_fid_variation = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
@@ -95,7 +94,7 @@ def main(args, config):
         priv_data=data,
         population=population,
         histogram=histogram,
-        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
+        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
         loggers=[csv_print, log_print],
     )
     pe_runner.run(

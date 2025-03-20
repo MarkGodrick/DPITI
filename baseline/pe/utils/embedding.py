@@ -22,7 +22,7 @@ def to_uint8(x, min, max):
 class Inception(Embedding):
     """Compute the Inception embedding of images."""
 
-    def __init__(self, res, device="cuda", batch_size=2000):
+    def __init__(self, res, device="cuda", batch_size=32):
         """Constructor.
 
         :param res: The resolution of the images. The images will be resized to (res, res) before computing the

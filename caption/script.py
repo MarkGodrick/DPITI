@@ -4,73 +4,61 @@ import json
 import torch
 import argparse
 import pandas as pd
-from torchvision import transforms
 from torch.utils.data import Dataset,Subset
-from torchvision.datasets import LSUN
 from transformers import pipeline, BlipProcessor, BlipForConditionalGeneration
 from tqdm import tqdm
 from captioner import Openai_captioner, Huggingface_captioner, Gemini_captioner, Qwen_captioner
 from logger import execution_logger, setup_logging
+
+from caption.dataset import lsun, cat
 
 IMAGE_SIZE = 256                 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 batch_size = 16
 
+dataset_dict = {
+    "lsun":lsun,
+    "cat":cat
+}
 
-class lsun(Dataset):
-    def __init__(self, config):
-        self.dataset = LSUN(root=config['dataset_path'],
-                            classes=[config['lsun_class']],
-                            transform=transforms.Compose([transforms.Resize(IMAGE_SIZE),transforms.CenterCrop(IMAGE_SIZE)]))
-    
-    def __len__(self):
-        return len(self.dataset)
-    
-    def __getitem__(self, index):
-        images, _ = self.dataset[index]
-        return images
-
-
+captioner_dict = {
+    "openai":Openai_captioner,
+    "huggingface":Huggingface_captioner,
+    "gemini":Gemini_captioner,
+    "qwen":Qwen_captioner
+}
 
 def main(args, config):
 
-    dataset = lsun(config) 
+    os.makedirs(args.output, exist_ok=True)
 
-    idx = 9
-    # span = (len(dataset)+6-1)//6
-    span = 1024
+    setup_logging(log_file=os.path.join(args.output,"log.txt"))
+    
+    execution_logger.info("\nExcuting {}...\ncaptioner: {}\noutput: {}\n".format(sys.argv[0],args.captioner,args.output))
 
-    execution_logger.info(f"Captioning LSUN bedroom dataset spanning {span} elements, part {idx}.")
     execution_logger.info(f"Loading Dataset...")
 
-    dataset = Subset(dataset,indices=list(range(idx*span,(idx+1)*span)))
+    dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset, {}))
+    if not dataset:
+        raise ValueError("Captioner: dataset not recognized.")
 
     execution_logger.info(f"Loading Success. Loading Captioner...")
 
-    if args.captioner=="huggingface":
-        captioner = Huggingface_captioner(config["captioner"]["huggingface"])
-    elif args.captioner=="openai":
-        captioner = Openai_captioner(config["captioner"]["openai"])
-    elif args.captioner=="gemini":
-        captioner = Gemini_captioner(config["captioner"]["gemini"])
-    elif args.captioner=="qwen":
-        captioner = Qwen_captioner(config["captioner"]["qwen"])
-    else:
-        execution_logger.info("Captioner type not recognized.")
-        raise ValueError()
+    captioner = captioner_dict.get(args.captioner)(config['captioner'].get(args.captioner,{}))
+    if not dataset:
+        raise ValueError("Captioner: captioner not recognized.")
 
     execution_logger.info("Loading Success. Start Captioning...")
 
     captions = captioner(dataset)
 
-
     df = pd.DataFrame(captions,columns=['text'])
-    # df.to_csv(os.path.join(save_path,"caption.csv"),index=False)
+    # df.to_csv(os.path.join(output,"caption.csv"),index=False)
 
-    execution_logger.info("Captions are generated successfully. Saving data as file {}".format(os.path.join(args.save_path,f"caption{span}_part{idx}.csv")))
+    execution_logger.info("Captions are generated successfully. Saving data as file {}".format(os.path.join(args.output,f"caption.csv")))
 
-    df.to_csv(os.path.join(args.save_path,f"caption{span}_part{idx}.csv"),index=False)
+    df.to_csv(os.path.join(args.output,f"caption.csv"),index=False)
     
     
 
@@ -78,32 +66,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--captioner',type=str,choices=['huggingface','openai','gemini','qwen'],default='huggingface')
+    parser.add_argument('--dataset',type=str,choices=["lsun","cat"],default="lsun")
     parser.add_argument('--output',type=str,default="lsun")
 
     args = parser.parse_args()
 
     with open("caption/config.json",'r',encoding='utf-8') as f:
         config = json.load(f)
-
-    if args.captioner=="openai":
-        model_name = config["captioner"]["openai"]["openai_run"]["model"]
-    elif args.captioner=="huggingface":
-        model_name = config["captioner"]["huggingface"]['hf_model']["model"]
-    elif args.captioner=="gemini":
-        model_name = config["captioner"]["gemini"]["model"]
-    elif args.captioner=="qwen":
-        model_name = config["captioner"]["qwen"]["qwen_run"]["model"]
-    else:
-        raise ValueError()
-
-    save_path = os.path.join("lsun",config['lsun_class'],args.captioner,model_name)
-
-    os.makedirs(save_path, exist_ok=True)
-
-    args.save_path = save_path
-
-    setup_logging(log_file=os.path.join(args.save_path,"log.txt"))
-    
-    execution_logger.info("\nExcuting {}...\ncaptioner: {}\noutput: {}\n".format(sys.argv[0],args.captioner,args.save_path))
 
     main(args, config)
