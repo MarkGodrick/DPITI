@@ -15,6 +15,7 @@ from pe.histogram import NearestNeighbors
 from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
+from textpe.utils.dataset import lsun, cat
 from textpe.utils.callbacks import _ComputeFID
 from pe.callback import SaveTextToCSV
 from pe.logger import CSVPrint
@@ -25,14 +26,15 @@ import pandas as pd
 import os
 import sys
 import numpy as np
-from torchvision.datasets import LSUN
-from torchvision import transforms
 
 
 pd.options.mode.copy_on_write = True
 IMAGE_SIZE = 256
 
-transform = transforms.Compose([transforms.Resize(IMAGE_SIZE),transforms.CenterCrop(IMAGE_SIZE)])
+dataset_dict = {
+    "lsun":lsun,
+    "cat":cat
+}
 
 def main(args, config):
     
@@ -48,8 +50,8 @@ def main(args, config):
 
 
     data = text(root_dir=args.data)
-    dataset = LSUN("dataset/lsun",classes=['bedroom_train'],transform=transform)
-    data_from_lsun = data_from_dataset(dataset,length=300000)
+    dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset,{}))
+    data_from_lsun = data_from_dataset(dataset,length=300000,save_path=os.path.join("dataset",args.dataset,"embedding"))
 
     if args.llm=='huggingface':
         llm = HuggingfaceLLM(**config["model"]["Huggingface"])
@@ -98,7 +100,7 @@ def main(args, config):
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[2000] * 21,
+        num_samples_schedule=[200] * 18,
         delta=delta,
         epsilon=1.0,
         # noise_multiplier=0,
@@ -112,6 +114,7 @@ if __name__ == "__main__":
     parser.add_argument('--output',type=str,default="results/text")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface'],default='huggingface')
+    parser.add_argument('--dataset',type=str,choices=['lsun','cat'],default='lsun')
 
     args = parser.parse_args()
 

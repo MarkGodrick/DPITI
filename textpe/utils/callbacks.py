@@ -23,7 +23,7 @@ class _ComputeFID(Callback):
         :type filter_criterion: dict, optional
         """
         emb_priv_data = np.stack(priv_data.data_frame[IMAGE_DATA_COLUMN_NAME].values,axis=0)
-        indices = np.random.choice(len(emb_priv_data), fid_sample_num, replace=False)
+        indices = np.random.choice(len(emb_priv_data), min(len(emb_priv_data),fid_sample_num), replace=False)
         self._priv_data = emb_priv_data[indices]
         self._embedding = embedding
         self._filter_criterion = filter_criterion

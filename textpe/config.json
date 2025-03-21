@@ -15,5 +15,15 @@
     "api_prompt":{
         "random":"random_api_prompt/ordinary.json",
         "variation":"variation_api_prompt/few_shot_chat_fill_in_the_blanks.json"
+    },
+    "dataset":{
+        "lsun":{
+            "root_dir":"dataset/lsun",
+            "classes":["bedroom_train"]
+        },
+        "cat":{
+            "root_dir":"dataset/cat",
+            "res":512
+        }
     }
 }
