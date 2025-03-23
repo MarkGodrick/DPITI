@@ -1,10 +1,9 @@
 import pandas as pd
 import os
 
-PATH = "lsun/bedroom_train/baseline/pe/sdxl-turbo/variation_degree_version02/lookahead_degree=4"
-FILE = "fid_PE.EMBEDDING.Inception.csv"
+PATH = "results/cat/openai/gpt-4o-mini/pe/meta-llama/num_samples_schedule=200/noise_multiplier=0/few_shot_chat_fill_in_the_blanks/fid_PE.EMBEDDING.T2I_embedding.stabilityai-sdxl-turbo_{'PE.VARIATION_API_FOLD_ID':0}.csv"
 
-file = pd.read_csv(os.path.join(PATH,FILE))
+file = pd.read_csv(PATH)
 
 metrics = []
 metrics.append(float(file.columns[1]))

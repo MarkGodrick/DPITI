@@ -93,3 +93,15 @@ class cat(Dataset):
 
     def __getitem__(self, index):
         return self.images[index],self.labels[index]
+    
+    
+
+class camelyon17(Dataset):
+    def __init__(self, split = "id_train"):
+        self.dataset = load_dataset("jxie/camelyon17",split=split)
+
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        return self.dataset[index]['image'],self.dataset[index]['label']

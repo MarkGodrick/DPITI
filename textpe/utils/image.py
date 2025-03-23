@@ -19,13 +19,13 @@ import os
 IMAGE_SIZE = 256
 np.random.seed(42)
 
-def data_from_dataset(dataset, length = float("inf"), save_path = "dataset/embedding", batch_size = 16, random_shuffle = True)->Data:
+def data_from_dataset(dataset, length = float("inf"), save_path = "datasets/embedding", batch_size = 16, random_shuffle = True)->Data:
     
     pe_data = Data()
     total_length = min(length, len(dataset))
-    os.makedirs(os.path.join(save_path,f"length_{total_length:08}"),exist_ok=True)
     execution_logger.info(f"The length of dataset is {total_length}, and random shuffle is {random_shuffle}")
 
+    os.makedirs(os.path.join(save_path,f"length_{total_length:08}"),exist_ok=True)
     if pe_data.load_checkpoint(os.path.join(save_path,f"length_{total_length:08}")):
         execution_logger.info("Preprocessed data detected, loading preprocessed data.")
         return pe_data

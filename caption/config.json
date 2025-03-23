@@ -6,8 +6,8 @@
                 "max_completion_tokens":100,
                 "temperature":1.0
             },
-            "batch_size":1024,
-            "max_workers":16,
+            "batch_size":128,
+            "max_workers":4,
             "progress_bar":true
         },
         "gemini":{
@@ -45,12 +45,15 @@
     },
     "dataset":{
         "lsun":{
-            "root_dir":"dataset/lsun",
+            "root_dir":"datasets/lsun",
             "lsun_class":["bedroom_train"]
         },
         "cat":{
-            "root_dir":"dataset/cat",
+            "root_dir":"datasets/cat",
             "res":512
+        },
+        "camelyon17":{
+            "split":"id_train"
         }
     }
 }

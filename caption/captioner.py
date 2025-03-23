@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from typing import List, Union, Dict
 from tqdm import tqdm
 from PIL import Image
-import logging
+import pandas as pd
 
 from torch.utils.data import Dataset
 
@@ -16,7 +16,7 @@ from transformers import pipeline
 from tenacity import retry
 from tenacity import retry_all
 from tenacity import retry_if_not_exception_type
-from tenacity import stop_after_attempt
+from tenacity import stop_after_attempt, wait_fixed
 from tenacity import wait_random_exponential
 from tenacity import before_sleep_log
 
@@ -41,7 +41,7 @@ class Openai_captioner(Captioner):
 
     * ``OPENAI_API_KEY``: OpenAI API key. You can get it from https://platform.openai.com/account/api-keys."""
     
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict, file_path: str = None):
         """Constructor.
 
         :param config: configurations for running OpenAI API, can be observed in `config.json`
@@ -55,6 +55,13 @@ class Openai_captioner(Captioner):
 
         self.config = config
 
+        self.captions = []
+
+        self.file_path = file_path if file_path else "/tmp/caption.csv"
+        if file_path and os.path.exists(file_path) and file_path.split('.')[-1]=="csv":
+            file = pd.read_csv(file_path)
+            self.captions.extend(list(file[file.columns[0]]))
+
     def __call__(self,images: Union[Image.Image, List[Image.Image], Dataset])-> Union[str, List[str]]:
         """caption the whole dataset.
         
@@ -66,10 +73,11 @@ class Openai_captioner(Captioner):
         is_single = isinstance(images, Image.Image)
         images = [images] if is_single else images
         dataset_len = len(images)
-        captions = []
         batch_size = self.config["batch_size"]
+        init_ptr = len(self.captions)//batch_size
+        self.captions = self.captions[:init_ptr*batch_size]
 
-        for batch_idx in tqdm(range((len(images)+batch_size-1)//batch_size)):
+        for batch_idx in tqdm(range(init_ptr,(len(images)+batch_size-1)//batch_size)):
             imgs = [images[idx] for idx in range(batch_idx*batch_size,(batch_idx+1)*batch_size) if idx<dataset_len]
             encoded_images = [self.encode_image_from_pil(img) for img in imgs]
 
@@ -82,9 +90,11 @@ class Openai_captioner(Captioner):
                     )
                 )
             
-            captions.extend(responses)
+            self.captions.extend(responses)
+            temp_df = pd.DataFrame(self.captions,columns=['text'])
+            temp_df.to_csv(self.file_path,index=False)
 
-        return captions
+        return self.captions
 
 
     def encode_image_from_pil(self, image: Image.Image) -> str:
@@ -109,7 +119,7 @@ class Openai_captioner(Captioner):
                 PermissionDeniedError,
             )
         ),
-        wait=wait_random_exponential(min=8, max=500),
+        wait=wait_fixed(5) + wait_random_exponential(min=8, max=500),
         stop=stop_after_attempt(10),
         # before_sleep=before_sleep_log(execution_logger, logging.DEBUG),
     )
@@ -146,13 +156,19 @@ class Gemini_captioner(Captioner):
 
     * ``GEMINI_API_KEY``: Gemini API key. You can get one from https://aistudio.google.com/app/apikey """
     
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict, file_path: str = None):
         """Constructor
         
         :param config: configuration for gemini api
         :type config: dict"""
         self.client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
         self.config = config
+        self.captions = []
+
+        self.file_path = file_path if file_path else "/tmp/caption.csv"
+        if file_path and os.path.exists(file_path) and file_path.split('.')[-1]=="csv":
+            file = pd.read_csv(file_path)
+            self.captions.extend(list[file[file.columns[0]]])
     
     def __call__(self,images: Union[Image.Image, List[Image.Image], Dataset]):
         """caption the whole dataset.
@@ -165,10 +181,11 @@ class Gemini_captioner(Captioner):
         is_single = isinstance(images, Image.Image)
         images = [images] if is_single else images
         dataset_len = len(images)
-        captions = []
         batch_size = self.config["batch_size"]
+        init_ptr = len(self.captions)//batch_size
+        self.captions = self.captions[:init_ptr*batch_size]
 
-        for batch_idx in tqdm(range((len(images)+batch_size-1)//batch_size)):
+        for batch_idx in tqdm(range(init_ptr,(len(images)+batch_size-1)//batch_size)):
             imgs = [images[idx] for idx in range(batch_idx*batch_size,(batch_idx+1)*batch_size) if idx<dataset_len]
 
             # with ThreadPoolExecutor(max_workers=self.config["max_workers"]) as executor:
@@ -183,11 +200,12 @@ class Gemini_captioner(Captioner):
             # captions.extend(responses)
 
             for img in tqdm(imgs):
-                captions.append(self._get_response_for_one_request(img))
-
+                self.captions.append(self._get_response_for_one_request(img))
+            temp_df = pd.DataFrame(self.captions,columns=['text'],index=False)
+            temp_df.to_csv(self.file_path,index=False)
             # captions.extend(self._get_response_for_one_batch(imgs))
 
-        return captions
+        return self.captions
     
     @retry(
         retry=retry_if_not_exception_type((
@@ -256,7 +274,7 @@ class Qwen_captioner(Captioner):
 
     * ``DASHSCOPE_API_KEY``: Qwen API key. You can get it from ."""
     
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict, file_path: str = None):
         """Constructor.
 
         :param config: configurations for running OpenAI API, can be observed in `config.json`
@@ -272,6 +290,12 @@ class Qwen_captioner(Captioner):
             )
 
         self.config = config
+        self.captions = []
+
+        self.file_path = file_path if file_path else "/tmp/caption.csv"
+        if file_path and os.path.exists(file_path) and file_path.split('.')[-1]=="csv":
+            file = pd.read_csv(file_path)
+            self.captions.extend(list(file[file.columns[0]]))
 
     def __call__(self,images: Union[Image.Image, List[Image.Image], Dataset])-> Union[str, List[str]]:
         """caption the whole dataset.
@@ -284,10 +308,11 @@ class Qwen_captioner(Captioner):
         is_single = isinstance(images, Image.Image)
         images = [images] if is_single else images
         dataset_len = len(images)
-        captions = []
         batch_size = self.config["batch_size"]
+        init_ptr = len(self.captions)//batch_size
+        self.captions = self.captions[:init_ptr*batch_size]
 
-        for batch_idx in tqdm(range((len(images)+batch_size-1)//batch_size)):
+        for batch_idx in tqdm(range(init_ptr,(len(images)+batch_size-1)//batch_size)):
             imgs = [images[idx] for idx in range(batch_idx*batch_size,(batch_idx+1)*batch_size) if idx<dataset_len]
             encoded_images = [self.encode_image_from_pil(img) for img in imgs]
 
@@ -300,9 +325,12 @@ class Qwen_captioner(Captioner):
                     )
                 )
             
-            captions.extend(responses)
+            self.captions.extend(responses)
+            temp_df = pd.DataFrame(self.captions,columns=['text'],index=False)
+            temp_df.to_csv(self.file_path,index=False)
 
-        return captions
+        return self.captions
+
 
 
     def encode_image_from_pil(self, image: Image.Image) -> str:
@@ -366,7 +394,7 @@ class Qwen_captioner(Captioner):
 
 
 class Huggingface_captioner(Captioner):
-    def __init__(self, config):
+    def __init__(self, config, file_path: str = None):
         super().__init__()
 
         self.config = config

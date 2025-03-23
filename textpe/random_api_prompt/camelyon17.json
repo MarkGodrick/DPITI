@@ -1,0 +1,19 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Write a extremely short description for a microscopic view of breast cancer lymph node tissue sections sample {tone}. Focus on specific details, and avoid only describing the atmosphere or emotions. Give your answer directly."
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a creative style",
+                    "using a variety of sentence structures"
+                ]
+            }
+        }
+    ]
+}

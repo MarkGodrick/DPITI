@@ -1,8 +1,8 @@
-from baseline.utils.lsun_bedroom import LSUN_bedroom
-from baseline.utils.api_image import StableDiffusion
-from baseline.utils.callbacks import _ComputeFID
-from baseline.utils.embedding import Inception
-from baseline.utils.histogram import NNhistogram
+from baseline.pe.utils.dataset import LSUN_bedroom
+from baseline.pe.utils.api_image import StableDiffusion
+from baseline.pe.utils.callbacks import _ComputeFID
+from baseline.pe.utils.embedding import Inception
+from baseline.pe.utils.histogram import NNhistogram
 from pe.logging import setup_logging, execution_logger
 from pe.runner import PE
 from pe.population import PEPopulation

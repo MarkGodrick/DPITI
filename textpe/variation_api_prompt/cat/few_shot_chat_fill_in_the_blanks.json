@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for cat based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a cat: \"{example1}\". Give your answer directly and your answer MUST be exactly 50 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a cat: \"{example2}\". Give your answer directly and your answer MUST be exactly 58 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a cat: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"The _ shows a _ cat with a cream-colored _ and dark _ points on its _, face, and _. It has _ blue _ and long _. The cat's _ appears _ and _. The breed _ a _ or a _.",
+                "rephrase1":"The image shows a fluffy cat with a cream-colored body and dark brown points on its ears, face, and paws. It has striking blue eyes and long whiskers. The cat's expression appears calm and inquisitive. The breed resembles a Ragdoll or a Himalayan.",
+                "example2":"The _ features a _ cat with a _ coat. Its _ appears _ and _, showcasing _ of _ and _. The cat's _ has _ features, with _, _ eyes that look _ at the _. Its _ are _ and have a _ tuft of _ at the _, contributing to its _ look. The _ expression seems _ and _, creating an _ and _ presence.",
+                "rephrase2":"The image features a fluffy cat with a luxurious coat. Its fur appears soft and voluminous, showcasing shades of cream and gray. The cat's face has striking features, with large, expressive eyes that look directly at the viewer. Its ears are upright and have a slight tuft of fur at the tips, contributing to its appealing look. The overall expression seems calm and inquisitive, creating an inviting and adorable presence."
+            }
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for a microscopic view of breast cancer lymph node tissue sections sample based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a microscopic view of breast cancer lymph node tissue sections sample \"{example1}\". Give your answer directly and your answer MUST be exactly 50 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a microscopic view of breast cancer lymph node tissue sections sample \"{example2}\". Give your answer directly and your answer MUST be exactly 58 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a microscopic view of breast cancer lymph node tissue sections sample \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"The image shows a _ view of _, featuring _ densely packed _. The _ exhibit a _ of _ hues, creating a _ appearance. There's a _, _ _ that _ with the _ nuclei. The overall _ is _, showcasing _ detail and a _ theme, typical of _ slides.",
+                "rephrase1":"The image shows a microscopic view of tissue, featuring numerous densely packed cells. The cells exhibit a variety of purple hues, creating a textured appearance. There's a soft, pinkish background that contrasts with the dark-stained nuclei. The overall scene is intricate, showcasing high detail and a biological theme, typical of histological slides.",
+                "example2":"A close-up _ image _ a cluster of _ , primarily _ in shades of _ and _ . The _ exhibit varying _ and _ , with some _ more _ or _ in shape. _ details, such as _ , are visible, with a _ , _ background, _ the _ textures of the _ sample. The _ between the _ and the _ creates a _ , _ pattern _ of _ slides.",
+                "rephrase2":"A close-up microscopic image showcasing a cluster of cells, primarily stained in shades of pink and purple. The cells exhibit varying sizes and structures, with some being more oval or round in shape. Cellular details, such as nuclei, are visible, with a soft, blurred background, emphasizing the delicate textures of the biological sample. The contrast between the pink cytoplasm and the dark purple nuclei creates a striking, intricate pattern typical of histological slides."
+            }
+        }
+    ]
+}
