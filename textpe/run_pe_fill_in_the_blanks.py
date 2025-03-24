@@ -103,7 +103,7 @@ def main(args, config):
     pe_runner.run(
         num_samples_schedule=[2000] * 18,
         delta=delta,
-        epsilon=7.89,
+        epsilon=9.92,
         # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )

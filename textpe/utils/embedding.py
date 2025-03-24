@@ -15,7 +15,7 @@ from pe.constant.data import TEXT_DATA_COLUMN_NAME
 from pe.constant.data import EMBEDDING_COLUMN_NAME
 
 from diffusers import StableDiffusionXLPipeline
-
+import re
 
 def to_uint8(x, min, max):
     x = (x - min) / (max - min)
@@ -71,6 +71,12 @@ class T2I_embedding(Embedding):
         )
         samples = uncomputed_data.data_frame[TEXT_DATA_COLUMN_NAME].tolist()
         # embeddings = self._model.encode(samples, batch_size=self._batch_size)
+
+        # do sample filter
+        pattern = r'([^:]*:|^)(.*?)(?=\.$|$)'
+        matches = [re.search(pattern,text,re.DOTALL) for text in samples]
+
+        samples = [match.group(2).strip() for match in matches]
 
         # generate images from sample texts
         images = []

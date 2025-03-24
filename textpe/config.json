@@ -36,7 +36,9 @@
             "res":512
         },
         "camelyon17":{
-            "split":"id_train"
+            "root_dir":"datasets/camelyon17",
+            "split":"train",
+            "res":64
         }
     }
 }

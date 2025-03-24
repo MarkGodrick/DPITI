@@ -2,7 +2,7 @@
     "message_template": [
         {
             "role": "user",
-            "content": "Write a extremely short description for a cat {tone}. Focus on specific details, and avoid only describing the atmosphere or emotions. Give your answer directly."
+            "content": "Write a extremely short description for a ragdoll cat {tone}. Focus on specific details, and avoid only describing the atmosphere or emotions. Give your answer directly."
         }
     ],
     "replacement_rules":[

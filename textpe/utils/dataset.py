@@ -8,6 +8,7 @@ import pandas as pd
 from torchvision.datasets import LSUN
 from torchvision import transforms
 from datasets import load_dataset
+from wilds import get_dataset
 from collections import defaultdict
 from torch.utils.data import Dataset,Subset
 
@@ -97,11 +98,23 @@ class cat(Dataset):
     
 
 class camelyon17(Dataset):
-    def __init__(self, split = "id_train"):
-        self.dataset = load_dataset("jxie/camelyon17",split=split)
+    def __init__(self, root_dir="dataset", split = "train", res = 64):
+        dataset = get_dataset(dataset="camelyon17", download=True, root_dir=root_dir)
+        self.dataset = dataset.get_subset(split)
+        self.transform = transforms.Compose([transforms.Resize(res),transforms.CenterCrop(res)])
+        
+        # self.images = []
+        # self.labels = []
+        # for i in tqdm(range(len(data))):
+        #     image, label, _ = data[i]
+        #     self.images.append(transform(image))
+        #     self.labels.append(label.item())
 
     def __len__(self):
         return len(self.dataset)
     
     def __getitem__(self, index):
-        return self.dataset[index]['image'],self.dataset[index]['label']
+        image, label, _ = self.dataset[index]
+        image = self.transform(image)
+        label = int(label)
+        return image, label
