@@ -52,7 +52,7 @@ def main(args):
     images = np.array(images)
 
     file_name = args.input.split('/')[-1]
-    np.savez(os.path.join(args.output,f"caption{len(images)}_images0_pe{int(file_name.split('.')[0]):02}_sample_step_8_re"),images)
+    np.savez(os.path.join(args.output,f"caption{len(images)}part0_sample_step_8_re"),images)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()

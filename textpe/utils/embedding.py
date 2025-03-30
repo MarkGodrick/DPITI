@@ -74,7 +74,7 @@ class T2I_embedding(Embedding):
 
         # do sample filter
         pattern = r'([^:]*:|^)(.*?)(?=\.$|$)'
-        matches = [re.search(pattern,text,re.DOTALL) for text in samples]
+        matches = [re.search(pattern,str(text),re.DOTALL) for text in samples]
 
         samples = [match.group(2).strip() for match in matches]
 

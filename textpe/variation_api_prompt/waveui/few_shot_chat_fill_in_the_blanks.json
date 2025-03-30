@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for screenshots based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a screenshot: \"{example1}\". Give your answer directly and your answer MUST be exactly 82 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a screenshot: \"{example2}\". Give your answer directly and your answer MUST be exactly 52 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a screenshot: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"_ _ _ a screenshot _ _ _ _ _ in _ _ _ features a _ navigation _ _ 'Home,' 'Meetings,' _ 'Apps,' _ _ _ _ _ _ four buttons: _ _ **Join**, **Schedule**, and **Share Screen**. A _ widget _ the _ _ **4:06 _ _ September 8, _ with an 'Add a _ _ below. A search _ _ _ the top-left, _ _ _ _ _ 'Y' _ in _ top-right. _ interface is minimalistic and clean.",
+                "rephrase1":"The image is a screenshot of the Zoom desktop app in dark mode. It features a top navigation bar with 'Home,' 'Meetings,' 'Contacts,' 'Apps,' and 'Whiteboards.' The main section has four buttons: **New Meeting**, **Join**, **Schedule**, and **Share Screen**. A clock widget on the right shows **4:06 PM, Friday, September 8, 2023**, with an 'Add a Calendar' option below. A search bar is in the top-left, and a profile icon with 'Y' is in the top-right. The interface is minimalistic and clean.",
+                "example2":"The _ displays a _ conferencing _ _ with _ _ section containing _ icons _ _ _ and a _ section _ the _ _ _ _ _ a plant _ _ top has a navigation _ _ _ _ _ and 'Meetings', _ with a search _ and _ icons.",
+                "rephrase2":"The image displays a video conferencing app interface with a left section containing four icons for meeting actions and a right section showing the time, a calendar button, and a plant illustration. The top has a navigation bar with options like 'Home' and 'Meetings', along with a search bar and status icons."
+            }
+        }
+    ]
+}

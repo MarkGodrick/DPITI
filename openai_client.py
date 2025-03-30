@@ -7,12 +7,7 @@ import io
 
 api_key = os.environ["OPENAI_API_KEY"] 
 client = OpenAI(api_key=api_key)
-ds = load_dataset("jxie/camelyon17",split="id_train")
-img = Image.Image()
-for idx,item in enumerate(ds):
-    if item['label']:
-        img = ds[idx]['image']
-        break
+img = Image.open("image.jpg")
 buffered = io.BytesIO()
 img.save(buffered,format="JPEG")
 encoded_img = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -32,6 +27,18 @@ messages = [
     }
 ]
 
-response = client.chat.completions.create(model="gpt-4o-mini",messages = messages,temperature=1.2,max_completion_tokens=100)
+# messages = [
+#     {
+#         "role":"user",
+#         "content":[
+#             {
+#                     "type":"text",
+#                     "text":"对于\frac{d^2}{dt^2}(\det(X+tV))^{1/n},$X\in\mathbb{S}^n_{++},V\in\mathbb{S}^n$?我不仅想要求值还要判定其正负性"
+#             }
+#         ],
+#     }
+# ]
+
+response = client.chat.completions.create(model="gpt-4o-mini",messages = messages,temperature=1.2)
 
 print(response.choices[0].message.content)

@@ -119,7 +119,7 @@ class Openai_captioner(Captioner):
                 PermissionDeniedError,
             )
         ),
-        wait=wait_fixed(5) + wait_random_exponential(min=8, max=500),
+        wait=wait_fixed(30) + wait_random_exponential(min=8, max=500),
         stop=stop_after_attempt(10),
         # before_sleep=before_sleep_log(execution_logger, logging.DEBUG),
     )
@@ -326,7 +326,7 @@ class Qwen_captioner(Captioner):
                 )
             
             self.captions.extend(responses)
-            temp_df = pd.DataFrame(self.captions,columns=['text'],index=False)
+            temp_df = pd.DataFrame(self.captions,columns=['text'])
             temp_df.to_csv(self.file_path,index=False)
 
         return self.captions

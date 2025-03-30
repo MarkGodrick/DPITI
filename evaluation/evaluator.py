@@ -6,7 +6,7 @@ from PIL import Image
 from cleanfid import fid
 from torchvision import transforms
 from torch.utils.data import Dataset, Subset
-from torchvision.datasets import LSUN
+from evaluation.utils.datasets import *
 from transformers import pipeline, BlipProcessor, BlipForConditionalGeneration
 import torch
 import torch.nn as nn
@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader
 from scipy.linalg import sqrtm
 from tqdm import tqdm
 from logger import execution_logger, setup_logging
-
+import json
 
 transform1 = transforms.Compose(
     [transforms.Resize(256),transforms.CenterCrop(256)] 
@@ -34,6 +34,13 @@ transform3 = transforms.Compose([
 ])
 # LSUN -> resize/center crop to std size -> preprocess github repo
 # samples -> resize 256x256 & np.uint8 -> fid code
+
+dataset_dict = {
+    "lsun":lsun,
+    "cat":cat,
+    "camelyon17":camelyon17,
+    "waveui":waveui
+}
 
 class Images(Dataset):
     def __init__(self,data):
@@ -183,17 +190,17 @@ def compute_fid_and_is(real_images, generated_images, device="cuda"):
     return fid, 0, 0
 
 
-def main(args):
+def main(args,config):
 
-    execution_logger.info("Loading LSUN dataset")
+    execution_logger.info("Loading dataset")
 
-    dataset = LSUN(root=args.dataset,classes=['bedroom_train'])
+    dataset = dataset_dict.get(args.dataset)(**config["dataset"].get(args.dataset))
     _dataset = []
-    for idx in tqdm(range(20000)):
-        _dataset.append(transform1(dataset[idx][0]))
+    for idx in tqdm(range(min(20000,len(dataset)))):
+        _dataset.append(transform1(dataset[idx]))
     dataset = Images(_dataset)
     
-    execution_logger.info("LSUN dataset loaded. Loading generated samples")
+    execution_logger.info("dataset loaded. Loading generated samples")
 
     samples = np.load(os.path.join(args.input))
     samples = samples['arr_0']
@@ -213,7 +220,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--dataset",type=str,default='dataset/lsun')
+    parser.add_argument("--dataset",type=str,choices=["lsun","cat","camelyon17","waveui"],default="lsun")
     parser.add_argument("--input",type=str,default="results/image/LSUN_huggingface/part_0/huggingface")
 
     args = parser.parse_args()
@@ -222,4 +229,7 @@ if __name__ == "__main__":
 
     execution_logger.info("\nExecuting {}...\ndataset: {}\ninput: {}".format(sys.argv[0],args.dataset,args.input))
 
-    main(args)
+    with open("evaluation/config.json","r") as f:
+        config = json.load(f)
+
+    main(args, config)

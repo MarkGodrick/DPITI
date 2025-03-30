@@ -7,10 +7,10 @@ import numpy as np
 import pandas as pd
 from torchvision.datasets import LSUN
 from torchvision import transforms
-from wilds import get_dataset
 from datasets import load_dataset
 from collections import defaultdict
 from torch.utils.data import Dataset,Subset
+from wilds import get_dataset
 
 IMAGE_SIZE = 256
 

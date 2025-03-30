@@ -1,4 +1,4 @@
-from baseline.pe.utils.dataset import LSUN_bedroom
+from baseline.pe.utils.dataset import *
 from baseline.pe.utils.api_image import StableDiffusion
 from baseline.pe.utils.callbacks import _ComputeFID
 from baseline.pe.utils.embedding import Inception
@@ -17,40 +17,36 @@ from pe.logger import CSVPrint
 from pe.logger import LogPrint
 from pe.data import Data
 from textpe.utils.image import data_from_dataset
-from torchvision.datasets import LSUN
-from torchvision import transforms
+from pe.constant.data import IMAGE_DATA_COLUMN_NAME
 
 
-import pandas as pd
 import os
+import json
+import argparse
 import numpy as np
+import pandas as pd
 
 pd.options.mode.copy_on_write = True
 IMAGE_SIZE = 256
-ITERATIONS = 20
+ITERATIONS = 10
 NUM_OF_PRIV_DATASET = 300000
-transform = transforms.Compose([transforms.Resize(IMAGE_SIZE),transforms.CenterCrop(IMAGE_SIZE)])
 
+dataset_dict = {
+    "lsun":LSUN_bedroom,
+    "waveui":waveui
+}
 
+def main(args, config):
+    setup_logging(log_file=os.path.join(args.output, "log.txt"))
 
-if __name__ == "__main__":
-    exp_folder = "lsun/bedroom_train/baseline/pe/sdxl-turbo/iterations=20/lookahead_degree=4"
-
-    setup_logging(log_file=os.path.join(exp_folder, "log.txt"))
-
-    data = LSUN_bedroom(res=IMAGE_SIZE,max_length=NUM_OF_PRIV_DATASET)
-    execution_logger.info("private dataset loaded successfully.")
+    data = dataset_dict.get(args.dataset)(**config["dataset"].get(args.dataset))
     
-    execution_logger.info("Loading embeddings of private dataset.")
-    embed_from_dataset = Data()
-    if not (os.path.exists(f"dataset/lsun/embedding/length_{NUM_OF_PRIV_DATASET:08}") and embed_from_dataset.load_checkpoint(f"dataset/lsun/embedding/length_{NUM_OF_PRIV_DATASET:08}")):
-        embed_from_dataset = data_from_dataset(LSUN(root="dataset/lsun",classes=["bedroom_train"],transform=transform),length=NUM_OF_PRIV_DATASET)
-    execution_logger.info("Computed embeddings of the private dataset loaded successfully.")
+    embed_from_dataset = data_from_dataset(data,length=NUM_OF_PRIV_DATASET,save_path=f"datasets/{args.dataset}")
 
 
     api = StableDiffusion(
-        prompt={"bedroom":"A photo of bedroom"},
-        variation_degrees=[1,0.75,0.75,0.75,0.75,0.75,0.75,0.75,0.75,0.75,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.25,0.25],
+        prompt=config["prompt"].get(args.dataset),
+        variation_degrees=[1,1,0.75,0.75,0.75,0.75,0.5,0.5,0.5,0.5],
     )
     embedding = Inception(res=IMAGE_SIZE, batch_size=32)
     histogram = NNhistogram(
@@ -62,15 +58,15 @@ if __name__ == "__main__":
     )
     population = PEPopulation(api=api, histogram_threshold=5)
 
-    save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
+    save_checkpoints = SaveCheckpoints(os.path.join(args.output, "checkpoint"))
     sample_images = SampleImages()
     compute_fid = _ComputeFID(priv_data=embed_from_dataset, embedding=embedding)
 
-    image_file = ImageFile(output_folder=exp_folder)
-    csv_print = CSVPrint(output_folder=exp_folder)
+    image_file = ImageFile(output_folder=args.output)
+    csv_print = CSVPrint(output_folder=args.output)
     log_print = LogPrint()
 
-    delta = 1.0/NUM_OF_PRIV_DATASET/np.log(NUM_OF_PRIV_DATASET)
+    delta = 1.0/len(data)/np.log(len(data))
 
     pe_runner = PE(
         priv_data=data,
@@ -82,6 +78,19 @@ if __name__ == "__main__":
     pe_runner.run(
         num_samples_schedule=[2000] * ITERATIONS,
         delta=delta,
-        noise_multiplier=2 * np.sqrt(2),
-        checkpoint_path=os.path.join(exp_folder, "checkpoint"),
+        epsilon=1.0,
+        # noise_multiplier=2 * np.sqrt(2),
+        checkpoint_path=os.path.join(args.output, "checkpoint"),
     )
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset",type=str,choices=['lsun','waveui'],default='lsun')
+    parser.add_argument("--output",type=str,default="results/baseline/pe")
+
+    args = parser.parse_args()
+
+    with open("baseline/pe/config.json","r") as f:
+        config = json.load(f)
+
+    main(args, config)

@@ -24,6 +24,10 @@
         "camelyon17":{
             "random":"random_api_prompt/camelyon17.json",
             "variation":"variation_api_prompt/camelyon17/few_shot_chat_fill_in_the_blanks.json"
+        },
+        "waveui":{
+            "random":"random_api_prompt/waveui.json",
+            "variation":"variation_api_prompt/waveui/few_shot_chat_fill_in_the_blanks.json"
         }
     },
     "dataset":{

@@ -102,13 +102,6 @@ class camelyon17(Dataset):
         dataset = get_dataset(dataset="camelyon17", download=True, root_dir=root_dir)
         self.dataset = dataset.get_subset(split)
         self.transform = transforms.Compose([transforms.Resize(res),transforms.CenterCrop(res)])
-        
-        # self.images = []
-        # self.labels = []
-        # for i in tqdm(range(len(data))):
-        #     image, label, _ = data[i]
-        #     self.images.append(transform(image))
-        #     self.labels.append(label.item())
 
     def __len__(self):
         return len(self.dataset)
@@ -118,3 +111,14 @@ class camelyon17(Dataset):
         image = self.transform(image)
         label = int(label)
         return image, label
+    
+
+class waveui(Dataset):
+    def __init__(self, split="train"):
+        self.dataset = load_dataset("agentsea/wave-ui",split=split)
+
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        return self.dataset[int(index)]['image'].convert("RGB"),0

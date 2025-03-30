@@ -15,7 +15,7 @@ from pe.histogram import NearestNeighbors
 from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
-from textpe.utils.dataset import lsun, cat, camelyon17
+from textpe.utils.dataset import *
 from textpe.utils.callbacks import _ComputeFID
 from pe.callback import SaveTextToCSV
 from pe.logger import CSVPrint
@@ -34,7 +34,8 @@ IMAGE_SIZE = 256
 dataset_dict = {
     "lsun":lsun,
     "cat":cat,
-    "camelyon17":camelyon17
+    "camelyon17":camelyon17,
+    "waveui":waveui
 }
 
 def main(args, config):
@@ -101,9 +102,9 @@ def main(args, config):
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[2000] * 18,
+        num_samples_schedule=[2000] * 10,
         delta=delta,
-        epsilon=9.92,
+        epsilon=1.0,
         # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )
@@ -115,7 +116,7 @@ if __name__ == "__main__":
     parser.add_argument('--output',type=str,default="results/text")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17'],default='lsun')
+    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui'],default='lsun')
 
     args = parser.parse_args()
 

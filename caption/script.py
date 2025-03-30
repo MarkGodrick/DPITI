@@ -11,7 +11,7 @@ from tqdm import tqdm
 from captioner import Openai_captioner, Huggingface_captioner, Gemini_captioner, Qwen_captioner
 from logger import execution_logger, setup_logging
 
-from caption.dataset import lsun, cat, camelyon17
+from caption.dataset import *
 
 IMAGE_SIZE = 256                 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -21,7 +21,8 @@ np.random.seed(42)
 dataset_dict = {
     "lsun":lsun,
     "cat":cat,
-    "camelyon17":camelyon17
+    "camelyon17":camelyon17,
+    "waveui":waveui
 }
 
 captioner_dict = {
@@ -69,7 +70,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--captioner',type=str,choices=['huggingface','openai','gemini','qwen'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=["lsun","cat","camelyon17"],default="lsun")
+    parser.add_argument('--dataset',type=str,choices=["lsun","cat","camelyon17","waveui"],default="lsun")
     parser.add_argument('--output',type=str,default="results")
 
     args = parser.parse_args()

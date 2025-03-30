@@ -10,8 +10,8 @@ from pe.data.image import Cat
 from pe.logging import setup_logging
 from pe.runner import PE
 from pe.population import PEPopulation
-from baseline.utils.api_image import StableDiffusion
-from baseline.utils.embedding import Inception
+from baseline.pe.utils.api_image import StableDiffusion
+from baseline.pe.utils.embedding import Inception
 from pe.histogram import NearestNeighbors
 from pe.callback import SaveCheckpoints
 from pe.callback import SampleImages

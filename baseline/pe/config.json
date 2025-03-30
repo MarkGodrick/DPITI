@@ -1,0 +1,21 @@
+{
+    "dataset":{
+        "lsun":{
+            "root_dir":"datasets/lsun",
+            "split":"train"
+        },
+        "waveui":{
+            "root_dir":"datasets/waveui",
+            "split":"train",
+            "res":512
+        }
+    },
+    "prompt":{
+        "lsun":{
+            "bedroom":"A photo of bedroom"
+        },
+        "waveui":{
+            "screenshot":"A screenshot"
+        }
+    }
+}

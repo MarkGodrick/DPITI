@@ -1,0 +1,19 @@
+{
+    "dataset":{
+        "lsun":{
+            "root_dir":"datasets/lsun",
+            "lsun_class":["bedroom_train"]
+        },
+        "cat":{
+            "root_dir":"datasets/cat",
+            "res":512
+        },
+        "camelyon17":{
+            "root_dir":"datasets/camelyon17",
+            "split":"train"
+        },
+        "waveui":{
+            "split":"train"
+        }
+    }
+}

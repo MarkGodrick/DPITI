@@ -814,133 +814,48 @@ We post some of our experiment results in the following tables, while example re
 <td align="center">52.33</td>
 </tr>
 <tr>
-<td rowspan="2" align="center">epsilon=1.0</td>
-<td align="center">vote</td>
-<td align="center">183.7</td>
-<td align="center">164.2</td>
-<td align="center">160.3</td>
-<td align="center">154.2</td>
-<td align="center">151.4</td>
-<td align="center">149.2</td>
-<td align="center">144.8</td>
-<td align="center">148.3</td>
-<td align="center">148.9</td>
-<td align="center">150.1</td>
-<td align="center">142.3</td>
-<td align="center">143.8</td>
-<td align="center">140.2</td>
-<td align="center">147.1</td>
-<td align="center">150.8</td>
-<td align="center">147.8</td>
-<td align="center">145.4</td>
-<td align="center">139.8</td>
-</tr>
-<tr>
+<td align="center">epsilon=7.89</td>
 <td align="center">variation</td>
-<td align="center">174.6</td>
-<td align="center">164.0</td>
-<td align="center">163.9</td>
-<td align="center">155.5</td>
-<td align="center">155.4</td>
-<td align="center">157.9</td>
-<td align="center">151.5</td>
-<td align="center">151.0</td>
-<td align="center">156.4</td>
-<td align="center">154.4</td>
-<td align="center">147.3</td>
-<td align="center">149.5</td>
-<td align="center">149.3</td>
-<td align="center">157.4</td>
-<td align="center">154.5</td>
-<td align="center">149.3</td>
-<td align="center">144.8</td>
-<td align="center">148.5</td>
-</tr>
-<tr>
-<td rowspan="2" align="center">epsilon=7.89</td>
-<td align="center">vote</td>
-<td align="center">179.6</td>
-<td align="center">154.2</td>
-<td align="center">143.6</td>
-<td align="center">133.9</td>
-<td align="center">127.6</td>
-<td align="center">121.2</td>
-<td align="center">119.7</td>
-<td align="center">121.4</td>
-<td align="center">116.5</td>
-<td align="center">117.7</td>
-<td align="center">123.3</td>
-<td align="center">126.9</td>
-<td align="center">124.5</td>
-<td align="center">131.6</td>
-<td align="center">128.8</td>
-<td align="center">124.6</td>
-<td align="center">125.4</td>
-<td align="center">126.4</td>
-</tr>
-<tr>
-<td align="center">variation</td>
-<td align="center">164.8</td>
-<td align="center">153.9</td>
-<td align="center">152.1</td>
-<td align="center">143.7</td>
-<td align="center">141.1</td>
-<td align="center">140.5</td>
-<td align="center">136.1</td>
-<td align="center">129.1</td>
-<td align="center">134.5</td>
-<td align="center">140.8</td>
-<td align="center">142.9</td>
-<td align="center">142.3</td>
-<td align="center">141.4</td>
-<td align="center">144.7</td>
-<td align="center">136.5</td>
-<td align="center">145.1</td>
-<td align="center">146.1</td>
-<td align="center">147.1</td>
+<td align="center">113.0</td>
+<td align="center">116.6</td>
+<td align="center">119.1</td>
+<td align="center">118.6</td>
+<td align="center">113.8</td>
+<td align="center">122.6</td>
+<td align="center">118.6</td>
+<td align="center">125.5</td>
+<td align="center">120.0</td>
+<td align="center">119.0</td>
+<td align="center">121.5</td>
+<td align="center">122.3</td>
+<td align="center">113.2</td>
+<td align="center">116.6</td>
+<td align="center">117.2</td>
+<td align="center">120.8</td>
+<td align="center">120.9</td>
+<td align="center">114.5</td>
 </tr>
 <tr>
 <td rowspan="2" align="center">noise_multiplier=0</td>
-<td align="center">vote</td>
-<td align="center">179.6</td>
-<td align="center">148.8</td>
-<td align="center">123.7</td>
-<td align="center">104.4</td>
-<td align="center">96.47</td>
-<td align="center">78.13</td>
-<td align="center">76.88</td>
-<td align="center">69.24</td>
-<td align="center">71.87</td>
-<td align="center">74.29</td>
-<td align="center">68.96</td>
-<td align="center">63.72</td>
-<td align="center">71.64</td>
-<td align="center">68.64</td>
-<td align="center">65.49</td>
-<td align="center">67.61</td>
-<td align="center">70.25</td>
-<td align="center">72.59</td>
-</tr>
-<tr>
 <td align="center">variation</td>
-<td align="center">167.5</td>
-<td align="center">153.5</td>
-<td align="center">136.3</td>
-<td align="center">128.0</td>
-<td align="center">124.7</td>
+<td align="center">116.2</td>
+<td align="center">115.0</td>
+<td align="center">116.2</td>
+<td align="center">113.0</td>
+<td align="center">113.7</td>
+<td align="center">106.4</td>
+<td align="center">114.3</td>
+<td align="center">114.0</td>
+<td align="center">117.4</td>
+<td align="center">112.8</td>
+<td align="center">109.8</td>
+<td align="center">113.5</td>
+<td align="center">111.1</td>
+<td align="center">111.2</td>
+<td align="center">113.3</td>
+<td align="center">115.3</td>
 <td align="center">111.8</td>
-<td align="center">101.2</td>
-<td align="center">102.2</td>
-<td align="center">100.5</td>
-<td align="center">99.84</td>
-<td align="center">102.2</td>
-<td align="center">103.8</td>
-<td align="center">104.5</td>
-<td align="center">97.78</td>
-<td align="center">103.2</td>
-<td align="center">98.36</td>
-<td align="center">97.9</td>
-<td align="center">100.4</td>
+<td align="center">104.3</td>
 </tr>
 <caption>Table 8: <b>(FID)</b> Image-to-Text-to-Image on Cat dataset
 </caption> 
