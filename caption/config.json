@@ -58,6 +58,12 @@
         },
         "waveui":{
             "split":"train"
+        },
+        "lex10k":{
+            "split":"train"
+        },
+        "europeart":{
+            "split":"train"
         }
     }
 }

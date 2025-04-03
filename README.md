@@ -867,7 +867,6 @@ We post some of our experiment results in the following tables, while example re
 * Test on various benchmarks
     * FID: Cat dataset / ...
         * generate the original dataset and evaluate FID score
-        * possible datasets: Cat
     * Downstream: Medical/... dataset
         * generate a new dataset, and train the downstream model with the following strategies:
             * Original dataset only
@@ -877,6 +876,49 @@ We post some of our experiment results in the following tables, while example re
         * possible datasets: Camelyon17, CT, Headscan
 * Compare with baseline
     * DPSGD diffusion model
+
+<html>
+<body>
+<table>
+<tr>
+<td>Dataset</td>
+<td>sample num</td>
+<td>resolution</td>
+<td>classes</td>
+<td>url</td>
+<td>notes</td>
+</tr>
+<tr>
+<td>LeX-10K</td>
+<td>10,000</td>
+<td>1024x1024</td>
+<td>None</td>
+<td>https://huggingface.co/datasets/X-ART/LeX-10K</td>
+<td>Generated Images</td>
+</tr>
+<tr>
+<td>european art</td>
+<td>15,154</td>
+<td>most>512x512</td>
+<td>European Artworks</td>
+<td>https://huggingface.co/datasets/biglam/european_art</td>
+<td>None</td>
+</tr>
+<tr>
+<td>The cauldron</td>
+<td>1,880,992</td>
+<td>most>512x512</td>
+<td>European Artworks</td>
+<td>https://huggingface.co/datasets/biglam/european_art</td>
+<td>None</td>
+</tr>
+<caption>Selected Dataset
+</caption> 
+</table>
+</body>
+</html>
+
+
 #### Done
 * ✅ Add a logger.
 * ✅ Currently we caption images with normal length.

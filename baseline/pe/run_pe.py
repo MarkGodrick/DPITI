@@ -41,7 +41,7 @@ def main(args, config):
 
     data = dataset_dict.get(args.dataset)(**config["dataset"].get(args.dataset))
     
-    embed_from_dataset = data_from_dataset(data,length=NUM_OF_PRIV_DATASET,save_path=f"datasets/{args.dataset}")
+    embed_from_dataset = data_from_dataset(data,length=NUM_OF_PRIV_DATASET,save_path=os.path.join("datasets",args.dataset,"embedding"))
 
 
     api = StableDiffusion(

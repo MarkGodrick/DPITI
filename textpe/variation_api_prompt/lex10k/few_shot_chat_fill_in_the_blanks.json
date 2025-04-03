@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for generated images based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a generated image: \"{example1}\". Give your answer directly and your answer MUST be exactly 46 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a generated image: \"{example2}\". Give your answer directly and your answer MUST be exactly 63 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a generated image: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"A _-inspired _ of a young _ adorned with _ floral _ in her dark _, exuding _ and _. The soft _ hues and _ text add a _ of _ beauty to the _.",
+                "rephrase1":"A vintage-inspired portrait of a young woman adorned with delicate floral accents in her dark hair, exuding elegance and romance. The soft pastel hues and calligraphic text add a touch of timeless beauty to the composition.",
+                "example2":"A _ _ in a _ _ lounges _ in a _ _ _, smoking a _. _ him are _ _, hinting at a _ _ , possibly for ' _ ' _ _ Jean Pamfiloff’s ' _.",
+                "rephrase2":"A suave man in a black tuxedo lounges confidently in a deep blue armchair, smoking a cigarette. Surrounding him are scattered words, hinting at a book cover design, possibly for 'Wall Street Journal' bestselling author Mimi Jean Pamfiloff’s 'Of Me.'"
+            }
+        }
+    ]
+}

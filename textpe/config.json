@@ -28,6 +28,10 @@
         "waveui":{
             "random":"random_api_prompt/waveui.json",
             "variation":"variation_api_prompt/waveui/few_shot_chat_fill_in_the_blanks.json"
+        },
+        "lex10k":{
+            "random":"random_api_prompt/lex10k.json",
+            "variation":"variation_api_prompt/lex10k/few_shot_chat_fill_in_the_blanks.json"
         }
     },
     "dataset":{
@@ -43,6 +47,14 @@
             "root_dir":"datasets/camelyon17",
             "split":"train",
             "res":64
+        },
+        "waveui":{
+            "split":"train",
+            "res":256
+        },
+        "lex10k":{
+            "split":"train",
+            "res":256
         }
     }
 }

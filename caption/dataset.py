@@ -114,4 +114,27 @@ class waveui(Dataset):
         return len(self.dataset)
     
     def __getitem__(self, index):
-        return self.dataset[index]['image'].convert("RGB")
+        return self.dataset[int(index)]['image'].convert("RGB")
+
+    
+class lex10k(Dataset):
+    def __init__(self, split="train"):
+        self.dataset = load_dataset("X-ART/LeX-10K",split=split)
+
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        return self.dataset[int(index)]['image']
+    
+
+    
+class europeart(Dataset):
+    def __init__(self, split="train"):
+        self.dataset = load_dataset("biglam/european_art",split=split)
+
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        return self.dataset[int(index)]['image']

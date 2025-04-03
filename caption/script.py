@@ -22,7 +22,9 @@ dataset_dict = {
     "lsun":lsun,
     "cat":cat,
     "camelyon17":camelyon17,
-    "waveui":waveui
+    "waveui":waveui,
+    "lex10k":lex10k,
+    "europeart":europeart
 }
 
 captioner_dict = {
@@ -43,7 +45,9 @@ def main(args, config):
     execution_logger.info(f"Loading Dataset...")
 
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset, {}))
-    dataset = Subset(dataset,[i for i in range(10240)])
+    
+    indices = np.random.choice(len(dataset),len(dataset),replace=False)
+    dataset = Subset(dataset,indices[:10240])
     if not dataset:
         raise ValueError("Captioner: dataset not recognized.")
 
@@ -70,7 +74,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--captioner',type=str,choices=['huggingface','openai','gemini','qwen'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=["lsun","cat","camelyon17","waveui"],default="lsun")
+    parser.add_argument('--dataset',type=str,choices=["lsun","cat","camelyon17","waveui","lex10k","europeart"],default="lsun")
     parser.add_argument('--output',type=str,default="results")
 
     args = parser.parse_args()

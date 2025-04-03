@@ -114,11 +114,25 @@ class camelyon17(Dataset):
     
 
 class waveui(Dataset):
-    def __init__(self, split="train"):
+    def __init__(self, split="train", res = 256):
+        self.transform = transforms.Compose([transforms.Resize(res),transforms.CenterCrop(res)])
         self.dataset = load_dataset("agentsea/wave-ui",split=split)
 
     def __len__(self):
         return len(self.dataset)
     
     def __getitem__(self, index):
-        return self.dataset[int(index)]['image'].convert("RGB"),0
+        return self.transform(self.dataset[int(index)]['image'].convert("RGB")),0
+
+
+
+class lex10k(Dataset):
+    def __init__(self, split="train", res = 256):
+        self.transform = transforms.Compose([transforms.Resize(res),transforms.CenterCrop(res)])
+        self.dataset = load_dataset("X-ART/LeX-10K",split=split)
+
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        return self.transform(self.dataset[int(index)]['image'].convert("RGB")),0

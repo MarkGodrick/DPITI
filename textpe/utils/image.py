@@ -19,7 +19,7 @@ import os
 IMAGE_SIZE = 256
 np.random.seed(42)
 
-def data_from_dataset(dataset, length = float("inf"), save_path = "datasets/embedding", batch_size = 16, random_shuffle = True)->Data:
+def data_from_dataset(dataset, length = float("inf"), save_path = "datasets/embedding", batch_size = 1, random_shuffle = True)->Data:
     
     pe_data = Data()
     total_length = min(length, len(dataset))
