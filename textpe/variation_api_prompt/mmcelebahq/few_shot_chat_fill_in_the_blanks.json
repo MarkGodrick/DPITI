@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for a headshot of some celebrity based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a headshot of some celebrity: \"{example1}\". Give your answer directly and your answer MUST be exactly 33 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a headshot of some celebrity: \"{example2}\". Give your answer directly and your answer MUST be exactly 38 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a headshot of some celebrity: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"A _ _ of a _ _ celebrity with _ styled _ hair and a _ _, standing _ in a _ _, with _ and a _ blurred in the _.",
+                "rephrase1":"A cheerful headshot of a young male celebrity with neatly styled dark hair and a bright smile, standing outdoors in a casual setting, with people and a cameraman blurred in the background.",
+                "example2":"A _ woman with _ _ hair _ her chin on her _, wearing a _ black hat adorned with colorful _. Her serious _ contrasts with the _ _ _.",
+                "rephrase2":"A poised woman with curly blonde hair rests her chin on her hands, wearing a wide-brimmed black hat adorned with colorful flowers. Her serious gaze contrasts with the playful floral accessory."
+            }
+        }
+    ]
+}

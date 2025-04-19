@@ -10,7 +10,7 @@ from pe.api.text import LLMAugPE
 from pe.llm import OpenAILLM, HuggingfaceLLM
 from pe.embedding.text import SentenceTransformer
 from pe.embedding.image import Inception
-from textpe.utils.embedding import T2I_embedding
+from textpe.utils.embedding import hfpipe_embedding
 from pe.histogram import NearestNeighbors
 from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
@@ -36,7 +36,9 @@ dataset_dict = {
     "cat":cat,
     "camelyon17":camelyon17,
     "waveui":waveui,
-    "lex10k":lex10k
+    "lex10k":lex10k,
+    "europeart":europeart,
+    "mmcelebahq":ImageFolderDataset
 }
 
 def main(args, config):
@@ -72,7 +74,7 @@ def main(args, config):
         blank_probabilities=0.5
     )
     # embedding = SentenceTransformer(model="sentence-t5-base")
-    embedding_syn = T2I_embedding(model="stabilityai/sdxl-turbo")
+    embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
     # embedding_priv = Inception(res=256,batch_size=16)
     histogram = ImageVotingNN(
         embedding=embedding_syn,
@@ -103,7 +105,7 @@ def main(args, config):
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[1000] * 10,
+        num_samples_schedule=[2000] * 10,
         delta=delta,
         epsilon=1.0,
         # noise_multiplier=0,
@@ -117,7 +119,7 @@ if __name__ == "__main__":
     parser.add_argument('--output',type=str,default="results/text")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart'],default='lsun')
+    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq'],default='lsun')
 
     args = parser.parse_args()
 

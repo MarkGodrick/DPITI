@@ -32,6 +32,14 @@
         "lex10k":{
             "random":"random_api_prompt/lex10k.json",
             "variation":"variation_api_prompt/lex10k/few_shot_chat_fill_in_the_blanks.json"
+        },
+        "europeart":{
+            "random":"random_api_prompt/europeart.json",
+            "variation":"variation_api_prompt/europeart/few_shot_chat_fill_in_the_blanks.json"
+        },
+        "mmcelebahq":{
+            "random":"random_api_prompt/mmcelebahq.json",
+            "variation":"variation_api_prompt/mmcelebahq/few_shot_chat_fill_in_the_blanks.json"
         }
     },
     "dataset":{
@@ -55,6 +63,9 @@
         "lex10k":{
             "split":"train",
             "res":256
+        },
+        "mmcelebahq":{
+            "folder":"datasets/mmcelebahq/images"
         }
     }
 }

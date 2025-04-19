@@ -28,7 +28,7 @@
                 "temperature":1.0
             },
             "batch_size":256,
-            "max_workers":4,
+            "max_workers":32,
             "progress_bar":true
         },
         "huggingface":{
@@ -64,6 +64,9 @@
         },
         "europeart":{
             "split":"train"
+        },
+        "mmcelebahq":{
+            "folder":"datasets/mmcelebahq/images"
         }
     }
 }

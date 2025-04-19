@@ -136,3 +136,42 @@ class lex10k(Dataset):
     
     def __getitem__(self, index):
         return self.transform(self.dataset[int(index)]['image'].convert("RGB")),0
+    
+
+
+class europeart(Dataset):
+    def __init__(self, split="train", res = 256):
+        self.transform = transforms.Compose([transforms.Resize(res),transforms.CenterCrop(res)])
+        self.dataset = load_dataset("biglam/european_art",split=split)
+
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        return self.transform(self.dataset[int(index)]['image'].convert("RGB")),0
+    
+
+
+class ImageFolderDataset(Dataset):
+    def __init__(self, folder, res = 256):
+        self.folder = folder
+        self.transform = transforms.Compose([
+            transforms.Resize(res),transforms.CenterCrop(res)
+        ])
+
+        # Collect all .png files, sorted (important for sequential order)
+        self.images = sorted(
+            [f for f in os.listdir(folder) if f.endswith((".jpg", ".png", ".jpeg"))]
+        )
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image_path = os.path.join(self.folder, self.images[idx])
+        image = Image.open(image_path).convert("RGB")  # or "L" for grayscale
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image,0

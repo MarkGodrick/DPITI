@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for European artworks based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a European artwork: \"{example1}\". Give your answer directly and your answer MUST be exactly 103 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a European artwork: \"{example2}\". Give your answer directly and your answer MUST be exactly 119 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a European artwork: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"The image is an _ depiction of _ and _ as women in _ _. _ wears a _ _, a _ _, and a _ _ while holding _. A _, _’s _ _, is beside her. _ wears a _ _ and _ _ with a _ _ and gestures towards a _, possibly symbolizing _ _. A _ separates them, with _ in the background. The scene is _, evoking _ _ and _.",
+                "rephrase1":"The image is an allegorical depiction of Scotland and Wales as women in traditional attire. Scotland wears a plaid sash, a white robe, and a red floral headdress while holding thistles. A unicorn, Scotland’s national animal, is beside her. Wales wears a flowing blue and white dress with a golden headband and gestures towards a goat, possibly symbolizing rural life. A tree separates them, with castles in the background. The scene is pastoral, evoking national identity and symbolism.",
+                "example2":"__ is an_raving__ Back_,_ 17___ London_,_ 1682. He is____ with_ long, curly__ a_-tr_med collar___ ornate robe.__ hand_ on_ table_ documents_ coins, symbolizing__ profession. A maritime scene with_____ window_ possibly_______ portrait__ coat of arms, reinforcing his_._ eng__ is detailed,__ shading__, enhancing the_____",
+                "rephrase2":"The image is an engraving of Edward Backwell, a 17th-century London banker, dated 1682. He is depicted in formal attire with a long, curly wig, a lace-trimmed collar, and an ornate robe. His left hand rests on a table with documents and coins, symbolizing his banking profession. A maritime scene with ships is visible through a window, possibly referencing trade and finance. Below the portrait is a coat of arms, reinforcing his status. The engraving is detailed, with fine shading and texture, enhancing the realism of the portrait."
+            }
+        }
+    ]
+}

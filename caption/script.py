@@ -24,7 +24,8 @@ dataset_dict = {
     "camelyon17":camelyon17,
     "waveui":waveui,
     "lex10k":lex10k,
-    "europeart":europeart
+    "europeart":europeart,
+    "mmcelebahq":ImageFolderDataset
 }
 
 captioner_dict = {
@@ -46,14 +47,14 @@ def main(args, config):
 
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset, {}))
     
-    indices = np.random.choice(len(dataset),len(dataset),replace=False)
-    dataset = Subset(dataset,indices[:10240])
+    # indices = np.random.choice(len(dataset),len(dataset),replace=False)
+    # dataset = Subset(dataset,indices[:10240])
     if not dataset:
         raise ValueError("Captioner: dataset not recognized.")
 
     execution_logger.info(f"Loading Success. Loading Captioner...")
 
-    captioner = captioner_dict.get(args.captioner)(config['captioner'].get(args.captioner,{}),os.path.join(args.output,"caption10240_part0.csv"))
+    captioner = captioner_dict.get(args.captioner)(config['captioner'].get(args.captioner,{}),os.path.join(args.output,"temp_save.csv"))
     if not dataset:
         raise ValueError("Captioner: captioner not recognized.")
 
@@ -66,7 +67,7 @@ def main(args, config):
 
     execution_logger.info("Captions are generated successfully. Saving data as file {}".format(os.path.join(args.output,f"caption.csv")))
 
-    df.to_csv(os.path.join(args.output,f"caption10240_part0.csv"),index=False)
+    df.to_csv(os.path.join(args.output,f"caption.csv"),index=False)
     
     
 
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--captioner',type=str,choices=['huggingface','openai','gemini','qwen'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=["lsun","cat","camelyon17","waveui","lex10k","europeart"],default="lsun")
+    parser.add_argument('--dataset',type=str,choices=["lsun","cat","camelyon17","waveui","lex10k","europeart","mmcelebahq"],default="lsun")
     parser.add_argument('--output',type=str,default="results")
 
     args = parser.parse_args()

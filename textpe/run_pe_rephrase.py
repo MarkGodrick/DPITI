@@ -10,7 +10,7 @@ from pe.api.text import LLMAugPE
 from pe.llm import OpenAILLM, HuggingfaceLLM
 from pe.embedding.text import SentenceTransformer
 from pe.embedding.image import Inception
-from textpe.utils.embedding import T2I_embedding
+from textpe.utils.embedding import hfpipe_embedding
 from pe.histogram import NearestNeighbors
 from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
@@ -64,7 +64,7 @@ def main(args, config):
         variation_api_prompt_file=os.path.join(current_folder, config["api_prompt"]['variation']),
     )
     # embedding = SentenceTransformer(model="sentence-t5-base")
-    embedding_syn = T2I_embedding(model="stabilityai/sdxl-turbo")
+    embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
     # embedding_priv = Inception(res=256,batch_size=16)
     histogram = ImageVotingNN(
         embedding=embedding_syn,

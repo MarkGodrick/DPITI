@@ -1,16 +1,23 @@
-from diffusers import StableDiffusionXLPipeline, StableDiffusionXLImg2ImgPipeline
-import torch
-import os
+import random
+from transformers import GPT2Tokenizer
 
-pipe = StableDiffusionXLPipeline.from_pretrained("stabilityai/sdxl-turbo", torch_dtype=torch.float16, device_map="balanced")
+# Initialize the GPT-2 tokenizer
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+# Given text
+text = "A poised woman with curly blonde hair rests her chin on her hands, wearing a wide-brimmed black hat adorned with colorful flowers. Her serious gaze contrasts with the playful floral accessory."
 
-kwargs = {"num_inference_steps":4,"guidance_scale":0.5}
+# Function to mask words in the text with probability > 0.5
+def mask_text_with_probability(text, mask_prob=0.5):
+    tokens = tokenizer.encode(text)
+    masked_text = []
+    for word in tokens:
+        if random.random() > mask_prob:
+            masked_text.append('_')  # Mask the word
+        else:
+            masked_text.append(word)  # Keep the word as is
 
-PATH = os.path.join("tmp",*[f"{key}={value}" for key, value in kwargs.items()])
+    return tokenizer.decode(masked_text)
 
-images = pipe(prompt="A description of bedroom",width=512,height=512,num_images_per_prompt=10,**kwargs).images
-
-os.makedirs(PATH,exist_ok=True)
-
-for idx,img in enumerate(images):
-    img.save(os.path.join(PATH,f"{idx:04}.png"))
+# Apply masking
+masked_text = mask_text_with_probability(text, mask_prob=0.5)
+print(masked_text)

@@ -904,14 +904,6 @@ We post some of our experiment results in the following tables, while example re
 <td>https://huggingface.co/datasets/biglam/european_art</td>
 <td>None</td>
 </tr>
-<tr>
-<td>The cauldron</td>
-<td>1,880,992</td>
-<td>most>512x512</td>
-<td>European Artworks</td>
-<td>https://huggingface.co/datasets/biglam/european_art</td>
-<td>None</td>
-</tr>
 <caption>Selected Dataset
 </caption> 
 </table>
