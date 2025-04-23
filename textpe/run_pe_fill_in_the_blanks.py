@@ -10,7 +10,7 @@ from pe.api.text import LLMAugPE
 from pe.llm import OpenAILLM, HuggingfaceLLM
 from pe.embedding.text import SentenceTransformer
 from pe.embedding.image import Inception
-from textpe.utils.embedding import hfpipe_embedding
+from textpe.utils.embedding import *
 from pe.histogram import NearestNeighbors
 from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
@@ -74,7 +74,9 @@ def main(args, config):
         blank_probabilities=0.5
     )
     # embedding = SentenceTransformer(model="sentence-t5-base")
-    embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
+    # embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
+    # embedding_syn = dpldm_embedding(config_path="textpe/dpldm-models/text2img/config.yaml", ckpt_path="textpe/dpldm-models/text2img/model.ckpt")
+    embedding_syn = dpldm_embedding(config_path="DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml", ckpt_path="textpe/dpldm-models/text2img-large/model.ckpt")
     # embedding_priv = Inception(res=256,batch_size=16)
     histogram = ImageVotingNN(
         embedding=embedding_syn,
@@ -107,7 +109,7 @@ def main(args, config):
     pe_runner.run(
         num_samples_schedule=[2000] * 10,
         delta=delta,
-        epsilon=1.0,
+        epsilon=10.0,
         # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )

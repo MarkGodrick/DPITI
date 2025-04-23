@@ -136,7 +136,7 @@ class hfpipe_embedding(Embedding):
 class dpldm_embedding(Embedding):
     """Compute the Sentence Transformers embedding of text."""
 
-    def __init__(self, config_path, ckpt_path, num_sample_steps = 200, batch_size=4 ,eta = 1.0):
+    def __init__(self, config_path, ckpt_path, num_sample_steps = 200, batch_size= 64 ,eta = 1.0):
         """Constructor.
 
         :param config_path: path to the config.yaml file
@@ -147,6 +147,7 @@ class dpldm_embedding(Embedding):
         :type batch_size: int, optional
         """
         super().__init__()
+        self._model_name = "DPLDM_txt2img"
         self._config_path = config_path
         self._ckpt_path = ckpt_path
         self.config = OmegaConf.load(self._config_path)
@@ -204,17 +205,23 @@ class dpldm_embedding(Embedding):
         images = []
         for batch_idx in tqdm(range((len(samples)+self._batch_size-1)//self._batch_size)):
             batch_samples = samples[batch_idx*self._batch_size:(batch_idx+1)*self._batch_size]
+            batch_conditioning = self._pipe.model.get_learned_conditioning(batch_samples)
             sample_images, _ = self._pipe.sample(
                 S = self._num_sample_steps,
-                batch_size = self._batch_size,
+                batch_size = min(len(batch_samples),self._batch_size),
                 shape = self._shape,
-                conditioning = batch_samples,
+                conditioning = batch_conditioning,
                 verbose = False,
                 eta = self._eta
             )
-            images.append(self._pipe.model.decode_first_stage(sample_images).cpu().numpy())
+            batch_images = self._pipe.model.decode_first_stage(sample_images).cpu().numpy()
+            batch_images = np.transpose(batch_images,(0,2,3,1))
+            batch_images = (batch_images + 1) * 127.5
+            batch_images = batch_images.clip(0,255).astype(np.uint8)
+            images.append(batch_images)
         images = np.concatenate(images,axis=0)
 
+        assert images.ndim==4
         # compute embedding using InceptionV3
         if images.shape[3] == 1:
             images = np.repeat(images, 3, axis=3)

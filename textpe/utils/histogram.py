@@ -181,7 +181,7 @@ class ImageVotingNN(Histogram):
             f"samples and {len(syn_data.data_frame)} synthetic samples"
         )
 
-        priv_data = self._embedding.compute_embedding(priv_data)
+        # priv_data = self._embedding.compute_embedding(priv_data)
         syn_data = self._compute_lookahead_embedding(syn_data)
 
         # priv_embedding = np.stack(priv_data.data_frame[self._embedding.column_name].values, axis=0).astype(np.float32)
