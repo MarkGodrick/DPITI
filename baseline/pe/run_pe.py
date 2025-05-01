@@ -18,6 +18,7 @@ from pe.logger import LogPrint
 from pe.data import Data
 from textpe.utils.image import data_from_dataset
 from pe.constant.data import IMAGE_DATA_COLUMN_NAME
+from pe.data.image import Cat, Camelyon17
 
 
 import os
@@ -33,7 +34,9 @@ NUM_OF_PRIV_DATASET = 300000
 
 dataset_dict = {
     "lsun":LSUN_bedroom,
-    "waveui":waveui
+    "waveui":waveui,
+    "cat":Cat,
+    "camelyon17":Camelyon17
 }
 
 def main(args, config):
@@ -85,7 +88,7 @@ def main(args, config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset",type=str,choices=['lsun','waveui'],default='lsun')
+    parser.add_argument("--dataset",type=str,choices=['lsun','waveui','cat','camelyon17'],default='lsun')
     parser.add_argument("--output",type=str,default="results/baseline/pe")
 
     args = parser.parse_args()

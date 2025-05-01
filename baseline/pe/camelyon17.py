@@ -28,14 +28,14 @@ pd.options.mode.copy_on_write = True
 
 
 if __name__ == "__main__":
-    exp_folder = "results/camelyon/baseline/pe"
+    exp_folder = "results/camelyon17/baseline/pe/epsilon=1.0/iteration=10/ImprovedDiffusion270M"
 
     setup_logging(log_file=os.path.join(exp_folder, "log.txt"))
 
-    data = Camelyon17(root_dir="/datasets/camelyon17")
+    data = Camelyon17(root_dir="datasets/camelyon17")
     api = ImprovedDiffusion270M(
-        variation_degrees=[0] * 5 + [1] * 5 + [2] * 5 + [3] * 4 + list(range(20, 31)),
-        timestep_respacing=["ddim10"] * 19 + ["40"] * 11,
+        variation_degrees=[0] * 2 + [1] * 2 + [2] * 2 + [3] * 1 + list(range(8, 11)),
+        timestep_respacing=["ddim10"] * 7 + ["40"] * 3,
     )
     embedding = Inception(res=64, batch_size=100)
     histogram = NearestNeighbors(
@@ -54,6 +54,9 @@ if __name__ == "__main__":
     csv_print = CSVPrint(output_folder=exp_folder)
     log_print = LogPrint()
 
+    num_private_samples = len(data.data_frame)
+    delta = 1.0 / num_private_samples / np.log(num_private_samples)
+
     pe_runner = PE(
         priv_data=data,
         population=population,
@@ -62,9 +65,10 @@ if __name__ == "__main__":
         loggers=[image_file, csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[2000] * 30,
+        num_samples_schedule=[2000] * 10,
         # num_samples_schedule=[302436] * 30,
-        delta=3e-6,
-        noise_multiplier=2 * np.sqrt(2),
+        epsilon=1.0,
+        delta=delta,
+        # noise_multiplier=2 * np.sqrt(2),
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )

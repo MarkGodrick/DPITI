@@ -8,6 +8,12 @@
             "root_dir":"datasets/waveui",
             "split":"train",
             "res":512
+        },
+        "cat":{
+            "root_dir":"/data/whx/textDP/datasets/cat"
+        },
+        "camelyon17":{
+            "root_dir":"datasets/camelyon17"
         }
     },
     "prompt":{
@@ -16,6 +22,14 @@
         },
         "waveui":{
             "screenshot":"A screenshot"
+        },
+        "cat":{
+            "cookie": "A photo of ragdoll cat",
+             "doudou": "A photo of ragdoll cat"
+        },
+        "camelyon17":{
+            "no_tumor":"A high-resolution histopathology image of a healthy lymph node with no signs of tumor cells.",
+            "tumor":"A histopathological image of a lymph node infiltrated with malignant tumor cells."
         }
     }
 }

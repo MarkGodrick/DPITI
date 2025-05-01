@@ -73,11 +73,10 @@ def main(args, config):
         word_count_std=36,
         blank_probabilities=0.5
     )
-    # embedding = SentenceTransformer(model="sentence-t5-base")
-    # embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
-    # embedding_syn = dpldm_embedding(config_path="textpe/dpldm-models/text2img/config.yaml", ckpt_path="textpe/dpldm-models/text2img/model.ckpt")
-    embedding_syn = dpldm_embedding(config_path="DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml", ckpt_path="textpe/dpldm-models/text2img-large/model.ckpt")
-    # embedding_priv = Inception(res=256,batch_size=16)
+
+    embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
+    # embedding_syn = dpldm_embedding(config_path="DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml", ckpt_path="textpe/dpldm-models/text2img-large/model.ckpt")
+
     histogram = ImageVotingNN(
         embedding=embedding_syn,
         mode="L2",
@@ -109,7 +108,7 @@ def main(args, config):
     pe_runner.run(
         num_samples_schedule=[2000] * 10,
         delta=delta,
-        epsilon=10.0,
+        epsilon=1.0,
         # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )

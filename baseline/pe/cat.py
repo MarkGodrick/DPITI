@@ -29,11 +29,11 @@ pd.options.mode.copy_on_write = True
 
 
 if __name__ == "__main__":
-    exp_folder = "cat/baseline/pe"
+    exp_folder = "results/cat/baseline/pe/epsilon=10.0/trial1"
 
     setup_logging(log_file=os.path.join(exp_folder, "log.txt"))
 
-    data = Cat(root_dir="/data/whx/textDP/cat")
+    data = Cat(root_dir="/data/whx/textDP/datasets/cat")
     api = StableDiffusion(
         prompt={"cookie": "A photo of ragdoll cat", "doudou": "A photo of ragdoll cat"},
         variation_degrees=list(np.arange(1.0, 0.9, -0.02)) + list(np.arange(0.88, 0.36, -0.04)),
@@ -56,6 +56,9 @@ if __name__ == "__main__":
     csv_print = CSVPrint(output_folder=exp_folder)
     log_print = LogPrint()
 
+    num_private_samples = len(data.data_frame)
+    delta = 1.0 / num_private_samples / np.log(num_private_samples)
+
     pe_runner = PE(
         priv_data=data,
         population=population,
@@ -64,8 +67,8 @@ if __name__ == "__main__":
         loggers=[image_file, csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[200] * 18,
-        delta=1e-3,
-        noise_multiplier=2,
+        num_samples_schedule=[200] * 10,
+        delta=delta,
+        epsilon=10.0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )
