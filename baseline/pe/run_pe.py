@@ -36,7 +36,9 @@ dataset_dict = {
     "lsun":LSUN_bedroom,
     "waveui":waveui,
     "cat":Cat,
-    "camelyon17":Camelyon17
+    "camelyon17":Camelyon17,
+    "lex10k":lex10k,
+    "europeart":europeart
 }
 
 def main(args, config):

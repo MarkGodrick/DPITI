@@ -14,6 +14,16 @@
         },
         "camelyon17":{
             "root_dir":"datasets/camelyon17"
+        },
+        "lex10k":{
+            "root_dir":"datasets/lex10k",
+            "split":"train",
+            "res":512
+        },
+        "europeart":{
+            "root_dir":"datasets/europeart",
+            "split":"train",
+            "res":512
         }
     },
     "prompt":{
@@ -30,6 +40,12 @@
         "camelyon17":{
             "no_tumor":"A high-resolution histopathology image of a healthy lymph node with no signs of tumor cells.",
             "tumor":"A histopathological image of a lymph node infiltrated with malignant tumor cells."
+        },
+        "lex10k":{
+            "generated image":"An image"
+        },
+        "europeart":{
+            "European artwork":"A European artwork"
         }
     }
 }
