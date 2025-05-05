@@ -21,11 +21,9 @@ np.random.seed(42)
 dataset_dict = {
     "lsun":lsun,
     "cat":cat,
-    "camelyon17":camelyon17,
-    "waveui":waveui,
-    "lex10k":lex10k,
     "europeart":europeart,
-    "mmcelebahq":ImageFolderDataset
+    "mmcelebahq":ImageFolderDataset,
+    "wingit":ImageFolderDataset
 }
 
 captioner_dict = {
@@ -75,7 +73,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--captioner',type=str,choices=['huggingface','openai','gemini','qwen'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=["lsun","cat","camelyon17","waveui","lex10k","europeart","mmcelebahq"],default="lsun")
+    parser.add_argument('--dataset',type=str,choices=["lsun","cat","wingit","europeart","mmcelebahq"],default="lsun")
     parser.add_argument('--output',type=str,default="results")
 
     args = parser.parse_args()

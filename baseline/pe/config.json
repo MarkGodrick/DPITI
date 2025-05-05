@@ -24,6 +24,15 @@
             "root_dir":"datasets/europeart",
             "split":"train",
             "res":512
+        },
+        "mmcelebahq":{
+            "root_dir":"datasets/mmcelebahq",
+            "split":"images",
+            "label":true
+        },
+        "wingit":{
+            "root_dir":"/data/whx/blender_process/wingit",
+            "split":"frames"
         }
     },
     "prompt":{
@@ -41,11 +50,14 @@
             "no_tumor":"A high-resolution histopathology image of a healthy lymph node with no signs of tumor cells.",
             "tumor":"A histopathological image of a lymph node infiltrated with malignant tumor cells."
         },
-        "lex10k":{
-            "generated image":"An image"
+        "mmcelebahq":{
+            "celebrity":"A headshot of a celebrity"
         },
         "europeart":{
             "European artwork":"A European artwork"
+        },
+        "wingit":{
+            "image":"A frame from an animation about a cat engineer and a dog pilot"
         }
     }
 }

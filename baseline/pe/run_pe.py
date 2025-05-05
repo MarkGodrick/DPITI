@@ -19,6 +19,7 @@ from pe.data import Data
 from textpe.utils.image import data_from_dataset
 from pe.constant.data import IMAGE_DATA_COLUMN_NAME
 from pe.data.image import Cat, Camelyon17
+from pe.api.image import ImprovedDiffusion270M
 
 
 import os
@@ -34,11 +35,9 @@ NUM_OF_PRIV_DATASET = 300000
 
 dataset_dict = {
     "lsun":LSUN_bedroom,
-    "waveui":waveui,
     "cat":Cat,
-    "camelyon17":Camelyon17,
-    "lex10k":lex10k,
-    "europeart":europeart
+    "europeart":europeart,
+    "wingit": ImageFolderDataset
 }
 
 def main(args, config):
@@ -48,11 +47,20 @@ def main(args, config):
     
     embed_from_dataset = data_from_dataset(data,length=NUM_OF_PRIV_DATASET,save_path=os.path.join("datasets",args.dataset,"embedding"))
 
+    if args.api=="StableDiffusion":
+        api = StableDiffusion(
+            prompt=config["prompt"].get(args.dataset),
+            variation_degrees=[1,1,0.75,0.75,0.75,0.75,0.5,0.5,0.5,0.5],
+        )
+    elif args.api == "ImprovedDiffusion":
+        api = ImprovedDiffusion270M(
+            variation_degrees=[0] * 2 + [1] * 2 + [2] * 2 + [3] * 1 + list(range(7, 10)),
+            timestep_respacing=["ddim10"] * 7 + ["40"] * 3,
+        )
+    else:
+        raise ValueError()
+    
 
-    api = StableDiffusion(
-        prompt=config["prompt"].get(args.dataset),
-        variation_degrees=[1,1,0.75,0.75,0.75,0.75,0.5,0.5,0.5,0.5],
-    )
     embedding = Inception(res=IMAGE_SIZE, batch_size=32)
     histogram = NNhistogram(
         embedding=embedding,
@@ -81,7 +89,7 @@ def main(args, config):
         loggers=[image_file, csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[2000] * ITERATIONS,
+        num_samples_schedule=[1000] * ITERATIONS,
         delta=delta,
         epsilon=1.0,
         # noise_multiplier=2 * np.sqrt(2),
@@ -90,7 +98,8 @@ def main(args, config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset",type=str,choices=['lsun','waveui','cat','camelyon17'],default='lsun')
+    parser.add_argument("--dataset",type=str,choices=['lsun','cat','wingit','europeart'],default='lsun')
+    parser.add_argument("--api",type=str,choices=["StableDiffusion","ImprovedDiffusion"],default="StableDiffusion")
     parser.add_argument("--output",type=str,default="results/baseline/pe")
 
     args = parser.parse_args()
