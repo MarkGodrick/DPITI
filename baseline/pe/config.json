@@ -31,8 +31,12 @@
             "label":true
         },
         "wingit":{
-            "root_dir":"/data/whx/blender_process/wingit",
-            "split":"frames"
+            "root_dir":"datasets/selected_wingit",
+            "split":"selected_frames"
+        },
+        "spritefright":{
+            "root_dir":"datasets/spritefright",
+            "split":"selected_frames"
         }
     },
     "prompt":{
@@ -58,6 +62,9 @@
         },
         "wingit":{
             "image":"A frame from an animation about a cat engineer and a dog pilot"
+        },
+        "spritefright":{
+            "image":"A frame from an animation about a group of teenagers treking into an isolated forest"
         }
     }
 }

@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for a frame from an animation featuring a group of teenagers treking into an isolated forest based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and use your imageniation to change the original scene.\nPlease fill in the blanks in the following sentences to write a description of a frame from an animation featuring a group of teenagers treking into an isolated forest: \"{example1}\". Give your answer directly and your answer MUST be exactly 42 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and use your imageniation to change the original scene.\nPlease fill in the blanks in the following sentences to write a description of a frame from an animation featuring a group of teenagers treking into an isolated forest: \"{example2}\". Give your answer directly and your answer MUST be exactly 66 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and use your imageniation to change the original scene.\nPlease fill in the blanks in the following sentences to write a description of a frame from an animation featuring a group of teenagers treking into an isolated forest: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"Wide_ of_ hills___, lush_ rounded__ under a vibrant blue sky with fluffy____ atmospheric perspective__ distance. Bright_ sunny lighting_ Cin____",
+                "rephrase1":"Wide shot of rolling hills covered in dense, lush green rounded foliage, under a vibrant blue sky with fluffy clouds. Hazy atmospheric perspective in the distance. Bright, sunny lighting. Cinematic animation style.",
+                "example2":"Animated_ girl___ hair, large brown eyes_ and___._ wears a blue_ with patches_ a red__chief,_ kh_ shorts. Dirt_ud__ her__ arms._ried expression,_ upwards._ly lit_ dark background___ animation style_",
+                "rephrase2":"Animated young girl with messy black hair, large brown eyes, and purple hoop earrings. She wears a blue shirt with patches, a red neckerchief, and khaki shorts. Dirt smudges on her face and arms. Worried expression, looking upwards. Dimly lit, dark background. Cinematic animation style."
+            }
+        }
+    ]
+}

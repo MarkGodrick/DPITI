@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for a frame from an animation featuring a cat engineer and a dog pilot based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, change the original scene as you like, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a frame from an animation featuring a cat engineer and a dog pilot: \"{example1}\". Give your answer directly and your answer MUST be exactly 32 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, change the original scene as you like, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a frame from an animation featuring a cat engineer and a dog pilot: \"{example2}\". Give your answer directly and your answer MUST be exactly 51 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, change the original scene as you like, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a frame from an animation featuring a cat engineer and a dog pilot: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"A_ flying_ with_ wings_ars through_ sky,_oted by__ chicken,____ adventure in a___.",
+                "rephrase1":"A quirky flying vehicle with mechanical wings soars through the sky, piloted by a determined chicken, blending whimsy and adventure in a cartoonish style.",
+                "example2":"A cartoon brown dog_____ an_ life vest laughs______ open and eyes closed__ appears to be sitting in hay,_ a red___-like______ to the right_",
+                "rephrase2":"A cartoon brown dog with a blue helmet and an orange life vest laughs joyfully, its mouth wide open and eyes closed. It appears to be sitting in hay, with a red and orange kite-like structure above and a metallic object to the right."
+            }
+        }
+    ]
+}

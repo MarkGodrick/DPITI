@@ -38,7 +38,9 @@ dataset_dict = {
     "waveui":waveui,
     "lex10k":lex10k,
     "europeart":europeart,
-    "mmcelebahq":ImageFolderDataset
+    "mmcelebahq":ImageFolderDataset,
+    "wingit":ImageFolderDataset,
+    "spritefright":ImageFolderDataset
 }
 
 def main(args, config):
@@ -77,19 +79,35 @@ def main(args, config):
     embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
     # embedding_syn = dpldm_embedding(config_path="DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml", ckpt_path="textpe/dpldm-models/text2img-large/model.ckpt")
 
-    histogram = ImageVotingNN(
-        embedding=embedding_syn,
-        mode="L2",
-        lookahead_degree=8,
-        priv_dataset=data_from_lsun,
-        api = api
-    )
+    if args.voting == "image":
+        histogram = ImageVotingNN(
+            embedding=embedding_syn,
+            mode="L2",
+            # lookahead_degree=0,
+            lookahead_degree=8,
+            priv_dataset=data_from_lsun,
+            api = api
+        )
+    elif args.voting == "text":
+        histogram = NearestNeighbors(
+            embedding=embedding_syn,
+            mode="L2",
+            # lookahead_degree=0,
+            lookahead_degree=8,
+            priv_dataset=data_from_lsun,
+            api = api
+        )
+    else:
+        raise ValueError()
+    
     population = PEPopulation(
         api=api, keep_selected=True, selection_mode="rank"
+        # api=api, keep_selected=True, selection_mode="rank",initial_variation_api_fold=6,next_variation_api_fold=6
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
     compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn)
+    # compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
     # compute_fid_variation = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
@@ -104,12 +122,13 @@ def main(args, config):
         population=population,
         histogram=histogram,
         callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
+        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
         num_samples_schedule=[200] * 10,
         delta=delta,
-        epsilon=10.0,
+        epsilon=1.0,
         # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )
@@ -121,7 +140,8 @@ if __name__ == "__main__":
     parser.add_argument('--output',type=str,default="results/text")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq'],default='lsun')
+    parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
+    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright'],default='lsun')
 
     args = parser.parse_args()
 

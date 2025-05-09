@@ -1,0 +1,19 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Write a extremely short description for a frame from an animation featuring a cat engineer and a dog pilot. {tone}. Focus on details, create a scene as you like, and avoid only describing the atmosphere or emotions. Give your answer directly."
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a creative style",
+                    "using a variety of sentence structures"
+                ]
+            }
+        }
+    ]
+}

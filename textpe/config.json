@@ -40,6 +40,14 @@
         "mmcelebahq":{
             "random":"random_api_prompt/mmcelebahq.json",
             "variation":"variation_api_prompt/mmcelebahq/few_shot_chat_fill_in_the_blanks.json"
+        },
+        "wingit":{
+            "random":"random_api_prompt/wingit.json",
+            "variation":"variation_api_prompt/wingit/few_shot_chat_fill_in_the_blanks.json"
+        },
+        "spritefright":{
+            "random":"random_api_prompt/spritefright.json",
+            "variation":"variation_api_prompt/spritefright/few_shot_chat_fill_in_the_blanks.json"
         }
     },
     "dataset":{
@@ -51,21 +59,14 @@
             "root_dir":"datasets/cat",
             "res":512
         },
-        "camelyon17":{
-            "root_dir":"datasets/camelyon17",
-            "split":"train",
-            "res":64
-        },
-        "waveui":{
-            "split":"train",
-            "res":256
-        },
-        "lex10k":{
-            "split":"train",
-            "res":256
-        },
         "mmcelebahq":{
             "folder":"datasets/mmcelebahq/images"
+        },
+        "wingit":{
+            "folder":"datasets/selected_wingit/selected_frames"
+        },
+        "spritefright":{
+            "folder":"datasets/spritefright/selected_frames"
         }
     }
 }

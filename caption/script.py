@@ -23,7 +23,8 @@ dataset_dict = {
     "cat":cat,
     "europeart":europeart,
     "mmcelebahq":ImageFolderDataset,
-    "wingit":ImageFolderDataset
+    "wingit":ImageFolderDataset,
+    "spritefright":ImageFolderDataset
 }
 
 captioner_dict = {
@@ -73,7 +74,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--captioner',type=str,choices=['huggingface','openai','gemini','qwen'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=["lsun","cat","wingit","europeart","mmcelebahq"],default="lsun")
+    parser.add_argument('--dataset',type=str,choices=["lsun","cat","wingit","europeart","mmcelebahq","spritefright"],default="lsun")
     parser.add_argument('--output',type=str,default="results")
 
     args = parser.parse_args()

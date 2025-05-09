@@ -1,0 +1,19 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Write a extremely short description for a frame from an animation featuring a group of teenagers treking into an isolated forest {tone}. Focus on details, and use your imagination to create a scene. Give your answer directly."
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a creative style",
+                    "using a variety of sentence structures"
+                ]
+            }
+        }
+    ]
+}

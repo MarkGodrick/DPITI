@@ -64,6 +64,9 @@
         },
         "wingit":{
             "folder":"/data/whx/blender_process/wingit/frames"
+        },
+        "spritefright":{
+            "folder":"datasets/spritefright/selected_frames"
         }
     }
 }

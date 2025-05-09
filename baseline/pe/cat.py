@@ -29,7 +29,7 @@ pd.options.mode.copy_on_write = True
 
 
 if __name__ == "__main__":
-    exp_folder = "results/cat/baseline/pe/epsilon=10.0/trial1"
+    exp_folder = "results/cat/baseline/pe/epsilon=10.0/trial2+num_samples=200+lookahead=8+no_variation_fold+iter=10"
 
     setup_logging(log_file=os.path.join(exp_folder, "log.txt"))
 

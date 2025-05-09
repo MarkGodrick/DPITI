@@ -37,7 +37,9 @@ dataset_dict = {
     "lsun":LSUN_bedroom,
     "cat":Cat,
     "europeart":europeart,
-    "wingit": ImageFolderDataset
+    "waveui":waveui,
+    "wingit": ImageFolderDataset,
+    "spritefright":ImageFolderDataset
 }
 
 def main(args, config):
@@ -89,16 +91,16 @@ def main(args, config):
         loggers=[image_file, csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[1000] * ITERATIONS,
+        num_samples_schedule=[2000] * ITERATIONS,
         delta=delta,
-        epsilon=1.0,
+        epsilon=5.0,
         # noise_multiplier=2 * np.sqrt(2),
         checkpoint_path=os.path.join(args.output, "checkpoint"),
     )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset",type=str,choices=['lsun','cat','wingit','europeart'],default='lsun')
+    parser.add_argument("--dataset",type=str,choices=['lsun','cat','waveui','wingit','europeart','spritefright'],default='lsun')
     parser.add_argument("--api",type=str,choices=["StableDiffusion","ImprovedDiffusion"],default="StableDiffusion")
     parser.add_argument("--output",type=str,default="results/baseline/pe")
 
