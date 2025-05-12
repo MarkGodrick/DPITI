@@ -100,16 +100,16 @@ def main(args, config):
         histogram = NearestNeighbors(
             embedding=embedding_syn,
             mode="L2",
-            lookahead_degree=0,
-            # lookahead_degree=8,
+            # lookahead_degree=0,
+            lookahead_degree=8,
             api = api
         )
     else:
         raise ValueError()
     
     population = PEPopulation(
-        # api=api, keep_selected=True, selection_mode="rank"
-        api=api, keep_selected=True, selection_mode="rank",initial_variation_api_fold=6,next_variation_api_fold=6
+        api=api, keep_selected=True, selection_mode="rank"
+        # api=api, keep_selected=True, selection_mode="rank",initial_variation_api_fold=6,next_variation_api_fold=6
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
@@ -133,9 +133,9 @@ def main(args, config):
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[2000] * 10,
+        num_samples_schedule=[200] * 10,
         delta=delta,
-        epsilon=10.0,
+        epsilon=1.0,
         # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )

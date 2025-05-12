@@ -15,14 +15,13 @@ from pe.constant.data import TEXT_DATA_COLUMN_NAME
 from pe.constant.data import EMBEDDING_COLUMN_NAME
 
 from diffusers import StableDiffusionXLPipeline, DiffusionPipeline
-from accelerate import Accelerator
 import re
 
 from DPLDM.ldm.util import instantiate_from_config
 from DPLDM.ldm.models.diffusion.ddim import DDIMSampler
 from omegaconf import OmegaConf
 from omegaconf.errors import ConfigAttributeError
-
+import threading
 
 def to_uint8(x, min, max):
     x = (x - min) / (max - min)
@@ -43,663 +42,296 @@ def load_model_from_config(config, ckpt):
     model.eval()
     return model
 
+# --- Worker function for each thread ---
+# This function will be executed by a separate thread and assigned to a specific GPU
+def generate_and_embed_worker(
+    gpu_id,
+    prompts_chunk,
+    original_indices_chunk, # Pass original indices to map results back correctly
+    model_name,
+    pipeline,
+    sample_config,
+    batch_size,
+    results_list, # List to store results from this thread
+    worker_id # For logging
+):
+    """
+    Worker thread function to generate images and compute embeddings on a specific GPU.
+    """
+    try:
+        # Set the CUDA device for this thread
+        torch.cuda.set_device(gpu_id)
+        execution_logger.debug(f"Worker {worker_id} on GPU {gpu_id} starting with {len(prompts_chunk)} prompts.")
 
-class hfpipe_xl_embedding(Embedding):
-    """Compute embeddings for images generated from text prompts using Stable Diffusion XL."""
-
-    def __init__(self, model, batch_size=4, sample_config = None, enable_accl = True):
-        """Constructor.
-
-        :param model: The name of the Stable Diffusion XL model from Hugging Face Hub
-        :type model: str
-        :param batch_size: The batch size to use for inference (per device when using accelerate), defaults to 4
-        :type batch_size: int, optional
-        :param sample_config: Additional keyword arguments for the pipeline call (e.g., num_inference_steps, generator), defaults to {}
-        :type sample_config: dict, optional
-        :param enable_accl: Whether to use accelerate for multi-GPU inference, defaults to True
-        :type enable_accl: bool, optional
-        """
-        super().__init__()
-        self._model_name = model
-        # Ensure sample_config is a dict even if None is passed
-        self._sample_config = sample_config if sample_config is not None else {}
-        self._enable_accl = enable_accl
-        self._batch_size = batch_size
-
-        # Initialize Accelerator (handles device placement and distribution later)
-        self._accl = Accelerator() if self._enable_accl else None
-
-        # Load the pipeline
-        # The pipeline will be moved to the correct device(s) by accelerator.prepare()
-        # or manually moved to cuda/cpu if accelerate is disabled.
-        execution_logger.info(f"Loading Stable Diffusion XL pipeline: {self._model_name}")
-        self._pipe = StableDiffusionXLPipeline.from_pretrained(
-            self._model_name,
-            torch_dtype=torch.float16, # Common for SDXL
-            variant="fp16",            # Common for SDXL
-            use_safetensors=True
-        )
-
-        # Prepare the pipeline with Accelerator if enabled
-        if self._enable_accl and self._accl is not None:
-            # prepare() handles moving the model to the correct device(s)
-            self._pipe = self._accl.prepare(self._pipe)
-            execution_logger.info(f"Using Accelerate with {self._accl.num_processes} processes on device: {self._accl.device}")
-        else:
-            # Manual device placement if Accelerate is not enabled
-            if torch.cuda.is_available():
-                self._pipe = self._pipe.to("cuda")
-                execution_logger.info("Using single GPU (cuda). Accelerate not enabled.")
-            else:
-                execution_logger.warning("Using CPU. Accelerate not enabled and CUDA not available. SDXL on CPU will be very slow.")
-                self._pipe = self._pipe.to("cpu")
-
-        # FID-related components (InceptionV3 for feature extraction)
-        # These components will likely run only on the main process after gathering images
-        # but we initialize them considering the potential device setup.
-        self._temp_folder = tempfile.TemporaryDirectory()
-
-        # Determine device for Inception model
-        _inception_device = "cpu" # Default to CPU
-        if torch.cuda.is_available():
-            _inception_device = "cuda"
-        if self._enable_accl and self._accl is not None:
-            # Use the accelerator's device for consistency if enabled and a GPU is available
-            _inception_device = self._accl.device
-
-        execution_logger.info(f"Loading InceptionV3 model on device: {_inception_device}")
-        self._inception = InceptionV3W(path=self._temp_folder.name, download=True, resize_inside=False).to(_inception_device)
-        self._inception.eval() # Ensure it's in eval mode for inference
-
-        # Resizers for images before feeding to InceptionV3
-        # These use PIL and numpy, less device-dependent during this stage
-        self._resize_pre = make_resizer(
+        # Move models to the designated GPU
+        # Important: If pipe/inception are shared objects passed to threads,
+        # their internal state (like device) might need careful handling.
+        # Moving them *after* setting device is common practice.
+        pipe = pipeline.from_pretrained(model_name, torch_dtype=torch.float16, variant="fp16", use_safetensors=True).to(gpu_id)
+        
+        
+        temp_folder = tempfile.TemporaryDirectory()
+        inception = InceptionV3W(path=temp_folder.name, download=True, resize_inside=False)
+        resize_pre = make_resizer(
             library="PIL",
             quantize_after=False,
             filter="bicubic",
-            output_size=(256, 256), # Target size for CleanFID preprocessing
+            output_size=(256, 256),
         )
-        self._resizer = build_resizer("clean") # The cleanfid specific resizer
+        resizer = build_resizer("clean")
+        
+        inception.to(gpu_id)
+        # Ensure models are in evaluation mode
+        inception.eval()
 
 
-    @property
-    def column_name(self):
-        """The column name to be used in the data frame."""
-        # Clean up model name for column name if it contains paths or special chars
-        clean_model_name = self._model_name.replace("/", "_").replace("-", "_").lower()
-        return f"{EMBEDDING_COLUMN_NAME}.{type(self).__name__}.{clean_model_name}"
+        # --- Generate Images ---
+        local_generated_images_pil = []
+        pbar_gen = tqdm(range(0, len(prompts_chunk), batch_size),
+                        desc=f"Generating (Worker {worker_id}, GPU {gpu_id})",
+                        leave=False) # Use leave=False to avoid cluttering terminal
+
+        for i in pbar_gen:
+            batch_prompts = prompts_chunk[i:i+batch_size]
+            with torch.no_grad():
+                images_batch_pil = pipe(batch_prompts, **sample_config).images
+            local_generated_images_pil.extend(images_batch_pil)
+
+        execution_logger.debug(f"Worker {worker_id} generated {len(local_generated_images_pil)} images.")
+
+        # --- Compute Inception Embeddings ---
+        embeddings_list = []
+        if len(local_generated_images_pil) > 0:
+            # Convert list of PIL images to a NumPy array (N, H, W, C)
+            # Assuming SDXL generates fixed size images, stacking is straightforward
+            images_np = np.stack([np.array(img) for img in local_generated_images_pil], axis=0)
+
+            # Ensure images are in the correct format (uint8 HWC) and channel count (3) for resizer/inception
+            # Assuming images_np is uint8 HWC [0, 255] from PIL conversion
+            if images_np.dtype != np.uint8:
+                # Basic scaling if needed (e.g., from float [0, 1] to uint8 [0, 255])
+                # Adjust this based on the actual output format of your pipeline images
+                images_np = (images_np * 255).astype(np.uint8) # Example scaling
 
 
-    def compute_embedding(self, data):
-        """Compute the image embedding by generating images from text and running them through InceptionV3.
-
-        :param data: The data object containing the text prompts in TEXT_DATA_COLUMN_NAME.
-        :type data: :py:class:`pe.data.Data`
-        :return: The data object with the computed embedding column added.
-        :rtype: :py:class:`pe.data.Data` or None on non-main processes when accelerate is enabled.
-        """
-        # Filter rows that don't have this embedding computed yet
-        uncomputed_data = self.filter_uncomputed_rows(data)
-        if len(uncomputed_data.data_frame) == 0:
-            # Use accelerate's is_main_process to avoid duplicate logs
-            if self._enable_accl and self._accl is not None:
-                if self._accl.is_main_process:
-                    execution_logger.info(f"Embedding: {self.column_name} already computed for all samples.")
-                # Non-main processes just return the original data or None, main process handles merge later
-                return data # Returning data here is safer if caller expects it
-            else:
-                execution_logger.info(f"Embedding: {self.column_name} already computed for all samples.")
-                return data
+            if images_np.shape[-1] == 1:
+                images_np = np.repeat(images_np, 3, axis=-1) # Use axis=-1 for the last dimension
 
 
-        total_samples_to_compute = len(uncomputed_data.data_frame)
-        execution_logger.info(
-            f"Embedding: computing {self.column_name} for {total_samples_to_compute}/{len(data.data_frame)}"
-            " samples"
-        )
+            inception_batch_size = batch_size # Or a separate config
 
-        # Get the list of prompts for uncomputed samples.
-        # Ensure this list is available on all processes initially if using manual splitting.
-        samples_full_list = uncomputed_data.data_frame[TEXT_DATA_COLUMN_NAME].tolist()
-        # Keep original index handy for sorting results later
-        original_indices = list(uncomputed_data.data_frame.index)
+            pbar_inception = tqdm(range(0, len(images_np), inception_batch_size),
+                                  desc=f"Inception (Worker {worker_id}, GPU {gpu_id})",
+                                  leave=False)
 
-        # Do sample filter (regex) - apply to the full list before distributing
-        pattern = r'([^:]*:|^)(.*?)(?=\.$|$)'
-        # Apply filter and keep track of original index
-        indexed_samples_filtered = []
-        for i, text in enumerate(samples_full_list):
-            match = re.search(pattern, str(text), re.DOTALL)
-            if match: # Ensure match is found
-                filtered_prompt = match.group(2).strip()
-                # Store original index *within the uncomputed_data frame*
-                indexed_samples_filtered.append((original_indices[i], filtered_prompt))
-            else:
-                # Handle cases where regex doesn't match? Or assume it always matches?
-                # Assuming it always matches for now, or filtered_prompt is None/empty if no match.
-                # If no match, the prompt might be empty, which is still a valid generation input.
-                # If you want to exclude these, filter them out here.
-                # Let's keep it and pass empty strings if regex fails to match group 2.
-                # Revising to handle potential None match.
-                filtered_prompt = match.group(2).strip() if match and match.group(2) else ""
-                indexed_samples_filtered.append((original_indices[i], filtered_prompt))
+            for i in pbar_inception:
+                batch_np = images_np[i : i + inception_batch_size] # NumPy batch (N, H, W, C) uint8
 
+                # Apply preprocessing steps
+                processed_batch_np = []
+                for img_np in batch_np:
+                    # img_np is (H, W, C) uint8
+                    img_np_pre = resize_pre(img_np) # Apply initial resize if needed
+                    # to_uint8 might be redundant if img_np_pre is already uint8, confirm its use
+                    # img_uint8 = to_uint8(img_np_pre, min=0, max=255) # Original line
+                    img_resized_np = resizer(img_np_pre) # Apply cleanfid resizer (returns numpy HWC, potentially float/standardized)
+                    processed_batch_np.append(img_resized_np)
 
-        # List to hold generated PIL images associated with their original index
-        # This will be populated locally on each process, then gathered to rank 0
-        local_results = [] # List of (original_index, pil_image) tuples
-
-        if self._enable_accl and self._accl is not None:
-            # --- Accelerate Multi-GPU Inference ---
-            total_filtered_samples = len(indexed_samples_filtered)
-            num_processes = self._accl.num_processes
-            process_index = self._accl.process_index
-
-            # Split data contiguously across processes for simpler gathering/sorting
-            samples_per_process = (total_filtered_samples + num_processes - 1) // num_processes
-            start_idx_global = process_index * samples_per_process
-            end_idx_global = min(start_idx_global + samples_per_process, total_filtered_samples)
-
-            # Get the slice of indexed prompts for the current process
-            local_indexed_samples = indexed_samples_filtered[start_idx_global:end_idx_global]
-
-            # Show progress bar only on the local main process (usually rank 0 within its machine)
-            pbar_gen = tqdm(range(0, len(local_indexed_samples), self._batch_size),
-                            desc=f"Generating (Rank {process_index}/{num_processes})",
-                            disable=not self._accl.is_local_main_process or len(local_indexed_samples) == 0)
-
-            # Generate images in batches on the current process
-            for i in pbar_gen:
-                 batch_indexed = local_indexed_samples[i:i+self._batch_size]
-                 batch_original_indices = [item[0] for item in batch_indexed]
-                 batch_prompts = [item[1] for item in batch_indexed]
-
-                 # Ensure no gradients are computed during inference
-                 with torch.no_grad():
-                     # pipe() returns a list of PIL Images
-                     images_batch_pil = self._pipe(batch_prompts, **self._sample_config).images
-
-                 # Associate generated images with their original indices
-                 batch_results = [(batch_original_indices[j], images_batch_pil[j]) for j in range(len(images_batch_pil))]
-                 local_results.extend(batch_results)
-
-            # Gather results from all processes to the main process (rank 0)
-            # gathered_results_list_of_lists will be a list of lists of (index, pil_image) tuples.
-            # It will only be populated on rank 0.
-            gathered_results_list_of_lists = self._accl.gather(local_results)
-
-            # Process results and compute embeddings only on the main process
-            if self._accl.is_main_process:
-                execution_logger.info("Gathering results on main process.")
-                # Flatten the list of lists of results
-                all_results_flat = [item for sublist in gathered_results_list_of_lists for item in sublist]
-
-                # Sort results by original index to match the DataFrame order
-                all_results_flat.sort(key=lambda x: x[0])
-
-                # Separate images and original indices in sorted order
-                sorted_images_pil = [item[1] for item in all_results_flat]
-                sorted_original_indices = [item[0] for item in all_results_flat]
-
-                execution_logger.info(f"Gathered and sorted {len(sorted_images_pil)} images on main process.")
-
-                # Now proceed to compute embeddings using the sorted images
-                images_for_inception = sorted_images_pil # Use the sorted list of PIL images
-
-            else:
-                # Non-main processes don't compute embeddings or update the DataFrame
-                images_for_inception = [] # Empty list for non-main processes
-                sorted_original_indices = [] # Empty list
-
-        else:
-            # --- Single-GPU / CPU Inference (No Accelerate) ---
-            execution_logger.info("Running inference on a single device.")
-
-            # Extract prompts and indices for single-device processing
-            single_device_indexed_samples = indexed_samples_filtered
-            sorted_original_indices = [item[0] for item in single_device_indexed_samples]
-            single_device_prompts = [item[1] for item in single_device_indexed_samples]
-
-
-            single_device_generated_images_pil = []
-            pbar_gen = tqdm(range(0, len(single_device_prompts), self._batch_size),
-                            desc="Generating (Single Device)")
-
-            # Generate images in batches
-            for i in pbar_gen:
-                batch_prompts = single_device_prompts[i:i+self._batch_size]
+                # Stack processed numpy images and convert to torch tensor (N, C, H, W)
+                # Assuming resizer returns float HWC
+                processed_batch_np = np.stack(processed_batch_np, axis=0) # Stack float HWC
+                # Transpose and move to device for Inception
+                batch_tensor = torch.from_numpy(processed_batch_np.transpose((0, 3, 1, 2))).to(gpu_id) # Ensure tensor is on this GPU
 
                 with torch.no_grad():
-                    images_batch_pil = self._pipe(batch_prompts, **self._sample_config).images
-                single_device_generated_images_pil.extend(images_batch_pil)
+                   features = inception(batch_tensor)
+                embeddings_list.append(features.cpu().detach().numpy()) # Move embeddings to CPU
 
-            images_for_inception = single_device_generated_images_pil # This is already in the correct order
-
-
-        # --- Compute Inception Embeddings (Happens only on Main Process if accelerate is enabled) ---
-        embeddings = None # Initialize embeddings
-
-        # Check if we are on the main process (or if accelerate is disabled) before computing embeddings
-        if not self._enable_accl or (self._accl is not None and self._accl.is_main_process):
-
-            if not images_for_inception:
-                execution_logger.warning("No images available to compute embeddings after generation.")
-                # If no images were generated, return an empty embeddings array
-                embeddings = np.array([])
+            if embeddings_list:
+                local_embeddings = np.concatenate(embeddings_list, axis=0)
             else:
-                execution_logger.info(f"Computing Inception embeddings for {len(images_for_inception)} images.")
+                local_embeddings = np.array([]) # Handle case where 0 images were processed
 
-                # Convert list of PIL images to a NumPy array (N, H, W, C)
-                # SDXL generates fixed size images, so stacking is straightforward
-                images_np = np.stack([np.array(img) for img in images_for_inception], axis=0)
+            execution_logger.debug(f"Worker {worker_id} computed {len(local_embeddings)} embeddings.")
 
-                # If images are grayscale, repeat channels (Inception expects 3 channels)
-                if images_np.shape[-1] == 1:
-                    images_np = np.repeat(images_np, 3, axis=-1) # Use axis=-1 for the last dimension
-
-                embeddings_list = []
-                # Use the same batch size for Inception processing or define a separate one
-                inception_batch_size = self._batch_size
-
-                pbar_inception = tqdm(range(0, len(images_np), inception_batch_size),
-                                      desc="Computing Inception Embeddings",
-                                      # Show progress bar only on main process
-                                      disable=False if not self._enable_accl else not self._accl.is_main_process)
-
-                # Process images in batches for InceptionV3
-                for i in pbar_inception:
-                    batch_np = images_np[i : i + inception_batch_size] # NumPy batch (N, H, W, C)
-
-                    # Apply CleanFID preprocessing steps batch-wise (convert to uint8, then resize)
-                    # The cleanfid `build_resizer("clean")` expects numpy HWC uint8
-                    processed_batch_np = []
-                    for img_np in batch_np:
-                        # img_np is (H, W, C)
-                        img_uint8 = to_uint8(img_np, min=0, max=255) # Ensure this matches image range
-                        img_resized_np = self._resizer(img_uint8) # Apply cleanfid resizer (returns numpy HWC)
-                        processed_batch_np.append(img_resized_np)
-
-                    # Stack processed numpy images and convert to torch tensor (N, C, H, W)
-                    # Inception model expects NCHW format
-                    processed_batch_np = np.stack(processed_batch_np, axis=0).transpose((0, 3, 1, 2))
-                    batch_tensor = torch.from_numpy(processed_batch_np).to(self._inception.device) # Move tensor to inception device
-
-                    # Get inception features
-                    with torch.no_grad(): # Ensure no gradients for Inception
-                       features = self._inception(batch_tensor)
-                    # Move features back to CPU and convert to numpy
-                    embeddings_list.append(features.cpu().detach().numpy())
-
-                # Concatenate all batch embeddings into a single numpy array
-                if embeddings_list:
-                    embeddings = np.concatenate(embeddings_list, axis=0)
-                else:
-                    embeddings = np.array([]) # Handle case where loops didn't run (e.g. 0 images)
-
-
-            # --- Update DataFrame (Happens only on Main Process if accelerate is enabled) ---
-            # The 'embeddings' array is now in the same order as 'sorted_original_indices'
-            # We need to assign these embeddings back to the original DataFrame indices in uncomputed_data.
-            # pd.Series handles alignment by index automatically if we pass the original index.
-            if len(embeddings) > 0:
-                 # Create a pandas Series with original indices
-                 embeddings_series = pd.Series(list(embeddings), index=sorted_original_indices)
-                 # Assign the Series to the column in the uncomputed data frame.
-                 # This will correctly align based on index.
-                 uncomputed_data.data_frame[self.column_name] = embeddings_series
-            else:
-                 # If no embeddings were computed (0 images), add an empty column or fill with NaNs/zeros?
-                 # Depends on desired behavior. Let's add an empty column for the relevant indices.
-                 uncomputed_data.data_frame[self.column_name] = pd.Series([np.nan]*len(uncomputed_data.data_frame), index=uncomputed_data.data_frame.index, dtype=object)
-
-
-            execution_logger.info(
-                f"Embedding: finished computing {self.column_name} for "
-                f"{total_samples_to_compute}/{len(data.data_frame)} samples"
-            )
-
-            # Merge the updated uncomputed rows back into the original data frame
-            final_data = self.merge_computed_rows(data, uncomputed_data)
-
-            # Return the final data frame on the main process
-            return final_data
+            # Store results: list of tuples (original_index, embedding)
+            # Ensure embeddings are 1-to-1 with prompts_chunk and original_indices_chunk
+            results_list.extend([(original_indices_chunk[j], local_embeddings[j]) for j in range(len(local_embeddings))])
 
         else:
-            # --- Non-main processes in Accelerate mode ---
-            # These processes finish after gathering results and wait implicitly
-            # or return the original data structure. The main process's return value is used.
-            execution_logger.debug(f"Rank {process_index} finished local processing and gathering.")
-            return data # Returning the original data here is common practice
-        
+             execution_logger.warning(f"Worker {worker_id} generated 0 images, skipping embedding computation.")
+
+
+    except Exception as e:
+        execution_logger.error(f"Worker {worker_id} on GPU {gpu_id} failed: {e}", exc_info=True)
+        # Optional: Store error information in results_list or a separate error list
+        # results_list.append({'error': str(e), 'worker_id': worker_id})
+
 
 
 class hfpipe_embedding(Embedding):
-    """Compute embeddings for images generated from text prompts using Stable Diffusion XL."""
+    """Compute the Sentence Transformers embedding of text."""
 
-    def __init__(self, model, batch_size=4, sample_config = None, enable_accl = True):
+    def __init__(self, pipeline, model_name, batch_size=4, sample_config = {}):
         """Constructor.
 
-        :param model: The name of the Stable Diffusion XL model from Hugging Face Hub
-        :type model: str
-        :param batch_size: The batch size to use for inference (per device when using accelerate), defaults to 4
+        :param model_name: The name of model to use
+        :type model_name: str
+        :param batch_size: The batch size to use for computing the embedding, defaults to 2000
         :type batch_size: int, optional
-        :param sample_config: Additional keyword arguments for the pipeline call (e.g., num_inference_steps, generator), defaults to {}
-        :type sample_config: dict, optional
-        :param enable_accl: Whether to use accelerate for multi-GPU inference, defaults to True
-        :type enable_accl: bool, optional
         """
         super().__init__()
-        self._model_name = model
-        # Ensure sample_config is a dict even if None is passed
-        self._sample_config = sample_config if sample_config is not None else {}
-        self._enable_accl = enable_accl
+        self._pipeline = pipeline
+        self._model_name = model_name
+        self._sample_config = sample_config
         self._batch_size = batch_size
-
-        # Initialize Accelerator (handles device placement and distribution later)
-        self._accl = Accelerator() if self._enable_accl else None
-
-        # Load the pipeline
-        # The pipeline will be moved to the correct device(s) by accelerator.prepare()
-        # or manually moved to cuda/cpu if accelerate is disabled.
-        execution_logger.info(f"Loading Stable Diffusion XL pipeline: {self._model_name}")
-        self._pipe = DiffusionPipeline.from_pretrained(
-            self._model_name,
-            torch_dtype=torch.float16, # Common for SDXL
-            variant="fp16",            # Common for SDXL
-            use_safetensors=True
-        )
-
-        # Prepare the pipeline with Accelerator if enabled
-        if self._enable_accl and self._accl is not None:
-            # prepare() handles moving the model to the correct device(s)
-            self._pipe = self._accl.prepare(self._pipe)
-            execution_logger.info(f"Using Accelerate with {self._accl.num_processes} processes on device: {self._accl.device}")
-        else:
-            # Manual device placement if Accelerate is not enabled
-            if torch.cuda.is_available():
-                self._pipe = self._pipe.to("cuda")
-                execution_logger.info("Using single GPU (cuda). Accelerate not enabled.")
-            else:
-                execution_logger.warning("Using CPU. Accelerate not enabled and CUDA not available. SDXL on CPU will be very slow.")
-                self._pipe = self._pipe.to("cpu")
-
-        # FID-related components (InceptionV3 for feature extraction)
-        # These components will likely run only on the main process after gathering images
-        # but we initialize them considering the potential device setup.
-        self._temp_folder = tempfile.TemporaryDirectory()
-
-        # Determine device for Inception model
-        _inception_device = "cpu" # Default to CPU
-        if torch.cuda.is_available():
-            _inception_device = "cuda"
-        if self._enable_accl and self._accl is not None:
-            # Use the accelerator's device for consistency if enabled and a GPU is available
-            _inception_device = self._accl.device
-
-        execution_logger.info(f"Loading InceptionV3 model on device: {_inception_device}")
-        self._inception = InceptionV3W(path=self._temp_folder.name, download=True, resize_inside=False).to(_inception_device)
-        self._inception.eval() # Ensure it's in eval mode for inference
-
-        # Resizers for images before feeding to InceptionV3
-        # These use PIL and numpy, less device-dependent during this stage
-        self._resize_pre = make_resizer(
-            library="PIL",
-            quantize_after=False,
-            filter="bicubic",
-            output_size=(256, 256), # Target size for CleanFID preprocessing
-        )
-        self._resizer = build_resizer("clean") # The cleanfid specific resizer
 
 
     @property
     def column_name(self):
         """The column name to be used in the data frame."""
-        # Clean up model name for column name if it contains paths or special chars
-        clean_model_name = self._model_name.replace("/", "_").replace("-", "_").lower()
-        return f"{EMBEDDING_COLUMN_NAME}.{type(self).__name__}.{clean_model_name}"
-
+        return f"{EMBEDDING_COLUMN_NAME}.{type(self).__name__}.{self._model_name}"
 
     def compute_embedding(self, data):
-        """Compute the image embedding by generating images from text and running them through InceptionV3.
+        """Compute the image embedding using multiple GPUs via threading.
 
         :param data: The data object containing the text prompts in TEXT_DATA_COLUMN_NAME.
         :type data: :py:class:`pe.data.Data`
         :return: The data object with the computed embedding column added.
-        :rtype: :py:class:`pe.data.Data` or None on non-main processes when accelerate is enabled.
+        :rtype: :py:class:`pe.data.Data`
         """
         # Filter rows that don't have this embedding computed yet
         uncomputed_data = self.filter_uncomputed_rows(data)
         if len(uncomputed_data.data_frame) == 0:
-            # Use accelerate's is_main_process to avoid duplicate logs
-            if self._enable_accl and self._accl is not None:
-                if self._accl.is_main_process:
-                    execution_logger.info(f"Embedding: {self.column_name} already computed for all samples.")
-                # Non-main processes just return the original data or None, main process handles merge later
-                return data # Returning data here is safer if caller expects it
-            else:
-                execution_logger.info(f"Embedding: {self.column_name} already computed for all samples.")
-                return data
-
+            execution_logger.info(f"Embedding: {self.column_name} already computed for all samples.")
+            return data
 
         total_samples_to_compute = len(uncomputed_data.data_frame)
         execution_logger.info(
             f"Embedding: computing {self.column_name} for {total_samples_to_compute}/{len(data.data_frame)}"
-            " samples"
+            " samples using multiple GPUs via threading."
         )
 
-        # Get the list of prompts for uncomputed samples.
-        # Ensure this list is available on all processes initially if using manual splitting.
+        # Get prompts and their original indices from the uncomputed data frame
         samples_full_list = uncomputed_data.data_frame[TEXT_DATA_COLUMN_NAME].tolist()
-        # Keep original index handy for sorting results later
-        original_indices = list(uncomputed_data.data_frame.index)
+        original_indices_full_list = uncomputed_data.data_frame.index.tolist() # Keep original indices
 
-        # Do sample filter (regex) - apply to the full list before distributing
+        # Do sample filter (regex) - apply to the full list, keeping track of indices
         pattern = r'([^:]*:|^)(.*?)(?=\.$|$)'
-        # Apply filter and keep track of original index
-        indexed_samples_filtered = []
+        samples_filtered = []
+        original_indices_filtered = [] # Keep corresponding indices for filtered samples
+
         for i, text in enumerate(samples_full_list):
              match = re.search(pattern, str(text), re.DOTALL)
-             if match: # Ensure match is found
-                 filtered_prompt = match.group(2).strip()
-                 # Store original index *within the uncomputed_data frame*
-                 indexed_samples_filtered.append((original_indices[i], filtered_prompt))
-             else:
-                 # Handle cases where regex doesn't match? Or assume it always matches?
-                 # Assuming it always matches for now, or filtered_prompt is None/empty if no match.
-                 # If no match, the prompt might be empty, which is still a valid generation input.
-                 # If you want to exclude these, filter them out here.
-                 # Let's keep it and pass empty strings if regex fails to match group 2.
-                 # Revising to handle potential None match.
-                 filtered_prompt = match.group(2).strip() if match and match.group(2) else ""
-                 indexed_samples_filtered.append((original_indices[i], filtered_prompt))
+             filtered_prompt = match.group(2).strip() if match and match.group(2) else ""
+             samples_filtered.append(filtered_prompt)
+             original_indices_filtered.append(original_indices_full_list[i])
 
 
-        # List to hold generated PIL images associated with their original index
-        # This will be populated locally on each process, then gathered to rank 0
-        local_results = [] # List of (original_index, pil_image) tuples
+        total_filtered_samples = len(samples_filtered)
+        if total_filtered_samples == 0:
+             execution_logger.info("No samples remaining after filtering. Returning original data.")
+             # Ensure column exists with NaNs if it was filtered out entirely
+             if self.column_name not in data.data_frame.columns:
+                  data.data_frame[self.column_name] = pd.Series([np.nan]*len(data.data_frame), index=data.data_frame.index, dtype=object)
+             return data
 
-        if self._enable_accl and self._accl is not None:
-            # --- Accelerate Multi-GPU Inference ---
-            total_filtered_samples = len(indexed_samples_filtered)
-            num_processes = self._accl.num_processes
-            process_index = self._accl.process_index
 
-            # Split data contiguously across processes for simpler gathering/sorting
-            samples_per_process = (total_filtered_samples + num_processes - 1) // num_processes
-            start_idx_global = process_index * samples_per_process
-            end_idx_global = min(start_idx_global + samples_per_process, total_filtered_samples)
-
-            # Get the slice of indexed prompts for the current process
-            local_indexed_samples = indexed_samples_filtered[start_idx_global:end_idx_global]
-
-            # Show progress bar only on the local main process (usually rank 0 within its machine)
-            pbar_gen = tqdm(range(0, len(local_indexed_samples), self._batch_size),
-                            desc=f"Generating (Rank {process_index}/{num_processes})",
-                            disable=not self._accl.is_local_main_process or len(local_indexed_samples) == 0)
-
-            # Generate images in batches on the current process
-            for i in pbar_gen:
-                 batch_indexed = local_indexed_samples[i:i+self._batch_size]
-                 batch_original_indices = [item[0] for item in batch_indexed]
-                 batch_prompts = [item[1] for item in batch_indexed]
-
-                 # Ensure no gradients are computed during inference
-                 with torch.no_grad():
-                     # pipe() returns a list of PIL Images
-                     images_batch_pil = self._pipe(batch_prompts, **self._sample_config).images
-
-                 # Associate generated images with their original indices
-                 batch_results = [(batch_original_indices[j], images_batch_pil[j]) for j in range(len(images_batch_pil))]
-                 local_results.extend(batch_results)
-
-            # Gather results from all processes to the main process (rank 0)
-            # gathered_results_list_of_lists will be a list of lists of (index, pil_image) tuples.
-            # It will only be populated on rank 0.
-            gathered_results_list_of_lists = self._accl.gather(local_results)
-
-            # Process results and compute embeddings only on the main process
-            if self._accl.is_main_process:
-                execution_logger.info("Gathering results on main process.")
-                # Flatten the list of lists of results
-                all_results_flat = [item for sublist in gathered_results_list_of_lists for item in sublist]
-
-                # Sort results by original index to match the DataFrame order
-                all_results_flat.sort(key=lambda x: x[0])
-
-                # Separate images and original indices in sorted order
-                sorted_images_pil = [item[1] for item in all_results_flat]
-                sorted_original_indices = [item[0] for item in all_results_flat]
-
-                execution_logger.info(f"Gathered and sorted {len(sorted_images_pil)} images on main process.")
-
-                # Now proceed to compute embeddings using the sorted images
-                images_for_inception = sorted_images_pil # Use the sorted list of PIL images
-
-            else:
-                # Non-main processes don't compute embeddings or update the DataFrame
-                images_for_inception = [] # Empty list for non-main processes
-                sorted_original_indices = [] # Empty list
-
+        # --- Multi-GPU Parallel Processing with Threading ---
+        available_gpus = [i for i in range(torch.cuda.device_count())]
+        if not available_gpus:
+             execution_logger.warning("No GPUs available. Falling back to single CPU processing (will be slow).")
+             # Fallback to CPU if no GPUs
+             num_gpus = 1
+             target_devices = ["cpu"]
         else:
-            # --- Single-GPU / CPU Inference (No Accelerate) ---
-            execution_logger.info("Running inference on a single device.")
-
-            # Extract prompts and indices for single-device processing
-            single_device_indexed_samples = indexed_samples_filtered
-            sorted_original_indices = [item[0] for item in single_device_indexed_samples]
-            single_device_prompts = [item[1] for item in single_device_indexed_samples]
+             num_gpus = len(available_gpus)
+             target_devices = available_gpus
+             execution_logger.info(f"Found {num_gpus} GPUs: {available_gpus}. Distributing workload.")
 
 
-            single_device_generated_images_pil = []
-            pbar_gen = tqdm(range(0, len(single_device_prompts), self._batch_size),
-                            desc="Generating (Single Device)")
+        # Split the filtered samples and indices into chunks for each GPU
+        chunks_prompts = np.array_split(samples_filtered, num_gpus)
+        chunks_indices = np.array_split(original_indices_filtered, num_gpus)
 
-            # Generate images in batches
-            for i in pbar_gen:
-                batch_prompts = single_device_prompts[i:i+self._batch_size]
+        threads = []
+        all_results = [] # List to collect results from all threads (list of (index, embedding) tuples)
 
-                with torch.no_grad():
-                    images_batch_pil = self._pipe(batch_prompts, **self._sample_config).images
-                single_device_generated_images_pil.extend(images_batch_pil)
+        # Create and start threads
+        for i, gpu_id in enumerate(target_devices):
+            if len(chunks_prompts[i]) == 0:
+                 execution_logger.debug(f"Skipping worker {i} on device {gpu_id} as it has no prompts.")
+                 continue # Skip if chunk is empty
 
-            images_for_inception = single_device_generated_images_pil # This is already in the correct order
+            execution_logger.debug(f"Starting worker {i} on device {gpu_id} with {len(chunks_prompts[i])} prompts.")
 
-
-        # --- Compute Inception Embeddings (Happens only on Main Process if accelerate is enabled) ---
-        embeddings = None # Initialize embeddings
-
-        # Check if we are on the main process (or if accelerate is disabled) before computing embeddings
-        if not self._enable_accl or (self._accl is not None and self._accl.is_main_process):
-
-            if not images_for_inception:
-                execution_logger.warning("No images available to compute embeddings after generation.")
-                # If no images were generated, return an empty embeddings array
-                embeddings = np.array([])
-            else:
-                execution_logger.info(f"Computing Inception embeddings for {len(images_for_inception)} images.")
-
-                # Convert list of PIL images to a NumPy array (N, H, W, C)
-                # SDXL generates fixed size images, so stacking is straightforward
-                images_np = np.stack([np.array(img) for img in images_for_inception], axis=0)
-
-                # If images are grayscale, repeat channels (Inception expects 3 channels)
-                if images_np.shape[-1] == 1:
-                    images_np = np.repeat(images_np, 3, axis=-1) # Use axis=-1 for the last dimension
-
-                embeddings_list = []
-                # Use the same batch size for Inception processing or define a separate one
-                inception_batch_size = self._batch_size
-
-                pbar_inception = tqdm(range(0, len(images_np), inception_batch_size),
-                                      desc="Computing Inception Embeddings",
-                                      # Show progress bar only on main process
-                                      disable=False if not self._enable_accl else not self._accl.is_main_process)
-
-                # Process images in batches for InceptionV3
-                for i in pbar_inception:
-                    batch_np = images_np[i : i + inception_batch_size] # NumPy batch (N, H, W, C)
-
-                    # Apply CleanFID preprocessing steps batch-wise (convert to uint8, then resize)
-                    # The cleanfid `build_resizer("clean")` expects numpy HWC uint8
-                    processed_batch_np = []
-                    for img_np in batch_np:
-                        # img_np is (H, W, C)
-                        img_uint8 = to_uint8(img_np, min=0, max=255) # Ensure this matches image range
-                        img_resized_np = self._resizer(img_uint8) # Apply cleanfid resizer (returns numpy HWC)
-                        processed_batch_np.append(img_resized_np)
-
-                    # Stack processed numpy images and convert to torch tensor (N, C, H, W)
-                    # Inception model expects NCHW format
-                    processed_batch_np = np.stack(processed_batch_np, axis=0).transpose((0, 3, 1, 2))
-                    batch_tensor = torch.from_numpy(processed_batch_np).to(self._inception.device) # Move tensor to inception device
-
-                    # Get inception features
-                    with torch.no_grad(): # Ensure no gradients for Inception
-                       features = self._inception(batch_tensor)
-                    # Move features back to CPU and convert to numpy
-                    embeddings_list.append(features.cpu().detach().numpy())
-
-                # Concatenate all batch embeddings into a single numpy array
-                if embeddings_list:
-                    embeddings = np.concatenate(embeddings_list, axis=0)
-                else:
-                    embeddings = np.array([]) # Handle case where loops didn't run (e.g. 0 images)
-
-
-            # --- Update DataFrame (Happens only on Main Process if accelerate is enabled) ---
-            # The 'embeddings' array is now in the same order as 'sorted_original_indices'
-            # We need to assign these embeddings back to the original DataFrame indices in uncomputed_data.
-            # pd.Series handles alignment by index automatically if we pass the original index.
-            if len(embeddings) > 0:
-                 # Create a pandas Series with original indices
-                 embeddings_series = pd.Series(list(embeddings), index=sorted_original_indices)
-                 # Assign the Series to the column in the uncomputed data frame.
-                 # This will correctly align based on index.
-                 uncomputed_data.data_frame[self.column_name] = embeddings_series
-            else:
-                 # If no embeddings were computed (0 images), add an empty column or fill with NaNs/zeros?
-                 # Depends on desired behavior. Let's add an empty column for the relevant indices.
-                 uncomputed_data.data_frame[self.column_name] = pd.Series([np.nan]*len(uncomputed_data.data_frame), index=uncomputed_data.data_frame.index, dtype=object)
-
-
-            execution_logger.info(
-                f"Embedding: finished computing {self.column_name} for "
-                f"{total_samples_to_compute}/{len(data.data_frame)} samples"
+            # Pass necessary objects to the worker. Be mindful of passing large mutable objects.
+            # Models are moved to device within the worker. Sample config is small.
+            # resize_pre and resizer are assumed to be lightweight or thread-safe.
+            thread = threading.Thread(
+                target=generate_and_embed_worker,
+                args=(
+                    gpu_id, # Pass the device identifier (int for GPU, "cpu" string)
+                    chunks_prompts[i].tolist(), # Pass as list
+                    chunks_indices[i].tolist(), # Pass as list
+                    self._model_name,
+                    self._pipeline,
+                    self._sample_config,
+                    self._batch_size,
+                    all_results, # This list is shared, results will be appended here
+                    i # worker_id for logging
+                )
             )
+            threads.append(thread)
+            thread.start()
 
-            # Merge the updated uncomputed rows back into the original data frame
-            final_data = self.merge_computed_rows(data, uncomputed_data)
+        # Wait for all threads to complete
+        execution_logger.info(f"Waiting for {len(threads)} workers to finish...")
+        for thread in tqdm(threads, desc="Overall Multi-GPU Processing"):
+            thread.join()
+        execution_logger.info("All workers finished.")
 
-            # Return the final data frame on the main process
-            return final_data
+        # --- Process and Merge Results ---
+        # all_results is a list of (original_index, embedding) tuples gathered from all threads
+        if not all_results:
+            execution_logger.warning("No results collected from any worker.")
+            # Add the column with NaNs if no embeddings were computed
+            uncomputed_data.data_frame[self.column_name] = pd.Series([np.nan]*len(uncomputed_data.data_frame), index=uncomputed_data.data_frame.index, dtype=object)
+            return self.merge_computed_rows(data, uncomputed_data)
 
-        else:
-            # --- Non-main processes in Accelerate mode ---
-            # These processes finish after gathering results and wait implicitly
-            # or return the original data structure. The main process's return value is used.
-            execution_logger.debug(f"Rank {process_index} finished local processing and gathering.")
-            return data # Returning the original data here is common practice
-        
+
+        # Sort results by original index to match the uncomputed_data.data_frame order
+        # Although Pandas Series assignment by index handles order, sorting ensures predictability
+        all_results.sort(key=lambda x: uncomputed_data.data_frame.index.get_loc(x[0])) # Sort by the position of the index
+
+        # Separate indices and embeddings
+        sorted_indices = [item[0] for item in all_results]
+        sorted_embeddings = [item[1] for item in all_results] # This is a list of numpy arrays
+
+
+        # Ensure the number of results matches the number of filtered samples
+        if len(sorted_embeddings) != total_filtered_samples:
+             execution_logger.warning(f"Mismatch: Expected {total_filtered_samples} embeddings, but got {len(sorted_embeddings)}. This might indicate an issue in workers (e.g., errors, skipped samples).")
+             # Handle this case: potentially create a Series with NaNs for missing indices, or raise error
+
+
+        # Create a pandas Series with the collected embeddings, using the original indices
+        # Pandas will align based on the index
+        # pd.Series expects a list of list/array-like or Series of objects if elements are variable size arrays.
+        embeddings_series = pd.Series(sorted_embeddings, index=sorted_indices)
+
+        # Assign the Series to the column in the uncomputed data frame.
+        # This will correctly align based on index.
+        uncomputed_data.data_frame[self.column_name] = embeddings_series
+
+
+        execution_logger.info(
+            f"Embedding: finished computing {self.column_name} for "
+            f"{len(embeddings_series)}/{total_samples_to_compute} samples that were processed." # Log processed vs total uncomputed
+        )
+
+        # Merge the updated uncomputed rows back into the original data frame
+        return self.merge_computed_rows(data, uncomputed_data)
 
 
 class dpldm_embedding(Embedding):
@@ -731,7 +363,7 @@ class dpldm_embedding(Embedding):
         self._eta = eta
 
         self._temp_folder = tempfile.TemporaryDirectory()
-        self._inception = InceptionV3W(path=self._temp_folder.name, download=True, resize_inside=False).to("cuda")
+        self._inception = InceptionV3W(path=self._temp_folder, download=True, resize_inside=False).to("cuda")
         self._resize_pre = make_resizer(
             library="PIL",
             quantize_after=False,

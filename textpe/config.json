@@ -1,6 +1,6 @@
 {
     "model":{
-        "openaI":{
+        "openai":{
             "model":"gpt-4o-mini-2024-07-18",
             "max_completion_tokens":100,
             "temperature":1.2,
