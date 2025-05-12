@@ -331,7 +331,9 @@ class hfpipe_embedding(Embedding):
         )
 
         # Merge the updated uncomputed rows back into the original data frame
-        return self.merge_computed_rows(data, uncomputed_data)
+        data = self.merge_computed_rows(data, uncomputed_data)
+        execution_logger.info(f">>> Columns after embedding computation:{data.data_frame.columns}")
+        return data
 
 
 class dpldm_embedding(Embedding):

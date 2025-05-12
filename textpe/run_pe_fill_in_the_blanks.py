@@ -51,10 +51,9 @@ llm_dict = {
 }
 
 embedding_dict = {
-    "sdxl-turbo":hfpipe_xl_embedding,
-    "sdxl-base-1.0":hfpipe_xl_embedding,
-    "sd-large-3.5":hfpipe_embedding,
-    "dpldm":dpldm_embedding
+    "sdxl-turbo":StableDiffusionXLPipeline,
+    "sdxl-base-1.0":StableDiffusionXLPipeline,
+    "sd-large-3.5":DiffusionPipeline
 }
 
 def main(args, config):
@@ -84,7 +83,10 @@ def main(args, config):
         blank_probabilities=0.5
     )
 
-    embedding_syn = embedding_dict.get(args.embedding,None)(**config["embedding"].get(args.embedding,None))
+    if args.embedding!="dpldm":
+        embedding_syn = hfpipe_embedding(embedding_dict.get(args.embedding,None),**config["embedding"].get(args.embedding,None))
+    else:
+        embedding_syn = dpldm_embedding(**config["embedding"].get(args.embedding,None))
     # embedding_syn = dpldm_embedding(config_path="DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml", ckpt_path="textpe/dpldm-models/text2img-large/model.ckpt")
 
     if args.voting == "image":
@@ -113,9 +115,9 @@ def main(args, config):
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    # compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn)
-    compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-    compute_fid_variation = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
+    compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn)
+    # compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
+    # compute_fid_variation = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
@@ -128,8 +130,8 @@ def main(args, config):
         priv_data=data,
         population=population,
         histogram=histogram,
-        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
-        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
+        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
+        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
