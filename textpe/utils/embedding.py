@@ -15,6 +15,7 @@ from pe.constant.data import TEXT_DATA_COLUMN_NAME
 from pe.constant.data import EMBEDDING_COLUMN_NAME
 
 from diffusers import StableDiffusionXLPipeline, DiffusionPipeline
+from accelerate import Accelerator
 import re
 
 from DPLDM.ldm.util import instantiate_from_config
@@ -46,7 +47,7 @@ def load_model_from_config(config, ckpt):
 class hfpipe_xl_embedding(Embedding):
     """Compute the Sentence Transformers embedding of text."""
 
-    def __init__(self, model, batch_size=4, sample_config = {}):
+    def __init__(self, model, batch_size=4, sample_config = {}, enable_accl = True):
         """Constructor.
 
         :param model: The Sentence Transformers model to use
@@ -57,7 +58,8 @@ class hfpipe_xl_embedding(Embedding):
         super().__init__()
         self._model_name = model
         self._sample_config = sample_config
-        self._pipe = StableDiffusionXLPipeline.from_pretrained(self._model_name, torch_dtype=torch.float16, variant="fp16", use_safetensors=True).to("cuda")
+        self._enable_accl = enable_accl
+        self._pipe = StableDiffusionXLPipeline.from_pretrained(self._model_name, torch_dtype=torch.float16, variant="fp16", use_safetensors=True)
         self._batch_size = batch_size
 
         self._temp_folder = tempfile.TemporaryDirectory()
@@ -69,11 +71,48 @@ class hfpipe_xl_embedding(Embedding):
             output_size=(256, 256),
         )
         self._resizer = build_resizer("clean")
+        self._accl = Accelerator()
+
+        if self._enable_accl:
+            self._pipe = self._pipe.to(self._accl.device)
+            self._pipe.set_progress_bar_config(disable=True)
+        else:
+            self._pipe = self._pipe.to("cuda")
 
     @property
     def column_name(self):
         """The column name to be used in the data frame."""
         return f"{EMBEDDING_COLUMN_NAME}.{type(self).__name__}.{self._model_name}"
+
+    def run_with_accl(self, prompts):
+        """Generate image samples with accelerate
+        
+        :param prompts: A series of prompts for image generation
+        :type prompts: List[str]
+        """
+        prompts = self._accl.pad_across_processes(prompts, dim=0, pad_index="", pad_to_multiple_of=self._batch_size)
+        prompt_batches = [prompts[i:i+self._batch_size] for i in range(0, len(prompts), self._batch_size)]
+        all_images = []
+
+        for prompt_batch in tqdm(prompt_batches, disable=not self._accl.is_local_main_process):
+            images = self._pipe(prompt_batch).images
+            all_images.extend(images)
+        
+        return all_images
+
+
+    def run_without_accl(self, prompts):
+        """Generate image samples without accelerate
+        
+        :param prompts: A series of prompts for image generation
+        :type prompts: List[str]
+        """
+        all_images = []
+        for batch_idx in tqdm(range((len(prompts)+self._batch_size-1)//self._batch_size)):
+            all_images.append(self._pipe(prompts[batch_idx*self._batch_size:(batch_idx+1)*self._batch_size],**self._sample_config).images)
+        all_images = np.concatenate(all_images,axis=0)
+        return all_images
+        
 
     def compute_embedding(self, data):
         """Compute the Sentence Transformers embedding of text.
@@ -101,10 +140,10 @@ class hfpipe_xl_embedding(Embedding):
         samples = [match.group(2).strip() for match in matches]
 
         # generate images from sample texts
-        images = []
-        for batch_idx in tqdm(range((len(samples)+self._batch_size-1)//self._batch_size)):
-            images.append(self._pipe(samples[batch_idx*self._batch_size:(batch_idx+1)*self._batch_size],**self._sample_config).images)
-        images = np.concatenate(images,axis=0)
+        if self._enable_accl:
+            images = self.run_with_accl(samples)
+        else:
+            images = self.run_without_accl(samples)
 
         # compute embedding using InceptionV3
         if images.shape[3] == 1:

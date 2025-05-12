@@ -12,7 +12,7 @@ Following the work [Lin et al.(2024)](https://openreview.net/forum?id=YEhQs8POIo
 conda create -n textdp python=3.12
 conda activate textdp
 
-conda install transformers diffusers datasets
+conda install transformers diffusers datasets accelerate
 # installing PE...
 conda install -y -c pytorch -c nvidia faiss-gpu=1.8.0
 pip install "private-evolution @ git+https://github.com/microsoft/DPSDA.git"
