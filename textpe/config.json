@@ -74,5 +74,24 @@
         "spritefright":{
             "folder":"datasets/spritefright/selected_frames"
         }
+    },
+    "embedding":{
+        "sdxl-turbo":{
+            "model":"stabilityai/sdxl-turbo",
+            "sample_config":{
+                "num_inference_steps": 4,
+                "guidance_scale": 0.0
+            }
+        },
+        "sdxl-base-1.0":{
+            "model":"stabilityai/stable-diffusion-xl-base-1.0"
+        },
+        "sd-large-3.5":{
+            "model":"stabilityai/stable-diffusion-3.5-large"
+        },
+        "dpldm":{
+            "config_path":"DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml",
+            "ckpt_path":"textpe/dpldm-models/text2img-large/model.ckpt"
+        }
     }
 }

@@ -10,7 +10,7 @@ from pe.api.text import LLMAugPE
 from pe.llm import OpenAILLM, HuggingfaceLLM
 from pe.embedding.text import SentenceTransformer
 from pe.embedding.image import Inception
-from textpe.utils.embedding import hfpipe_embedding
+from textpe.utils.embedding import hfpipe_xl_embedding
 from pe.histogram import NearestNeighbors
 from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
@@ -67,7 +67,7 @@ def main(args, config):
         blank_probabilities=0.5
     )
     # embedding = SentenceTransformer(model="sentence-t5-base")
-    embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
+    embedding_syn = hfpipe_xl_embedding(model="stabilityai/sdxl-turbo")
     # embedding_priv = Inception(res=256,batch_size=16)
     histogram = ImageVotingNN(
         api=api,

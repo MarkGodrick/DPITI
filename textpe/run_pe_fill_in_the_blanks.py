@@ -50,6 +50,13 @@ llm_dict = {
     "qwen":QwenAILLM
 }
 
+embedding_dict = {
+    "sdxl-turbo":hfpipe_xl_embedding,
+    "sdxl-base-1.0":hfpipe_xl_embedding,
+    "sd-large-3.5":hfpipe_embedding,
+    "dpldm":dpldm_embedding
+}
+
 def main(args, config):
     
     exp_folder = args.output
@@ -60,12 +67,11 @@ def main(args, config):
 
     setup_logging(log_file=os.path.join(exp_folder, "log.txt"))
 
-    execution_logger.info("\nExecuting {}...\ninput: {}\npe llm: {}\noutput: {}".format(sys.argv[0],args.data,args.llm,args.output))
-
+    execution_logger.info(f"Command-line arguments: {sys.argv}")
 
     data = text(root_dir=args.data)
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset,{}))
-    data_from_lsun = data_from_dataset(dataset,save_path=os.path.join("datasets",args.dataset,"embedding"))
+    data_from_lsun = data_from_dataset(dataset,length=300000,save_path=os.path.join("datasets",args.dataset,"embedding"))
 
     llm = llm_dict.get(args.llm)(**config["model"].get(args.llm))
     
@@ -78,7 +84,7 @@ def main(args, config):
         blank_probabilities=0.5
     )
 
-    embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
+    embedding_syn = embedding_dict.get(args.embedding,None)(**config["embedding"].get(args.embedding,None))
     # embedding_syn = dpldm_embedding(config_path="DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml", ckpt_path="textpe/dpldm-models/text2img-large/model.ckpt")
 
     if args.voting == "image":
@@ -143,6 +149,7 @@ if __name__ == "__main__":
     parser.add_argument('--llm',type=str,choices=['openai','huggingface','qwen'],default='huggingface')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
     parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright'],default='lsun')
+    parser.add_argument('--embedding',type=str,choices=['sdxl-turbo','sdxl-base-1.0','sd-large-3.5','dpldm'],default='sdxl-turbo')
 
     args = parser.parse_args()
 

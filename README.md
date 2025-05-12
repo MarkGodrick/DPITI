@@ -18,7 +18,19 @@ conda install -y -c pytorch -c nvidia faiss-gpu=1.8.0
 pip install "private-evolution @ git+https://github.com/microsoft/DPSDA.git"
 pip install "private-evolution[image,text] @ git+https://github.com/microsoft/DPSDA.git"
 pip install einops
+git clone https://github.com/SaiyueLyu/DP-LDM.git
 # Others...
+```
+
+### To-Do Command
+```bash
+PYTHONPATH="$(pwd):$(pwd)/DPLDM" python textpe/run_pe_fill_in_the_blanks.py --dataset lsun --data docs/examples/lsun_bedroom_gpt-4o-mini_caption10240.csv --embedding sdxl-base-1.0 --output results/lsun/pe/meta-llama/sdxl-base-1.0/trial1
+
+PYTHONPATH="$(pwd):$(pwd)/DPLDM" python textpe/run_pe_fill_in_the_blanks.py --dataset lsun --data docs/examples/lsun_bedroom_gpt-4o-mini_caption10240.csv --embedding sd-large-3.5 --output results/lsun/pe/meta-llama/sd-large-3.5/trial1
+
+PYTHONPATH="$(pwd):$(pwd)/DPLDM" python textpe/run_pe_fill_in_the_blanks.py --dataset lsun --data docs/examples/lsun_bedroom_gpt-4o-mini_caption10240.csv --llm qwen --embedding sdxl-base-1.0 --output results/lsun/pe/qwen-plus/sdxl-base-1.0/trial1
+
+PYTHONPATH="$(pwd):$(pwd)/DPLDM" python textpe/run_pe_fill_in_the_blanks.py --dataset lsun --data docs/examples/lsun_bedroom_gpt-4o-mini_caption10240.csv --llm qwen --embedding sd-large-3.5 --output results/lsun/pe/qwen-plus/sd-large-3.5/trial1
 ```
 
 ### Experiment Setup
