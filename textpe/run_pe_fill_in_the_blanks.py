@@ -16,6 +16,7 @@ from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
 from textpe.utils.dataset import *
+from textpe.utils.llm import *
 from textpe.utils.callbacks import _ComputeFID
 from pe.callback import SaveTextToCSV
 from pe.logger import CSVPrint
@@ -43,6 +44,12 @@ dataset_dict = {
     "spritefright":ImageFolderDataset
 }
 
+llm_dict = {
+    "openai":OpenAILLM,
+    "huggingface":HuggingfaceLLM,
+    "qwen":QwenAILLM
+}
+
 def main(args, config):
     
     exp_folder = args.output
@@ -60,12 +67,7 @@ def main(args, config):
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset,{}))
     data_from_lsun = data_from_dataset(dataset,save_path=os.path.join("datasets",args.dataset,"embedding"))
 
-    if args.llm=='huggingface':
-        llm = HuggingfaceLLM(**config["model"]["Huggingface"])
-    elif args.llm=='openai':
-        llm = OpenAILLM(**config["model"]["OpenAI"])
-    else:
-        raise ValueError("llm argument not recognized.")
+    llm = llm_dict.get(args.llm)(**config["model"].get(args.llm))
     
     api = LLMAugPE(
         llm=llm,
@@ -83,8 +85,8 @@ def main(args, config):
         histogram = ImageVotingNN(
             embedding=embedding_syn,
             mode="L2",
-            # lookahead_degree=0,
-            lookahead_degree=8,
+            lookahead_degree=0,
+            # lookahead_degree=8,
             priv_dataset=data_from_lsun,
             api = api
         )
@@ -92,23 +94,22 @@ def main(args, config):
         histogram = NearestNeighbors(
             embedding=embedding_syn,
             mode="L2",
-            # lookahead_degree=0,
-            lookahead_degree=8,
-            priv_dataset=data_from_lsun,
+            lookahead_degree=0,
+            # lookahead_degree=8,
             api = api
         )
     else:
         raise ValueError()
     
     population = PEPopulation(
-        api=api, keep_selected=True, selection_mode="rank"
-        # api=api, keep_selected=True, selection_mode="rank",initial_variation_api_fold=6,next_variation_api_fold=6
+        # api=api, keep_selected=True, selection_mode="rank"
+        api=api, keep_selected=True, selection_mode="rank",initial_variation_api_fold=6,next_variation_api_fold=6
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn)
-    # compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-    # compute_fid_variation = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
+    # compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn)
+    compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
+    compute_fid_variation = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
@@ -121,14 +122,14 @@ def main(args, config):
         priv_data=data,
         population=population,
         histogram=histogram,
-        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
-        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
+        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
+        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[200] * 10,
+        num_samples_schedule=[2000] * 10,
         delta=delta,
-        epsilon=1.0,
+        epsilon=10.0,
         # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
     )
@@ -139,7 +140,7 @@ if __name__ == "__main__":
     
     parser.add_argument('--output',type=str,default="results/text")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
-    parser.add_argument('--llm',type=str,choices=['openai','huggingface'],default='huggingface')
+    parser.add_argument('--llm',type=str,choices=['openai','huggingface','qwen'],default='huggingface')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
     parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright'],default='lsun')
 

@@ -91,7 +91,7 @@ def main(args, config):
         loggers=[image_file, csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[2000] * ITERATIONS,
+        num_samples_schedule=[1000] * ITERATIONS,
         delta=delta,
         epsilon=5.0,
         # noise_multiplier=2 * np.sqrt(2),
