@@ -17,7 +17,7 @@ conda install transformers diffusers datasets accelerate
 conda install -y -c pytorch -c nvidia faiss-gpu=1.8.0
 pip install "private-evolution @ git+https://github.com/microsoft/DPSDA.git"
 pip install "private-evolution[image,text] @ git+https://github.com/microsoft/DPSDA.git"
-pip install einops, datasets, lmdb
+pip install einops datasets lmdb
 git clone https://github.com/MarkGodrick/DPITI.git
 cd DPITI
 git clone https://github.com/SaiyueLyu/DP-LDM.git
