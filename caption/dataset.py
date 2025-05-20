@@ -139,6 +139,15 @@ class europeart(Dataset):
     def __getitem__(self, index):
         return self.dataset[int(index)]['image']
     
+class imagenet100(Dataset):
+    def __init__(self, split="train"):
+        self.dataset = load_dataset("ilee0022/ImageNet100",split=split)
+
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        return self.dataset[int(index)]['image'],self.dataset[int(index)]['text'].split(",")[0]
 
 
 class ImageFolderDataset(Dataset):

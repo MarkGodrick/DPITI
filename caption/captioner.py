@@ -295,7 +295,7 @@ class Qwen_captioner(Captioner):
         self.file_path = file_path if file_path else "/tmp/caption.csv"
         if file_path and os.path.exists(file_path) and file_path.split('.')[-1]=="csv":
             file = pd.read_csv(file_path)
-            self.captions.extend(list(file[file.columns[0]]))
+            self.captions.extend(list(file.itertuples(index=False, name=None)))
 
     def __call__(self,images: Union[Image.Image, List[Image.Image], Dataset])-> Union[str, List[str]]:
         """caption the whole dataset.
@@ -313,20 +313,19 @@ class Qwen_captioner(Captioner):
         self.captions = self.captions[:init_ptr*batch_size]
 
         for batch_idx in tqdm(range(init_ptr,(len(images)+batch_size-1)//batch_size)):
-            imgs = [images[idx] for idx in range(batch_idx*batch_size,(batch_idx+1)*batch_size) if idx<dataset_len]
-            encoded_images = [self.encode_image_from_pil(img) for img in imgs]
+            encoded_images = [( self.encode_image_from_pil(images[idx][0]) , images[idx][1] ) for idx in range(batch_idx*batch_size,(batch_idx+1)*batch_size) if idx<dataset_len]
 
             with ThreadPoolExecutor(max_workers=self.config["max_workers"]) as executor:
                 responses = list(
                     tqdm(
-                        executor.map(self._get_response_for_one_request, encoded_images),
+                        filter(None, executor.map(self._get_response_for_one_request, encoded_images)),
                         total=len(encoded_images),
                         disable=not self.config["progress_bar"],
                     )
                 )
             
             self.captions.extend(responses)
-            temp_df = pd.DataFrame(self.captions,columns=['text'])
+            temp_df = pd.DataFrame(self.captions,columns=['text','label'])
             temp_df.to_csv(self.file_path,index=False)
 
         return self.captions
@@ -379,17 +378,17 @@ class Qwen_captioner(Captioner):
                             },
                             {
                                 "type": "image_url",
-                                "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
+                                "image_url": {"url": f"data:image/jpeg;base64,{encoded_image[0]}"},
                             },
                         ],
                     }
                 ],
                 **self.config["qwen_run"]
             )
-            return response.choices[0].message.content
+            return response.choices[0].message.content,encoded_image[1]
         except BadRequestError as e:
             print(f"Error occurred: {e}")
-            return ""
+            return None
 
 
 

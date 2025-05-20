@@ -22,6 +22,7 @@ dataset_dict = {
     "lsun":lsun,
     "cat":cat,
     "europeart":europeart,
+    "imagenet100":imagenet100,
     "mmcelebahq":ImageFolderDataset,
     "wingit":ImageFolderDataset,
     "spritefright":ImageFolderDataset
@@ -46,8 +47,8 @@ def main(args, config):
 
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset, {}))
     
-    # indices = np.random.choice(len(dataset),len(dataset),replace=False)
-    # dataset = Subset(dataset,indices[:10240])
+    indices = np.random.choice(len(dataset),10240,replace=False)
+    dataset = Subset(dataset,indices)
     if not dataset:
         raise ValueError("Captioner: dataset not recognized.")
 
@@ -61,7 +62,7 @@ def main(args, config):
 
     captions = captioner(dataset)
 
-    df = pd.DataFrame(captions,columns=['text'])
+    df = pd.DataFrame(captions,columns=['text','label'])
     # df.to_csv(os.path.join(output,"caption.csv"),index=False)
 
     execution_logger.info("Captions are generated successfully. Saving data as file {}".format(os.path.join(args.output,f"caption.csv")))
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--captioner',type=str,choices=['huggingface','openai','gemini','qwen'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=["lsun","cat","wingit","europeart","mmcelebahq","spritefright"],default="lsun")
+    parser.add_argument('--dataset',type=str,choices=["lsun","cat","wingit","europeart","mmcelebahq","spritefright","imagenet100"],default="lsun")
     parser.add_argument('--output',type=str,default="results")
 
     args = parser.parse_args()

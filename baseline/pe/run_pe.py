@@ -20,7 +20,8 @@ from textpe.utils.image import data_from_dataset
 from pe.constant.data import IMAGE_DATA_COLUMN_NAME
 from pe.data.image import Cat, Camelyon17
 from pe.api.image import ImprovedDiffusion270M
-
+from pe.constant.data import VARIATION_API_FOLD_ID_COLUMN_NAME
+from pe.dp.gaussian import get_noise_multiplier
 
 import os
 import json
@@ -39,7 +40,8 @@ dataset_dict = {
     "europeart":europeart,
     "waveui":waveui,
     "wingit": ImageFolderDataset,
-    "spritefright":ImageFolderDataset
+    "spritefright":ImageFolderDataset,
+    "imagenet100":imagenet100
 }
 
 def main(args, config):
@@ -48,6 +50,9 @@ def main(args, config):
     data = dataset_dict.get(args.dataset)(**config["dataset"].get(args.dataset))
     
     embed_from_dataset = data_from_dataset(data,length=NUM_OF_PRIV_DATASET,save_path=os.path.join("datasets",args.dataset,"embedding"))
+
+    delta = 1.0/len(data)/np.log(len(data))
+    noise_multiplier = get_noise_multiplier(epsilon=1.0,num_steps=10,delta=delta)
 
     if args.api=="StableDiffusion":
         api = StableDiffusion(
@@ -67,11 +72,14 @@ def main(args, config):
     histogram = NNhistogram(
         embedding=embedding,
         mode="L2",
-        lookahead_degree=4,
+        lookahead_degree=5,
         api=api,
         priv_data_emb=embed_from_dataset
     )
-    population = PEPopulation(api=api, histogram_threshold=5)
+    population = PEPopulation(
+        api=api, 
+        histogram_threshold=noise_multiplier*1.2,
+        )
 
     save_checkpoints = SaveCheckpoints(os.path.join(args.output, "checkpoint"))
     sample_images = SampleImages()
@@ -81,7 +89,6 @@ def main(args, config):
     csv_print = CSVPrint(output_folder=args.output)
     log_print = LogPrint()
 
-    delta = 1.0/len(data)/np.log(len(data))
 
     pe_runner = PE(
         priv_data=data,
@@ -91,16 +98,16 @@ def main(args, config):
         loggers=[image_file, csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[1000] * ITERATIONS,
+        num_samples_schedule=[20000] * ITERATIONS,
         delta=delta,
-        epsilon=5.0,
+        epsilon=1.0,
         # noise_multiplier=2 * np.sqrt(2),
         checkpoint_path=os.path.join(args.output, "checkpoint"),
     )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset",type=str,choices=['lsun','cat','waveui','wingit','europeart','spritefright'],default='lsun')
+    parser.add_argument("--dataset",type=str,choices=['lsun','cat','waveui','wingit','europeart','spritefright','imagenet100'],default='lsun')
     parser.add_argument("--api",type=str,choices=["StableDiffusion","ImprovedDiffusion"],default="StableDiffusion")
     parser.add_argument("--output",type=str,default="results/baseline/pe")
 

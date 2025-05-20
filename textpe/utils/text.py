@@ -4,7 +4,7 @@ from pe.data.text.text_csv import TextCSV
 class text(TextCSV):
     """The text dataset specially implemented for PE algorithm"""
 
-    def __init__(self, root_dir="data", **kwargs):
+    def __init__(self, root_dir="data",label_columns = [], **kwargs):
         """Constructor.
 
         :param root_dir: The root directory of the dataset. If the dataset is not there, it will be downloaded
@@ -12,4 +12,4 @@ class text(TextCSV):
         :type root_dir: str, optional
         """
         self._data_path = root_dir
-        super().__init__(csv_path=self._data_path, label_columns=[], text_column="text", **kwargs)
+        super().__init__(csv_path=self._data_path, label_columns=label_columns, text_column="text", **kwargs)

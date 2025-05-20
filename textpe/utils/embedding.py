@@ -102,7 +102,7 @@ class hfpipe_embedding(Embedding):
         # generate images from sample texts
         images = []
         for batch_idx in tqdm(range((len(samples)+self._batch_size-1)//self._batch_size)):
-            images.append(self._pipe(samples[batch_idx*self._batch_size:(batch_idx+1)*self._batch_size], num_inference_steps=4,guidance_scale=0.0).images)
+            images.append(self._pipe(samples[batch_idx*self._batch_size:(batch_idx+1)*self._batch_size], num_inference_steps=1,guidance_scale=0.0).images)
         images = np.concatenate(images,axis=0)
 
         # compute embedding using InceptionV3

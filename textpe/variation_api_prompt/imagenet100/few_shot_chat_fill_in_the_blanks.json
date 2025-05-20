@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for some animal based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of some animal: \"{example1}\". Do not change the species of the animal in the description. Give your answer directly and your answer MUST be exactly 34 tokens.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of some animal: \"{example2}\". Do not change the species of the animal in the description. Give your answer directly and your answer MUST be exactly 30 tokens.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of some animal: \"{masked_sample}\". Do not change the species of the animal in the description. Give your answer directly and your answer MUST be exactly {word_count} tokens.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"A_ Indigo B_ per_ on a wooden feeder, clutching a seed__ beak, its_ blue plum_ gleaming in the light_",
+                "rephrase1":"A vibrant Indigo Bunting perches on a wooden feeder, clutching a seed in its beak, its deep blue plumage gleaming in the light.",
+                "example2":"Six_ baby_oises__ crawl____ cloth,_____ small_ visible as they explore__.",
+                "rephrase2":"Six tiny baby tortoises rest and crawl on a soft white cloth, their patterned shells and small limbs visible as they explore their surroundings."
+            }
+        }
+    ]
+}

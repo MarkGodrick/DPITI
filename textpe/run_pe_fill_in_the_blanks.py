@@ -39,6 +39,7 @@ dataset_dict = {
     "waveui":waveui,
     "lex10k":lex10k,
     "europeart":europeart,
+    "imagenet100":imagenet100,
     "mmcelebahq":ImageFolderDataset,
     "wingit":ImageFolderDataset,
     "spritefright":ImageFolderDataset
@@ -60,12 +61,12 @@ def main(args, config):
 
     setup_logging(log_file=os.path.join(exp_folder, "log.txt"))
 
-    execution_logger.info("\nExecuting {}...\ninput: {}\npe llm: {}\noutput: {}".format(sys.argv[0],args.data,args.llm,args.output))
+    execution_logger.info(f"Command Line Arguments:{sys.argv}")
 
 
-    data = text(root_dir=args.data)
+    data = text(root_dir=args.data, label_columns=['label'])
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset,{}))
-    data_from_lsun = data_from_dataset(dataset,save_path=os.path.join("datasets",args.dataset,"embedding"))
+    embeded_data = data_from_dataset(dataset,length=300000,save_path=os.path.join("datasets",args.dataset,"embedding"))
 
     llm = llm_dict.get(args.llm)(**config["model"].get(args.llm))
     
@@ -87,7 +88,7 @@ def main(args, config):
             mode="L2",
             lookahead_degree=0,
             # lookahead_degree=8,
-            priv_dataset=data_from_lsun,
+            priv_dataset=embeded_data,
             api = api
         )
     elif args.voting == "text":
@@ -103,13 +104,13 @@ def main(args, config):
     
     population = PEPopulation(
         # api=api, keep_selected=True, selection_mode="rank"
-        api=api, keep_selected=True, selection_mode="rank",initial_variation_api_fold=6,next_variation_api_fold=6
+        api=api, keep_selected=True, selection_mode="rank",initial_variation_api_fold=5,next_variation_api_fold=5
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    # compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn)
-    compute_fid_vote = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-    compute_fid_variation = _ComputeFID(priv_data=data_from_lsun, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
+    # compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
+    compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
+    compute_fid_variation = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
@@ -127,11 +128,12 @@ def main(args, config):
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[2000] * 10,
+        num_samples_schedule=[20000] * 10,
         delta=delta,
         epsilon=10.0,
         # noise_multiplier=0,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
+        fraction_per_label_id=[1]*100
     )
 
 
@@ -142,7 +144,7 @@ if __name__ == "__main__":
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface','qwen'],default='huggingface')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
-    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright'],default='lsun')
+    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100'],default='lsun')
 
     args = parser.parse_args()
 

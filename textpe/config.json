@@ -51,6 +51,10 @@
             "random":"random_api_prompt/wingit.json",
             "variation":"variation_api_prompt/wingit/few_shot_chat_fill_in_the_blanks.json"
         },
+        "imagenet100":{
+            "random":"random_api_prompt/imagenet100.json",
+            "variation":"variation_api_prompt/imagenet100/few_shot_chat_fill_in_the_blanks.json"
+        },
         "spritefright":{
             "random":"random_api_prompt/spritefright.json",
             "variation":"variation_api_prompt/spritefright/few_shot_chat_fill_in_the_blanks.json"
@@ -64,6 +68,9 @@
         "cat":{
             "root_dir":"datasets/cat",
             "res":512
+        },
+        "imagenet100":{
+            "split":"train"
         },
         "mmcelebahq":{
             "folder":"datasets/mmcelebahq/images"
