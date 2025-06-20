@@ -22,6 +22,8 @@ from DPLDM.ldm.models.diffusion.ddim import DDIMSampler
 from omegaconf import OmegaConf
 from omegaconf.errors import ConfigAttributeError
 
+import cv2
+from Infinity.tools.run_infinity import *
 
 def to_uint8(x, min, max):
     x = (x - min) / (max - min)
@@ -44,7 +46,7 @@ def load_model_from_config(config, ckpt):
 
 
 class hfpipe_embedding(Embedding):
-    """Compute the Sentence Transformers embedding of text."""
+    """Compute the embeddings of text using huggingface."""
 
     def __init__(self, model, batch_size=4):
         """Constructor.
@@ -134,7 +136,7 @@ class hfpipe_embedding(Embedding):
 
 
 class dpldm_embedding(Embedding):
-    """Compute the Sentence Transformers embedding of text."""
+    """Compute the embedding of text using dpldm models."""
 
     def __init__(self, config_path, ckpt_path, num_sample_steps = 200, batch_size= 64 ,eta = 1.0):
         """Constructor.
@@ -247,3 +249,48 @@ class dpldm_embedding(Embedding):
             f"{len(uncomputed_data.data_frame)}/{len(data.data_frame)} samples"
         )
         return self.merge_computed_rows(data, uncomputed_data)
+
+class infinity_embedding(Embedding):
+    """Compute the embeddings of text using huggingface."""
+
+    def __init__(self, config, batch_size = 4):
+        """Constructor.
+
+        :param model: The Sentence Transformers model to use
+        :type model: str
+        :param batch_size: The batch size to use for computing the embedding, defaults to 2000
+        :type batch_size: int, optional
+        """
+        super().__init__()
+        # load text encoder
+        self.text_tokenizer, self.text_encoder = load_tokenizer(t5_path=args.text_encoder_ckpt)
+        # load vae
+        self.vae = load_visual_tokenizer(args)
+        # load infinity
+        self.infinity = load_transformer(vae, args)
+
+        self._batch_size = batch_size
+
+        self._temp_folder = tempfile.TemporaryDirectory()
+        self._inception = InceptionV3W(path="/data/whx/models", download=True, resize_inside=False).to("cuda")
+        self._resize_pre = make_resizer(
+            library="PIL",
+            quantize_after=False,
+            filter="bicubic",
+            output_size=(256, 256),
+        )
+        self._resizer = build_resizer("clean")
+
+    @property
+    def column_name(self):
+        """The column name to be used in the data frame."""
+        return f"{EMBEDDING_COLUMN_NAME}.{type(self).__name__}.{self._model_name}"
+
+    def compute_embedding(self, data):
+        """Compute the Sentence Transformers embedding of text.
+
+        :param data: The data object containing the text
+        :type data: :py:class:`pe.data.Data`
+        :return: The data object with the computed embedding
+        :rtype: :py:class:`pe.data.Data`
+        """

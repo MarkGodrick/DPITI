@@ -1,0 +1,7 @@
+[submodule "SaiyueLyu/DP-LDM"]
+    path = DPLDM
+    url = https://github.com/SaiyueLyu/DP-LDM.git
+
+[submodule "FoundationVision/Infinity"]
+    path = Infinity
+    url = https://github.com/FoundationVision/Infinity.git
