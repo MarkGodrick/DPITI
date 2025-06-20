@@ -27,6 +27,7 @@ import pandas as pd
 import os
 import sys
 import numpy as np
+from omegaconf import OmegaConf
 
 
 pd.options.mode.copy_on_write = True
@@ -54,6 +55,8 @@ llm_dict = {
 def main(args, config):
     
     exp_folder = args.output
+
+    OmegaConf.save(config,os.path.join(exp_folder,"config.yaml"))
     
     current_folder = os.path.dirname(os.path.abspath(__file__))
 
@@ -64,7 +67,7 @@ def main(args, config):
     execution_logger.info(f"Command Line Arguments:{sys.argv}")
 
 
-    data = text(root_dir=args.data, label_columns=['label'])
+    data = text(root_dir=args.data)
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset,{}))
     embeded_data = data_from_dataset(dataset,length=300000,save_path=os.path.join("datasets",args.dataset,"embedding"))
 
@@ -76,18 +79,17 @@ def main(args, config):
         variation_api_prompt_file=os.path.join(current_folder, config["api_prompt"][args.dataset]['variation']),
         min_word_count=25,
         word_count_std=36,
-        blank_probabilities=0.5
+        blank_probabilities=config.running.blank_probabilities
     )
 
     embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
-    # embedding_syn = dpldm_embedding(config_path="DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml", ckpt_path="textpe/dpldm-models/text2img-large/model.ckpt")
+    # embedding_syn = dpldm_embedding(config_path="DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml", ckpt_path="/data/whx/DP-LDM/logs/txt2img-large-finetune-eps1.0/eps1+last.ckpt")
 
     if args.voting == "image":
         histogram = ImageVotingNN(
             embedding=embedding_syn,
             mode="L2",
-            lookahead_degree=0,
-            # lookahead_degree=8,
+            lookahead_degree=config.running.lookahead_degree,
             priv_dataset=embeded_data,
             api = api
         )
@@ -95,8 +97,7 @@ def main(args, config):
         histogram = NearestNeighbors(
             embedding=embedding_syn,
             mode="L2",
-            lookahead_degree=0,
-            # lookahead_degree=8,
+            lookahead_degree=config.running.lookahead_degree,
             api = api
         )
     else:
@@ -104,7 +105,7 @@ def main(args, config):
     
     population = PEPopulation(
         # api=api, keep_selected=True, selection_mode="rank"
-        api=api, keep_selected=True, selection_mode="rank",initial_variation_api_fold=5,next_variation_api_fold=5
+        api=api, keep_selected=True, selection_mode="rank",initial_variation_api_fold=config.running.initial_variation_api_fold,next_variation_api_fold=config.running.next_variation_api_fold
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
@@ -128,12 +129,11 @@ def main(args, config):
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[20000] * 10,
+        num_samples_schedule=[config.running.num_samples] * config.running.total_iterations,
         delta=delta,
-        epsilon=10.0,
-        # noise_multiplier=0,
+        epsilon=config.running.epsilon,
+        noise_multiplier=config.running.noise_multiplier,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
-        fraction_per_label_id=[1]*100
     )
 
 
@@ -148,7 +148,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    with open("textpe/config.json",'r',encoding='utf-8') as f:
-        config = json.load(f)
+    config = OmegaConf.load("textpe/config.yaml")
 
     main(args, config)

@@ -9,15 +9,17 @@ Following the work [Lin et al.(2024)](https://openreview.net/forum?id=YEhQs8POIo
 ### Environment
 ```bash
 # Please prepare torch, transformers and diffusers yourself
-conda create -n textdp python=3.12
-conda activate textdp
+conda create -n spti python=3.12
+conda activate spti
 
 conda install transformers diffusers datasets
+# installing pytorch depending on your cuda`
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 # installing PE...
 conda install -y -c pytorch -c nvidia faiss-gpu=1.8.0
 pip install "private-evolution @ git+https://github.com/microsoft/DPSDA.git"
 pip install "private-evolution[image,text] @ git+https://github.com/microsoft/DPSDA.git"
-pip install einops
+pip install einops lmdb
 # Others...
 ```
 

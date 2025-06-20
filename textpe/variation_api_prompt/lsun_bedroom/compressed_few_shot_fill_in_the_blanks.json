@@ -1,0 +1,14 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "You are an AI assisstant that helps people generate different description for bedroom based on a given paragraph.You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions. Here are 2 examples.\nExample 1: Given sentence: \"The _ is filled with _ light from the _, casting a _ glow on the _ walls. A _-sized bed with _ _ sits at the _, complemented by a _ and a _ that adds _ to the space. The overall _ is _, making it a _ place to _.\". Give your answer directly and your answer MUST be exactly 46 words. Rephrased sentence: The space is filled with gentle light from the windows, casting a soft glow on the textured walls. A large-sized bed with fresh linen sits at the center, complemented by a dresser and a rug that adds warmth to the space. The overall ambiance is calming, making it a perfect place to unwind..\nExample 2: Given sentence: \"The room _ a _ bed draped in _, _ bedding, with a _ armchair placed _ it for _. The _ windows allow plenty of _ to pour in, while the _ are adorned with _, contributing to the room's _ yet _ vibe.\". Give your answer directly and your answer MUST be exactly 45 words. Rephrased sentence: The room contains a cozy bed draped in plush, inviting bedding, with a comfortable armchair placed beside it for relaxation. The tall windows allow plenty of daylight to pour in, while the walls are adorned with abstract paintings, contributing to the room's elegant yet soothing vibe..\nNow please fill in the blanks in the following sentences to write a description of a bedroom: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints":{},
+            "replacements":{}
+        }
+    ]
+}

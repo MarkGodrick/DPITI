@@ -9,7 +9,7 @@
         "huggingface":{
             "model_name_or_path":"meta-llama/Meta-Llama-3-8B-Instruct",
             "max_completion_tokens":100,
-            "temperature":1.0
+            "temperature":1.2
         },
         "qwen":{
             "model":"qwen-plus",
@@ -81,5 +81,14 @@
         "spritefright":{
             "folder":"datasets/spritefright/selected_frames"
         }
+    },
+    "running":{
+        "lookahead_degree":0,
+        "initial_variation_api_fold":6,
+        "next_variation_api_fold":6,
+        "blank_probabilities": 0.5,
+        "epsilon":1.0,
+        "num_samples":2000,
+        "total_iterations":10
     }
 }
