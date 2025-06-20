@@ -52,11 +52,14 @@ llm_dict = {
     "qwen":QwenAILLM
 }
 
+embedding_dict = {
+    "huggingface": hfpipe_embedding,
+    "dpldm": dpldm_embedding
+}
+
 def main(args, config):
     
     exp_folder = args.output
-
-    OmegaConf.save(config,os.path.join(exp_folder,"config.yaml"))
     
     current_folder = os.path.dirname(os.path.abspath(__file__))
 
@@ -66,6 +69,7 @@ def main(args, config):
 
     execution_logger.info(f"Command Line Arguments:{sys.argv}")
 
+    OmegaConf.save(config,os.path.join(exp_folder,"config.yaml"))
 
     data = text(root_dir=args.data)
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset,{}))
@@ -82,8 +86,7 @@ def main(args, config):
         blank_probabilities=config.running.blank_probabilities
     )
 
-    embedding_syn = hfpipe_embedding(model="stabilityai/sdxl-turbo")
-    # embedding_syn = dpldm_embedding(config_path="DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml", ckpt_path="/data/whx/DP-LDM/logs/txt2img-large-finetune-eps1.0/eps1+last.ckpt")
+    embedding_syn = embedding_dict.get(args.embedding, None)(**config.embedding.get(args.embedding))
 
     if args.voting == "image":
         histogram = ImageVotingNN(
@@ -143,6 +146,7 @@ if __name__ == "__main__":
     parser.add_argument('--output',type=str,default="results/text")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface','qwen'],default='huggingface')
+    parser.add_argument('--embedding',type=str,choices=['huggingface','dpldm'],default='huggingface')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
     parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100'],default='lsun')
 

@@ -63,6 +63,13 @@ dataset:
   spritefright:
     folder: datasets/spritefright/selected_frames
 
+embedding:
+  huggingface:
+    model: stabilityai/sdxl-turbo
+  dpldm:
+    config_path: DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml
+    ckpt_path: DPLDM/logs/txt2img-large-finetune-eps1.0/eps1+last.ckpt
+
 running:
   lookahead_degree: 0
   initial_variation_api_fold: 6
