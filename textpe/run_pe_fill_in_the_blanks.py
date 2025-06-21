@@ -54,7 +54,8 @@ llm_dict = {
 
 embedding_dict = {
     "huggingface": hfpipe_embedding,
-    "dpldm": dpldm_embedding
+    "dpldm": dpldm_embedding,
+    "infinity":infinity_embedding
 }
 
 def main(args, config):
@@ -146,7 +147,7 @@ if __name__ == "__main__":
     parser.add_argument('--output',type=str,default="results/text")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface','qwen'],default='huggingface')
-    parser.add_argument('--embedding',type=str,choices=['huggingface','dpldm'],default='huggingface')
+    parser.add_argument('--embedding',type=str,choices=['huggingface','dpldm','infinity'],default='huggingface')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
     parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100'],default='lsun')
 
