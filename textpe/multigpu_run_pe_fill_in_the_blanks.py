@@ -30,6 +30,7 @@ import numpy as np
 from omegaconf import OmegaConf
 
 from utils.embedding_multigpu import *
+import multiprocess as mp
 
 pd.options.mode.copy_on_write = True
 IMAGE_SIZE = 256
@@ -53,12 +54,10 @@ llm_dict = {
     "qwen":QwenAILLM
 }
 
-embedding_dict = {
-    "huggingface": hfpipe_embedding,
-    "dpldm": dpldm_embedding,
-    "infinity":infinity_embedding
+multigpu_embedding_dict = {
+    "huggingface": multigpu_sdxl_embedding,
+    "infinity": multigpu_infinity_embedding
 }
-
 
 def main(args, config):
     
@@ -89,7 +88,7 @@ def main(args, config):
         blank_probabilities=config.running.blank_probabilities
     )
 
-    embedding_syn = embedding_dict.get(args.embedding, None)(**config.embedding.get(args.embedding))
+    embedding_syn = multigpu_embedding_dict.get(args.embedding, None)(**config.embedding.get(args.embedding))
 
     if args.voting == "image":
         histogram = ImageVotingNN(
@@ -144,12 +143,13 @@ def main(args, config):
 
 
 if __name__ == "__main__":
+    mp.set_start_method("spawn", force = True)
     parser = argparse.ArgumentParser()
     
     parser.add_argument('--output',type=str,default="results/text")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface','qwen'],default='huggingface')
-    parser.add_argument('--embedding',type=str,choices=['huggingface','dpldm','infinity'],default='huggingface')
+    parser.add_argument('--embedding',type=str,choices=['sdxl','infinity'],default='sdxl')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
     parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100'],default='lsun')
 
