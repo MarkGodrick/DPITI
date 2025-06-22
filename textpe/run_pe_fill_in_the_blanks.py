@@ -29,6 +29,7 @@ import sys
 import numpy as np
 from omegaconf import OmegaConf
 
+from utils.embedding_multigpu import *
 
 pd.options.mode.copy_on_write = True
 IMAGE_SIZE = 256
@@ -56,6 +57,11 @@ embedding_dict = {
     "huggingface": hfpipe_embedding,
     "dpldm": dpldm_embedding,
     "infinity":infinity_embedding
+}
+
+multigpu_embedding_dict = {
+    "huggingface": multigpu_hfpipe_embedding,
+    "infinity": multigpu_infinity_embedding
 }
 
 def main(args, config):
@@ -87,7 +93,10 @@ def main(args, config):
         blank_probabilities=config.running.blank_probabilities
     )
 
-    embedding_syn = embedding_dict.get(args.embedding, None)(**config.embedding.get(args.embedding))
+    if args.multigpu == True:
+        embedding_syn = multigpu_embedding_dict.get(args.embedding, None)(**config.embedding.get(args.embedding))
+    else:
+        embedding_syn = embedding_dict.get(args.embedding, None)(**config.embedding.get(args.embedding))
 
     if args.voting == "image":
         histogram = ImageVotingNN(
@@ -150,6 +159,7 @@ if __name__ == "__main__":
     parser.add_argument('--embedding',type=str,choices=['huggingface','dpldm','infinity'],default='huggingface')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
     parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100'],default='lsun')
+    parser.add_argument('--multi_gpu',action="store_true",help="enable multi-gpus.")
 
     args = parser.parse_args()
 

@@ -13,10 +13,13 @@ conda create -n spti python=3.12
 conda activate spti
 
 conda install transformers diffusers datasets
-# installing pytorch depending on your cuda
+# installing pytorch depending on your cuda version
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-# installing key SDKs
-pip install opencv-python
+# installing flash-attn
+pip install opencv-python ninja
+# you can either install flash-attn directly if it fits your system
+pip install flash-attn
+# or install and build the wheel on your machine
 MAX_JOBS=4 pip install flash-attn --no-build-isolation
 # installing PE...
 conda install -y -c pytorch -c nvidia faiss-gpu=1.8.0
