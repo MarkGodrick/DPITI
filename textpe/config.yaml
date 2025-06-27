@@ -32,7 +32,7 @@ api_prompt:
     variation: variation_api_prompt/lex10k/few_shot_chat_fill_in_the_blanks.json
   europeart:
     random: random_api_prompt/europeart.json
-    variation: variation_api_prompt/europeart/diverse_few_shot_chat_fill_in_the_blanks.json
+    variation: variation_api_prompt/europeart/few_shot_chat_fill_in_the_blanks.json
   mmcelebahq:
     random: random_api_prompt/mmcelebahq.json
     variation: variation_api_prompt/mmcelebahq/diverse_few_shot_chat_fill_in_the_blanks.json

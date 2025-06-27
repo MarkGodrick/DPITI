@@ -16,7 +16,7 @@ from pe.constant.data import TEXT_DATA_COLUMN_NAME
 from pe.constant.data import EMBEDDING_COLUMN_NAME
 
 import re
-
+import queue
 
 
 def to_uint8(x, min, max):
@@ -214,11 +214,12 @@ class multigpu_sdxl_embedding(Embedding):
 
         prompts_split = np.array_split(all_prompts, num_gpus)
         start_indices = np.cumsum([0] + [len(p) for p in prompts_split[:-1]])
-        queue = mp.Queue()
-        processes = []
 
-        shared_index = mp.Value('i', 0)
+        manager = mp.Manager()
+        shared_index = mp.Value('i', 0) 
         barrier = mp.Barrier(num_gpus)
+        queue_ = manager.Queue()
+        processes = []
 
         for device_id in range(num_gpus):
             p = mp.Process(
@@ -227,7 +228,7 @@ class multigpu_sdxl_embedding(Embedding):
                     device_id,
                     prompts_split[device_id].tolist(),
                     self._batch_size,
-                    queue,
+                    queue_,
                     self._model_name,
                     start_indices[device_id],
                     shared_index,
@@ -240,9 +241,24 @@ class multigpu_sdxl_embedding(Embedding):
         # 收集图片
         total_len = len(all_prompts)
         all_images = [None] * total_len
-        for _ in range(num_gpus):
-            start_idx, images = queue.get()
-            all_images[start_idx:start_idx + len(images)] = images
+
+        received = 0
+        check_interval = 600  # seconds
+        while received < num_gpus:
+            try:
+                start_idx, images = queue_.get(timeout=check_interval)
+                all_images[start_idx:start_idx + len(images)] = images
+                received += 1
+            except queue.Empty:
+                # Timeout reached without message from queue -> check processes
+                for i, p in enumerate(processes):
+                    if not p.is_alive() and p.exitcode != 0:
+                        print(f"[Error] Subprocess {i} crashed with exitcode {p.exitcode}. Terminating all...")
+                        for q in processes:
+                            q.terminate()
+                        raise RuntimeError(f"Subprocess {i} exited unexpectedly. Aborting.")
+                execution_logger.info(f"Still waiting for subprocesses... ({received}/{num_gpus} finished)")
+
 
         for p in processes:
             p.join()
@@ -321,20 +337,20 @@ class multigpu_infinity_embedding(Embedding):
         manager = mp.Manager()
         shared_index = mp.Value('i', 0) 
         barrier = mp.Barrier(num_gpus)
-        queue = manager.Queue()
+        queue_ = manager.Queue()
         processes = []
 
         for device_id in range(num_gpus):
             p = mp.Process(
                 target=generate_on_device_infinity,
                 args=(
-                        device_id, 
-                        prompts_split[device_id].tolist(), 
-                        queue, 
-                        self.config, 
-                        start_indices[device_id],
-                        shared_index,
-                        barrier,
+                    device_id, 
+                    prompts_split[device_id].tolist(), 
+                    queue_, 
+                    self.config, 
+                    start_indices[device_id],
+                    shared_index,
+                    barrier,
                 )
             )
             p.start()
@@ -342,9 +358,23 @@ class multigpu_infinity_embedding(Embedding):
 
         total_len = len(all_prompts)
         all_images = [None] * total_len
-        for _ in range(num_gpus):
-            start_idx, images = queue.get()
-            all_images[start_idx:start_idx + len(images)] = images
+
+        received = 0
+        check_interval = 600  # seconds
+        while received < num_gpus:
+            try:
+                start_idx, images = queue_.get(timeout=check_interval)
+                all_images[start_idx:start_idx + len(images)] = images
+                received += 1
+            except queue.Empty:
+                # Timeout reached without message from queue -> check processes
+                for i, p in enumerate(processes):
+                    if not p.is_alive() and p.exitcode != 0:
+                        print(f"[Error] Subprocess {i} crashed with exitcode {p.exitcode}. Terminating all...")
+                        for q in processes:
+                            q.terminate()
+                        raise RuntimeError(f"Subprocess {i} exited unexpectedly. Aborting.")
+                execution_logger.info(f"Still waiting for subprocesses... ({received}/{num_gpus} finished)")
 
         for p in processes:
             p.join()

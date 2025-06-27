@@ -63,7 +63,7 @@ class hfpipe_embedding(Embedding):
         self._batch_size = batch_size
 
         self._temp_folder = tempfile.TemporaryDirectory()
-        self._inception = InceptionV3W(path="/data/whx/models", download=True, resize_inside=False).to("cuda")
+        self._inception = InceptionV3W(path=self._temp_folder.name, download=True, resize_inside=False).to("cuda")
         self._resize_pre = make_resizer(
             library="PIL",
             quantize_after=False,
@@ -165,7 +165,7 @@ class dpldm_embedding(Embedding):
         self._eta = eta
 
         self._temp_folder = tempfile.TemporaryDirectory()
-        self._inception = InceptionV3W(path="/data/whx/models", download=True, resize_inside=False).to("cuda")
+        self._inception = InceptionV3W(path=self._temp_folder.name, download=True, resize_inside=False).to("cuda")
         self._resize_pre = make_resizer(
             library="PIL",
             quantize_after=False,
@@ -271,7 +271,7 @@ class infinity_embedding(Embedding):
         self._batch_size = batch_size
 
         self._temp_folder = tempfile.TemporaryDirectory()
-        self._inception = InceptionV3W(path="/data/whx/models", download=True, resize_inside=False).to("cuda")
+        self._inception = InceptionV3W(path=self._temp_folder.name, download=True, resize_inside=False).to("cuda")
         self._resize_pre = make_resizer(
             library="PIL",
             quantize_after=False,
