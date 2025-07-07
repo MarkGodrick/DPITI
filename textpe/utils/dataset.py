@@ -162,6 +162,18 @@ class imagenet100(Dataset):
     def __getitem__(self, index):
         return self.transform(self.dataset[int(index)]['image'].convert("RGB")),self.dataset[int(index)]["label"]
 
+class omni(Dataset):
+    def __init__(self, split="train", res = 256):
+        self.transform = transforms.Compose([transforms.Resize(res),transforms.CenterCrop(res)])
+        self.dataset = load_dataset("OmniGen2/OmniContext",split=split)
+
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        return self.transform(self.dataset[int(index)]['input_images'][0]),0
+
+
 
 class ImageFolderDataset(Dataset):
     def __init__(self, folder, res = 256):

@@ -16,8 +16,8 @@ model:
 
 api_prompt:
   lsun:
-    random: random_api_prompt/lsun_bedroom.json
-    variation: variation_api_prompt/lsun_bedroom/diverse_few_shot_chat_fill_in_the_blanks.json
+    random: random_api_prompt/lsun_bedroom/diverse_lsun.json
+    variation: variation_api_prompt/lsun_bedroom/few_shot_chat_fill_in_the_blanks.json
   cat:
     random: random_api_prompt/cat.json
     variation: variation_api_prompt/cat/few_shot_chat_fill_in_the_blanks.json
@@ -25,17 +25,17 @@ api_prompt:
     random: random_api_prompt/camelyon17.json
     variation: variation_api_prompt/camelyon17/few_shot_chat_fill_in_the_blanks.json
   waveui:
-    random: random_api_prompt/waveui.json
-    variation: variation_api_prompt/waveui/diverse_few_shot_chat_fill_in_the_blanks.json
+    random: random_api_prompt/waveui/diverse_waveui.json
+    variation: variation_api_prompt/waveui/few_shot_chat_fill_in_the_blanks.json
   lex10k:
     random: random_api_prompt/lex10k.json
     variation: variation_api_prompt/lex10k/few_shot_chat_fill_in_the_blanks.json
   europeart:
-    random: random_api_prompt/europeart.json
+    random: random_api_prompt/europeart/europeart.json
     variation: variation_api_prompt/europeart/few_shot_chat_fill_in_the_blanks.json
   mmcelebahq:
-    random: random_api_prompt/mmcelebahq.json
-    variation: variation_api_prompt/mmcelebahq/diverse_few_shot_chat_fill_in_the_blanks.json
+    random: random_api_prompt/mmcelebahq/diverse_mmcelebahq.json
+    variation: variation_api_prompt/mmcelebahq/few_shot_chat_fill_in_the_blanks.json
   wingit:
     random: random_api_prompt/wingit.json
     variation: variation_api_prompt/wingit/few_shot_chat_fill_in_the_blanks.json
@@ -43,8 +43,11 @@ api_prompt:
     random: random_api_prompt/imagenet100.json
     variation: variation_api_prompt/imagenet100/few_shot_chat_fill_in_the_blanks.json
   spritefright:
-    random: random_api_prompt/spritefright.json
-    variation: variation_api_prompt/spritefright/diverse_few_shot_chat_fill_in_the_blanks.json
+    random: random_api_prompt/spritefright/diverse_spritefright.json
+    variation: variation_api_prompt/spritefright/few_shot_chat_fill_in_the_blanks.json
+  omni:
+    random: random_api_prompt/omni/diverse_omni.json
+    variation: variation_api_prompt/omni/few_shot_chat_fill_in_the_blanks.json
 
 dataset:
   lsun:
@@ -97,11 +100,11 @@ embedding:
       enable_model_cache: true
 
 running:
-  lookahead_degree: 0
-  initial_variation_api_fold: 6
-  next_variation_api_fold: 6
-  blank_probabilities: 0.75
+  lookahead_degree: 8
+  initial_variation_api_fold: 0
+  next_variation_api_fold: 0
+  blank_probabilities: 0.5
   epsilon: 1.0
   noise_multiplier: null
-  num_samples: 2000
+  num_samples: 400
   total_iterations: 10

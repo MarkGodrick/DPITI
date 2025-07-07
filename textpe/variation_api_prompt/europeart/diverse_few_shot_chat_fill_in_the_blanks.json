@@ -32,50 +32,7 @@
                 "example1":"The image is an _ depiction of _ and _ as women in _ _. _ wears a _ _, a _ _, and a _ _ while holding _. A _, _'s _ _, is beside her. _ wears a _ _ and _ _ with a _ _ and gestures towards a _, possibly symbolizing _ _. A _ separates them, with _ in the background. The scene is _, evoking _ _ and _.",
                 "rephrase1":"The image is an allegorical depiction of Scotland and Wales as women in traditional attire. Scotland wears a plaid sash, a white robe, and a red floral headdress while holding thistles. A unicorn, Scotland's national animal, is beside her. Wales wears a flowing blue and white dress with a golden headband and gestures towards a goat, possibly symbolizing rural life. A tree separates them, with castles in the background. The scene is pastoral, evoking national identity and symbolism.",
                 "example2":"__ is an_raving__ Back_,_ 17___ London_,_ 1682. He is____ with_ long, curly__ a_-tr_med collar___ ornate robe.__ hand_ on_ table_ documents_ coins, symbolizing__ profession. A maritime scene with_____ window_ possibly_______ portrait__ coat of arms, reinforcing his_._ eng__ is detailed,__ shading__, enhancing the_____",
-                "rephrase2":"The image is an engraving of Edward Backwell, a 17th-century London banker, dated 1682. He is depicted in formal attire with a long, curly wig, a lace-trimmed collar, and an ornate robe. His left hand rests on a table with documents and coins, symbolizing his banking profession. A maritime scene with ships is visible through a window, possibly referencing trade and finance. Below the portrait is a coat of arms, reinforcing his status. The engraving is detailed, with fine shading and texture, enhancing the realism of the portrait.",
-                "key": [
-                    "with a depiction of the Virgin Mary holding infant Jesus",
-                    "with a biblical scene of the Last Supper",
-                    "with a classical mythological scene from Greek or Roman tales",
-                    "with a portrait of a noblewoman adorned with intricate jewelry",
-                    "with a merchant surrounded by ledgers and scales",
-                    "with a scholar seated with open books and a globe",
-                    "with a saint in prayer inside a gothic chapel",
-                    "with an angel delivering a divine message",
-                    "with a bustling Renaissance marketplace",
-                    "with a pastoral landscape featuring shepherds and sheep",
-
-                    "set in an ornate Italian cathedral",
-                    "set in a sunlit Venetian courtyard",
-                    "set against the Tuscan countryside",
-                    "set inside a lavish palace hall",
-                    "set in a shadowy cloister",
-                    "set beneath a grand domed ceiling",
-
-                    "painted with dramatic chiaroscuro lighting",
-                    "featuring luminous golden halos",
-                    "with finely detailed drapery folds",
-                    "with soft sfumato transitions in skin tones",
-                    "with bright ultramarine and vermilion pigments",
-                    "with sharp linear perspective in architecture",
-                    "with naturalistic human anatomy",
-                    "with idealized facial proportions",
-                    "with an emphasis on symmetry and balance",
-
-                    "symbolizing divine grace through rays of light",
-                    "symbolizing mortality with a skull on the table",
-                    "including a dog to represent loyalty",
-                    "including an hourglass to represent time",
-                    "including grapes and wine as Eucharistic symbols",
-                    "with hands clasped in religious devotion",
-
-                    "in the style of Leonardo da Vinci",
-                    "in the style of Raphael",
-                    "inspired by Michelangelo's sculptural forms",
-                    "echoing Botticelli's delicate figures",
-                    "influenced by Northern Renaissance realism",
-                    "inspired by early Flemish oil techniques"
-                ]
+                "rephrase2":"The image is an engraving of Edward Backwell, a 17th-century London banker, dated 1682. He is depicted in formal attire with a long, curly wig, a lace-trimmed collar, and an ornate robe. His left hand rests on a table with documents and coins, symbolizing his banking profession. A maritime scene with ships is visible through a window, possibly referencing trade and finance. Below the portrait is a coat of arms, reinforcing his status. The engraving is detailed, with fine shading and texture, enhancing the realism of the portrait."
             }
         }
     ]

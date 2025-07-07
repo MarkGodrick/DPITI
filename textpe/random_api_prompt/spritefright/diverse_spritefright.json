@@ -1,0 +1,53 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Write a extremely short description for a frame from an animation featuring a group of teenagers treking into an isolated forest {tone}. Focus on details, and use your imagination to create a scene {key}. Give your answer directly."
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a creative style",
+                    "using a variety of sentence structures"
+                ],
+                "key": [
+                    "with teenagers hiking through a mossy forest",
+                    "with a glowing mushroom grove deep in the woods",
+                    "with bioluminescent fungi near twisted roots",
+                    "with oversized ferns and tangled vines",
+                    "with a flashlight beam cutting through thick fog",
+                    "with mischievous sprites hiding behind trees",
+                    "with glowing eyes peeking out from the shadows",
+                    "with a group of teens holding phones and cameras",
+                    "with muddy trails and eerie background noises",
+                    "featuring a sprite mid-transformation from cute to terrifying",
+
+                    "featuring a chaotic chase through giant mushrooms",
+                    "featuring spores floating in the air",
+                    "featuring a frightened teen surrounded by moving plants",
+                    "set in a fog-covered clearing surrounded by mushrooms",
+                    "set under eerie green forest lighting",
+                    "set during twilight with long shadows",
+                    "showing a cute sprite revealing sharp teeth",
+                    "showing a group of teens arguing by a tree",
+                    "showing a campfire flickering under giant leaves",
+                    "showing sprites grinning in the distance",
+
+                    "lit in stylized, saturated cartoon lighting",
+                    "inspired by 1980s horror-comedy adventure films",
+                    "with exaggerated cartoon expressions and gestures",
+                    "with spores and dust swirling in dramatic backlight",
+                    "with camera tilted for tension and movement",
+                    "with the forest reacting as if it's alive",
+                    "with floating particles creating a magical glow",
+                    "with distant rustling suggesting unseen movement",
+                    "with leaves trembling under invisible footsteps",
+                    "with sharp shadows cast by oversized mushrooms"
+                ]
+            }
+        }
+    ]
+}

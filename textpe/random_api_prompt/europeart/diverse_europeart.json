@@ -1,0 +1,62 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Write a extremely short description for a European artwork {key} {tone}. Focus on specific details, and avoid only describing the atmosphere or emotions. Give your answer directly."
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a creative style",
+                    "using a variety of sentence structures"
+                ],
+                "key": [
+                    "depicting the Virgin Mary holding the infant Jesus",
+                    "depicting the Last Supper in vivid biblical detail",
+                    "featuring a mythological scene from Greek or Roman tales",
+                    "showing a noblewoman adorned with intricate jewelry",
+                    "portraying a merchant surrounded by ledgers and scales",
+                    "depicting a scholar seated with open books and a globe",
+                    "showing a saint in prayer inside a gothic chapel",
+                    "featuring an angel delivering a divine message",
+                    "capturing a bustling Renaissance marketplace",
+                    "showing a pastoral landscape with shepherds and sheep",
+
+                    "set in an ornate Italian cathedral",
+                    "set in a sunlit Venetian courtyard",
+                    "set against the rolling Tuscan countryside",
+                    "set inside a lavish palace hall",
+                    "set in a shadowy monastic cloister",
+                    "set beneath a grand domed ceiling",
+
+                    "painted with dramatic chiaroscuro lighting",
+                    "featuring luminous golden halos and soft shadows",
+                    "with finely detailed folds in drapery",
+                    "with soft sfumato blending in the skin tones",
+                    "with bright ultramarine and vermilion pigments",
+                    "with sharp linear perspective in architectural elements",
+                    "highlighting naturalistic human anatomy",
+                    "with idealized facial proportions",
+                    "emphasizing symmetry and classical balance",
+
+                    "symbolizing divine grace through rays of light",
+                    "symbolizing mortality with a skull placed on the table",
+                    "including a faithful dog to represent loyalty",
+                    "including an hourglass to evoke the passage of time",
+                    "including grapes and wine as Eucharistic symbols",
+                    "showing hands clasped in religious devotion",
+
+                    "painted in the style of Leonardo da Vinci",
+                    "painted in the style of Raphael",
+                    "inspired by Michelangelo's sculptural forms",
+                    "echoing Botticelli's delicate and flowing figures",
+                    "influenced by Northern Renaissance realism",
+                    "inspired by early Flemish oil techniques"
+                    ]
+            }
+        }
+    ]
+}

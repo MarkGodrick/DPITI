@@ -1,0 +1,68 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Write a extremely short description for a headshot of some celebrity {key} {tone}. Focus on specific details, and avoid only describing the atmosphere or emotions. Give your answer directly."
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a creative style",
+                    "using a variety of sentence structures"
+                ],
+                "key": [
+                    "with long, wavy brown hair",
+                    "with short, slicked-back hair",
+                    "with a buzz cut and thick eyebrows",
+                    "with platinum blonde curls",
+                    "with straight black hair and bangs",
+                    "with natural afro-textured hair",
+                    "with freckles and a dimpled smile",
+                    "with smooth, porcelain-like skin",
+                    "with a strong jawline and defined cheekbones",
+                    "with a soft, rounded facial structure",
+
+                    "wearing a leather jacket and hoop earrings",
+                    "wearing a formal suit and tie",
+                    "wearing a turtleneck and minimal makeup",
+                    "wearing a baseball cap and aviator sunglasses",
+                    "wearing dramatic eyeliner and bold lipstick",
+                    "wearing gold chains and a designer shirt",
+                    "wearing floral earrings and a sunhat",
+
+                    "smiling brightly with visible teeth",
+                    "frowning slightly while looking away",
+                    "gazing directly into the camera with a calm expression",
+                    "posing with half-closed eyes and a dreamy look",
+                    "laughing with their head tilted back",
+                    "with pursed lips and raised eyebrows",
+                    "with closed eyes and a peaceful demeanor",
+
+                    "under soft, diffused studio lighting",
+                    "lit from one side to create dramatic shadows",
+                    "photographed in high-contrast black and white tones",
+                    "posed against a gradient blue background",
+                    "posed in front of a blurred cityscape",
+                    "captured with golden-hour lighting on the face",
+
+                    "styled in a close-up fashion magazine aesthetic",
+                    "stylized with an oil painting filter",
+                    "rendered in a futuristic holographic effect",
+                    "edited with a glitch art filter",
+                    "styled in a vintage 1970s portrait look",
+                    "resembling a red carpet headshot",
+
+                    "with East Asian facial features",
+                    "with African heritage and natural curls",
+                    "with South Asian traditional jewelry",
+                    "with Mediterranean skin tone and stubble",
+                    "with Northern European light complexion",
+                    "with Latino features and colorful attire"
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for a photo based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a photo: \"{example1}\". Give your answer directly and your answer MUST be exactly 45 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a photo: \"{example2}\". Give your answer directly and your answer MUST be exactly 41 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a photo: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"A__ photo____ horse__ green_, with_ head__ to the side._ long mane dr________ and people_ visible in the__.",
+                "rephrase1":"A close-up photo of a dark brown horse standing on green grass, with its head turned slightly to the side. Its long mane drapes naturally over its neck, and trees and people are visible in the blurred background.",
+                "example2":"_ anime____ hair__ a red ribbon____ a juice box. She_ a school_ with a_ maroon bow and__ thought_ at the sky_",
+                "rephrase2":"An anime girl with short black hair tied with a red ribbon is sipping from a juice box. She wears a school uniform with a large maroon bow and gazes thoughtfully at the sky."
+            }
+        }
+    ]
+}

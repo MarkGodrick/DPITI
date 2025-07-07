@@ -44,7 +44,8 @@ dataset_dict = {
     "imagenet100":imagenet100,
     "mmcelebahq":ImageFolderDataset,
     "wingit":ImageFolderDataset,
-    "spritefright":ImageFolderDataset
+    "spritefright":ImageFolderDataset,
+    "omni":omni
 }
 
 llm_dict = {
@@ -115,9 +116,9 @@ def main(args, config):
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    # compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
-    compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-    compute_fid_variation = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
+    compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
+    # compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
+    # compute_fid_variation = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
@@ -130,8 +131,8 @@ def main(args, config):
         priv_data=data,
         population=population,
         histogram=histogram,
-        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
-        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
+        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
+        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
@@ -151,7 +152,7 @@ if __name__ == "__main__":
     parser.add_argument('--llm',type=str,choices=['openai','huggingface','qwen'],default='huggingface')
     parser.add_argument('--embedding',type=str,choices=['huggingface','dpldm','infinity'],default='huggingface')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
-    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100'],default='lsun')
+    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100','omni'],default='lsun')
 
     args = parser.parse_args()
 

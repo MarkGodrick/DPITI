@@ -25,7 +25,8 @@ dataset_dict = {
     "imagenet100":imagenet100,
     "mmcelebahq":ImageFolderDataset,
     "wingit":ImageFolderDataset,
-    "spritefright":ImageFolderDataset
+    "spritefright":ImageFolderDataset,
+    "omni":omni
 }
 
 captioner_dict = {
@@ -47,7 +48,7 @@ def main(args, config):
 
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset, {}))
     
-    indices = np.random.choice(len(dataset),10240,replace=False)
+    indices = np.random.choice(len(dataset),min(len(dataset),10240),replace=False)
     dataset = Subset(dataset,indices)
     if not dataset:
         raise ValueError("Captioner: dataset not recognized.")
@@ -75,7 +76,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--captioner',type=str,choices=['huggingface','openai','gemini','qwen'],default='huggingface')
-    parser.add_argument('--dataset',type=str,choices=["lsun","cat","wingit","europeart","mmcelebahq","spritefright","imagenet100"],default="lsun")
+    parser.add_argument('--dataset',type=str,choices=["lsun","cat","wingit","europeart","mmcelebahq","spritefright","imagenet100","omni"],default="lsun")
     parser.add_argument('--output',type=str,default="results")
 
     args = parser.parse_args()

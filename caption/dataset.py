@@ -149,6 +149,16 @@ class imagenet100(Dataset):
     def __getitem__(self, index):
         return self.dataset[int(index)]['image'],self.dataset[int(index)]['text'].split(",")[0]
 
+class omni(Dataset):
+    def __init__(self, split = "train"):
+        self.dataset = load_dataset("OmniGen2/OmniContext",split =split)
+    
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        return self.dataset[int(index)]['input_images'][0],0
+
 
 class ImageFolderDataset(Dataset):
     def __init__(self, folder, res = 256):

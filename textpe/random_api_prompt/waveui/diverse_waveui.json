@@ -1,0 +1,67 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Write a extremely short description for a screenshot {key} {tone}. Focus on specific details, and avoid only describing the atmosphere or emotions. Give your answer directly."
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a creative style",
+                    "using a variety of sentence structures"
+                ],
+                "key": [
+                    "showing a code editor with multiple tabs open",
+                    "showing a spreadsheet filled with financial charts",
+                    "showing a design layout being edited in Figma",
+                    "showing a presentation slide in PowerPoint",
+                    "showing a terminal running live server logs",
+                    "showing a browser with developer tools open",
+                    "showing a Photoshop window with visible layers",
+                    "showing a Blender viewport rendering a 3D scene",
+                    "showing a video editing timeline in Premiere",
+                    "showing a Notion page with multiple database views",
+                    "showing a Zoom meeting with screen sharing enabled",
+                    "showing a virtual whiteboard full of annotations",
+                    "showing an online PDF viewer displaying a research paper",
+                    "showing an email client with several active threads",
+                    "showing an IDE debugging a backend server",
+                    "showing a collaborative Google Docs document",
+                    "showing an online quiz in progress",
+                    "showing a Kanban board for managing tasks",
+                    "showing a chat window filled with multiple messages",
+                    "showing a browser window with a social media feed",
+
+                    "captured during a live coding interview",
+                    "captured during a virtual team meeting",
+                    "captured while writing a technical report",
+                    "captured while debugging a web application",
+                    "captured while editing a product demo video",
+                    "captured while designing a user interface",
+                    "captured while studying from online lecture slides",
+                    "captured while browsing through a research paper",
+                    "captured while organizing weekly tasks",
+                    "captured while sharing a screen with teammates",
+                    "captured while live-streaming a tutorial",
+                    "captured while preparing a presentation deck",
+
+                    "with multiple overlapping application windows",
+                    "with dark mode enabled across the UI",
+                    "with floating toolbars on the right side",
+                    "with terminal output displayed at the bottom",
+                    "with a large preview pane on the left",
+                    "with charts and graphs centered on the screen",
+                    "with annotation markers highlighting key areas",
+                    "with code and preview panels side by side",
+                    "with a timeline and playback controls visible",
+                    "with a navigation pane fully expanded",
+                    "with toolbar icons highlighted in color",
+                    "with a minimized taskbar at the bottom of the screen"
+                ]
+            }
+        }
+    ]
+}

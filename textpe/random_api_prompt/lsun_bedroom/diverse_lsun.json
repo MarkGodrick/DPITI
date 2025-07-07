@@ -1,0 +1,66 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Write a extremely short description for a bedroom which is {key} {tone}. Focus on specific details, and avoid only describing the atmosphere or emotions. Give your answer directly."
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a creative style",
+                    "using a variety of sentence structures"
+                ],
+                "key":[
+                    "located in a seaside cottage",
+                    "located in a high-rise apartment",
+                    "located in a countryside farmhouse",
+                    "located in a suburban home",
+                    "located in a traditional Japanese house",
+                    "located in a New York loft",
+                    "located in a medieval castle",
+                    "located in a mountain cabin",
+                    "located in a futuristic space station",
+                    "decorated in a minimalist style",
+                    "decorated in a bohemian style",
+                    "featuring industrial decor",
+                    "styled in Scandinavian design",
+                    "designed in Victorian fashion",
+                    "featuring a rustic theme",
+                    "decorated in an eclectic style",
+                    "designed with futuristic elements",
+                    "inspired by steampunk aesthetics",
+                    "showcasing traditional Chinese design",
+                    "illuminated by early morning sunlight",
+                    "lit gently at night with ambient lighting",
+                    "bathed in sunset glow",
+                    "surrounded by a rainy afternoon atmosphere",
+                    "enveloped in foggy morning mist",
+                    "lit only by moonlight",
+                    "brightened by nearby neon lights",
+                    "glowing under soft candlelight",
+                    "cozy and warm in atmosphere",
+                    "mysterious and moody in tone",
+                    "cold and sterile in feeling",
+                    "romantic and dreamy in ambiance",
+                    "eerie and abandoned",
+                    "playful and colorful",
+                    "peaceful and serene",
+                    "luxurious and elegant",
+                    "featuring a canopy bed",
+                    "filled with lush houseplants",
+                    "lined with messy bookshelves",
+                    "decorated with vintage posters",
+                    "crowded with stuffed animals",
+                    "equipped with an aquarium wall",
+                    "furnished with a skylight and telescope",
+                    "outfitted with a gaming setup",
+                    "accented with fairy lights",
+                    "surrounded by piles of cozy pillows"
+                ]
+            }
+        }
+    ]
+}

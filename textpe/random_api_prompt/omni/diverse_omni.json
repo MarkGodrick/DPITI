@@ -1,0 +1,61 @@
+{
+    "message_template": [
+        {
+            "role": "user",
+            "content": "Write a extremely short description for {key} {tone}. Focus on specific details, and avoid only describing the atmosphere or emotions. Give your answer directly."
+        }
+    ],
+    "replacement_rules":[
+        {
+            "constraints": {},
+            "replacements": {
+                "tone": [
+                    "in a creative style",
+                    "using a variety of sentence structures"
+                ],
+                "key": [
+                    "a close-up portrait of a real human woman with unique jewelry",
+                    "a group of three animated characters in vibrant outfits",
+                    "a single piece of vintage furniture on a wooden floor",
+                    "a scenic mountain landscape with a river in the foreground",
+                    "a close-up of a hand holding a small glass bottle",
+                    "a shelf filled with neatly arranged colorful books",
+                    "a close-up face of an anime character with glowing eyes",
+                    "two real people smiling in front of a neon-lit background",
+                    "a minimalist photo of a single chair in a white room",
+                    "a traditional Japanese street under soft lighting",
+                    "a detailed shot of mechanical watch parts on a table",
+                    "a real man wearing a hat, with intense eye contact",
+                    "a fantasy anime couple with magical elements in the air",
+                    "an aerial view of a rural village surrounded by fields",
+                    "a flat lay of kitchen tools arranged neatly on a table",
+                    "a highly expressive anime face with exaggerated features",
+                    "a person partially hidden behind a curtain, backlit",
+                    "a group of animated children playing under cherry blossoms",
+                    "a single flower in extreme macro showing petal texture",
+                    "a table with various everyday objects randomly scattered",
+                    "a close-up of an elderly man's wrinkled hands holding a cane",
+                    "a teenager standing beside a graffiti wall in urban daylight",
+                    "an anime girl with long silver hair and mechanical wings",
+                    "a cluster of kitchen spices in small glass jars on a shelf",
+                    "a wide-angle view of a desert with cracked earth and bones",
+                    "two animated boys wearing school uniforms under a sakura tree",
+                    "a black cat sitting on a windowsill during sunset",
+                    "a steampunk-inspired real woman wearing goggles and leather",
+                    "a group of real people dancing at a colorful festival",
+                    "a single rusty bicycle leaning against an old brick wall",
+                    "a realistic 3D rendering of fruits cut in half on a plate",
+                    "an anime warrior mid-attack with intense motion blur",
+                    "a dense forest scene with mist and glowing mushrooms",
+                    "a robotic hand reaching toward the sky in a sci-fi setting",
+                    "a toddler wearing a raincoat jumping into a puddle",
+                    "a collection of worn-out shoes lined up by a doorway",
+                    "a man's silhouette against a bright cityscape at night",
+                    "a close-up shot of a cup of coffee with latte art",
+                    "an anime character crying in the rain with dramatic lighting",
+                    "a real elderly couple walking hand-in-hand through a park"
+                ]
+            }
+        }
+    ]
+}
