@@ -2,16 +2,16 @@ model:
   openaI:
     model: gpt-4o-mini-2024-07-18
     max_completion_tokens: 100
-    temperature: 1.2
+    temperature: 1.0
     num_threads: 4
   huggingface:
     model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
     max_completion_tokens: 100
-    temperature: 1.2
+    temperature: 1.0
   qwen:
     model: qwen-plus
     max_completion_tokens: 100
-    temperature: 1.2
+    temperature: 1.0
     num_threads: 16
 
 api_prompt:
@@ -100,11 +100,12 @@ embedding:
       enable_model_cache: true
 
 running:
-  lookahead_degree: 8
+  max_length: 200
+  lookahead_degree: 4
   initial_variation_api_fold: 0
   next_variation_api_fold: 0
   blank_probabilities: 0.5
   epsilon: 1.0
   noise_multiplier: null
-  num_samples: 400
+  num_samples: 200
   total_iterations: 10

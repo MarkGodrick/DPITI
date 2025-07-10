@@ -1,0 +1,111 @@
+model:
+  openaI:
+    model: gpt-4o-mini-2024-07-18
+    max_completion_tokens: 100
+    temperature: 1.2
+    num_threads: 4
+  huggingface:
+    model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
+    max_completion_tokens: 100
+    temperature: 1.0
+  qwen:
+    model: qwen-plus
+    max_completion_tokens: 100
+    temperature: 1.2
+    num_threads: 16
+
+api_prompt:
+  lsun:
+    random: random_api_prompt/lsun_bedroom/diverse_lsun.json
+    variation: variation_api_prompt/lsun_bedroom/few_shot_chat_fill_in_the_blanks.json
+  cat:
+    random: random_api_prompt/cat.json
+    variation: variation_api_prompt/cat/few_shot_chat_fill_in_the_blanks.json
+  camelyon17:
+    random: random_api_prompt/camelyon17.json
+    variation: variation_api_prompt/camelyon17/few_shot_chat_fill_in_the_blanks.json
+  waveui:
+    random: random_api_prompt/waveui/diverse_waveui.json
+    variation: variation_api_prompt/waveui/few_shot_chat_fill_in_the_blanks.json
+  lex10k:
+    random: random_api_prompt/lex10k.json
+    variation: variation_api_prompt/lex10k/few_shot_chat_fill_in_the_blanks.json
+  europeart:
+    random: random_api_prompt/europeart/europeart.json
+    variation: variation_api_prompt/europeart/few_shot_chat_fill_in_the_blanks.json
+  mmcelebahq:
+    random: random_api_prompt/mmcelebahq/diverse_mmcelebahq.json
+    variation: variation_api_prompt/mmcelebahq/few_shot_chat_fill_in_the_blanks.json
+  wingit:
+    random: random_api_prompt/wingit.json
+    variation: variation_api_prompt/wingit/few_shot_chat_fill_in_the_blanks.json
+  imagenet100:
+    random: random_api_prompt/imagenet100.json
+    variation: variation_api_prompt/imagenet100/few_shot_chat_fill_in_the_blanks.json
+  spritefright:
+    random: random_api_prompt/spritefright/diverse_spritefright.json
+    variation: variation_api_prompt/spritefright/few_shot_chat_fill_in_the_blanks.json
+  omni:
+    random: random_api_prompt/omni/diverse_omni.json
+    variation: variation_api_prompt/omni/few_shot_chat_fill_in_the_blanks.json
+
+dataset:
+  lsun:
+    root_dir: datasets/lsun
+    classes:
+      - bedroom_train
+  cat:
+    root_dir: datasets/cat
+    res: 512
+  imagenet100:
+    split: train
+  mmcelebahq:
+    folder: datasets/mmcelebahq/images
+  wingit:
+    folder: datasets/selected_wingit/selected_frames
+  spritefright:
+    folder: datasets/spritefright/selected_frames
+
+embedding:
+  huggingface:
+    model: stabilityai/sdxl-turbo
+  dpldm:
+    config_path: DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml
+    ckpt_path: DPLDM/logs/txt2img-large-finetune-eps1.0/eps1+last.ckpt
+  infinity:
+    batch_size: 16
+    config:
+      pn: 1M
+      model_path: Infinity/weights/infinity_2b_reg.pth
+      cfg_insertion_layer: 0
+      vae_type: 32
+      vae_path: Infinity/weights/infinity_vae_d32_reg.pth
+      add_lvl_embeding_only_first_block: 1
+      use_bit_label: 1
+      model_type: infinity_2b
+      rope2d_each_sa_layer: 1
+      rope2d_normalized_by_hw: 2
+      use_scale_schedule_embedding: 0
+      sampling_per_bits: 1
+      text_encoder_ckpt: Infinity/weights/flan-t5-xl
+      text_channels: 2048
+      apply_spatial_patchify: 0
+      h_div_w_template: 1.0
+      use_flex_attn: 0
+      cache_dir: /dev/shm
+      checkpoint_type: torch
+      seed: 0
+      bf16: 1
+      save_file: tmp.jpg
+      enable_model_cache: true
+
+running:
+  max_length: 300000
+  lookahead_degree: 0
+  initial_variation_api_fold: 6
+  next_variation_api_fold: 6
+  blank_probabilities: 0.5
+  epsilon: 10.0
+  noise_multiplier: null
+  num_samples: 2000
+  total_iterations: 10

@@ -75,7 +75,7 @@ def main(args, config):
 
     data = text(root_dir=args.data)
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset,{}))
-    embeded_data = data_from_dataset(dataset,length=300000,save_path=os.path.join("datasets",args.dataset,"embedding"))
+    embeded_data = data_from_dataset(dataset,length=config.running.max_length,save_path=os.path.join("datasets",args.dataset,"embedding"))
 
     llm = llm_dict.get(args.llm)(**config["model"].get(args.llm))
     
@@ -152,9 +152,10 @@ if __name__ == "__main__":
     parser.add_argument('--embedding',type=str,choices=['sdxl','infinity'],default='sdxl')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
     parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100'],default='lsun')
+    parser.add_argument('--config',type=str,default="textpe/configs/ordinary.yaml")
 
     args = parser.parse_args()
 
-    config = OmegaConf.load("textpe/config.yaml")
+    config = OmegaConf.load(args.config)
 
     main(args, config)
