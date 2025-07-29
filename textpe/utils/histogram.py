@@ -29,7 +29,7 @@ class ImageVotingNN(Histogram):
         voting_details_log_folder=None,
         api=None,
         num_nearest_neighbors=1,
-        backend="auto",
+        backend="sklearn",
     ):
         """Constructor.
 

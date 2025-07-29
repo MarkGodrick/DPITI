@@ -14,19 +14,19 @@ conda activate spti
 
 conda install transformers diffusers datasets
 # installing pytorch depending on your cuda version
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip3 install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu118
 # installing flash-attn
-pip install opencv-python ninja
+pip install opencv-python==4.9.0.80 ninja==1.11.1
 # you can either install flash-attn directly if it fits your system
 pip install flash-attn
 # or install and build the wheel on your machine
-MAX_JOBS=4 pip install flash-attn --no-build-isolation
+MAX_JOBS=4 pip install flash-attn==2.7.1.post4 --no-build-isolation
 # installing PE...
 conda install -y -c pytorch -c nvidia faiss-gpu=1.8.0
 pip install "private-evolution @ git+https://github.com/microsoft/DPSDA.git"
 pip install "private-evolution[image,text] @ git+https://github.com/microsoft/DPSDA.git"
 # install other assisstant SDKs
-pip install einops lmdb timm
+pip install einops lmdb==1.6.2 timm==1.0.15
 # Others...
 ```
 

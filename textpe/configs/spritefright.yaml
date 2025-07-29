@@ -105,7 +105,7 @@ running:
   initial_variation_api_fold: 6
   next_variation_api_fold: 6
   blank_probabilities: 0.5
-  epsilon: 1.0
+  epsilon: 5.0
   noise_multiplier: null
-  num_samples: 2000
+  num_samples: 1000
   total_iterations: 10

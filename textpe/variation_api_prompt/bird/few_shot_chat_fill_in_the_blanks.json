@@ -1,0 +1,39 @@
+{
+    "message_template": [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps people generate different description for the bird based on a given paragraph."
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a bird: \"{example1}\". Give your answer directly and your answer MUST be exactly 58 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase1}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a bird: \"{example2}\". Give your answer directly and your answer MUST be exactly 55 words.\n"
+        },
+        {
+            "role": "assistant",
+            "content": "{rephrase2}"
+        },
+        {
+            "role":"user",
+            "content": "You are required to fill in the blanks with more and various details for the input description **in a concise manner**. If there is no blanks, please output the original paragraph. Focus on details, and avoid only describing the atmosphere or emotions.\nPlease fill in the blanks in the following sentences to write a description of a bird: \"{masked_sample}\". Give your answer directly and your answer MUST be exactly {word_count} words.\n"
+        }
+    ],
+    "replacement_rules": [
+        {
+            "constraints": {},
+            "replacements": {
+                "example1":"__ yellow bird,__ American Gold_____ in a close____ shot_ It__ striking_ cap and wings with white__ The bird_ orange_ak and_____ against a_____ green background_",
+                "rephrase1":"A vibrant yellow bird, likely an American Goldfinch, is captured in a close-up, side profile shot. It has a striking black cap and wings with white markings. The bird's orange beak and dark eye are clearly visible against a soft, out-of-focus green background.",
+                "example2":"_ deep_ bird__ atop___________ The_, seen from____ a_ eye_ a_-colored_ak__ feathers__ variations_ shade__ a hint of white_ its_.",
+                "rephrase2":"A deep blue bird perches atop vibrant green leaves against a clear, bright blue sky. The bird, seen from the side, has a dark eye and a light-colored beak. Its feathers show subtle variations in shade, with a hint of white on its head."
+            }
+        }
+    ]
+}

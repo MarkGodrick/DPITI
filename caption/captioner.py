@@ -318,14 +318,14 @@ class Qwen_captioner(Captioner):
             with ThreadPoolExecutor(max_workers=self.config["max_workers"]) as executor:
                 responses = list(
                     tqdm(
-                        filter(None, executor.map(self._get_response_for_one_request, encoded_images)),
+                        executor.map(self._get_response_for_one_request, encoded_images),
                         total=len(encoded_images),
                         disable=not self.config["progress_bar"],
                     )
                 )
             
             self.captions.extend(responses)
-            temp_df = pd.DataFrame(self.captions,columns=['text','label'])
+            temp_df = pd.DataFrame(self.captions,columns=['text'])
             temp_df.to_csv(self.file_path,index=False)
 
         return self.captions
@@ -385,7 +385,7 @@ class Qwen_captioner(Captioner):
                 ],
                 **self.config["qwen_run"]
             )
-            return response.choices[0].message.content,encoded_image[1]
+            return response.choices[0].message.content
         except BadRequestError as e:
             print(f"Error occurred: {e}")
             return None

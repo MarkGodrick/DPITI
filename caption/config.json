@@ -24,7 +24,7 @@
         "qwen":{
             "qwen_run":{
                 "model":"qwen-vl-max",
-                "max_completion_tokens":100,
+                "max_tokens":77,
                 "temperature":1.0
             },
             "batch_size":256,
@@ -67,6 +67,15 @@
         },
         "spritefright":{
             "folder":"datasets/spritefright/selected_frames"
+        },
+        "bird":{
+            "folder":"datasets/bird"
+        },
+        "mixed_bird":{
+            "folder":"datasets/mixed_bird"
+        },
+        "thousand_bird":{
+            "folder":"datasets/thousand_bird"
         }
     }
 }

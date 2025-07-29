@@ -32,7 +32,8 @@ import pandas as pd
 pd.options.mode.copy_on_write = True
 IMAGE_SIZE = 256
 ITERATIONS = 10
-NUM_OF_PRIV_DATASET = 300000
+# NUM_OF_PRIV_DATASET = 300000
+NUM_OF_PRIV_DATASET = 200
 
 dataset_dict = {
     "lsun":LSUN_bedroom,
@@ -98,9 +99,9 @@ def main(args, config):
         loggers=[image_file, csv_print, log_print],
     )
     pe_runner.run(
-        num_samples_schedule=[10000] * ITERATIONS,
+        num_samples_schedule=[200] * ITERATIONS,
         delta=delta,
-        epsilon=10.0,
+        epsilon=1.0,
         # noise_multiplier=2 * np.sqrt(2),
         checkpoint_path=os.path.join(args.output, "checkpoint"),
     )

@@ -46,7 +46,7 @@ class lsun(Dataset):
         return len(self.dataset)
     
     def __getitem__(self, index):
-        return self.dataset[index]
+        return self.dataset[index],0
     
 
 
@@ -173,6 +173,50 @@ class omni(Dataset):
     def __getitem__(self, index):
         return self.transform(self.dataset[int(index)]['input_images'][0]),0
 
+
+class mmcelebahq(Dataset):
+    def __init__(self, target_label, folder = "datasets/mmcelebahq", split="train", res = 256, ratio = 0.95):
+        self.label = target_label
+        self.split = split
+        self.ratio = ratio
+        # attr process
+        with open(os.path.join(folder,"list_attr_celeba.txt"), 'r') as f:
+            lines = f.readlines()
+            num_images = int(lines[0])
+            attributes = lines[1].split()
+            # Store the attributes for each image in a dictionary
+            self.image_attributes = {}
+            for i in range(num_images):
+                image_id, *attr_values = lines[i+2].split()
+                self.image_attributes[image_id] = dict(zip(attributes, attr_values))
+
+        # image process
+        self.transform = transforms.Compose([
+            transforms.Resize(res),
+            transforms.CenterCrop(res)
+        ])
+
+        self.images = sorted([
+            os.path.join(root, file)
+            for root, _, files in os.walk(os.path.join(folder,"images"))
+            for file in files
+            if file.lower().endswith((".jpg", ".png", ".jpeg"))
+        ])
+        # train test split
+        self.train_indices = np.random.choice(len(self.images),int(self.ratio*len(self.images)),replace=False)
+        self.test_indices = [idx for idx in range(len(self.images)) if idx not in self.train_indices]
+
+    def __len__(self):
+        return len(self.train_indices) if self.split=="train" else len(self.test_indices)
+    
+    def __getitem__(self, index):
+        # get index
+        idx = self.train_indices[index] if self.split=="train" else self.test_indices[index]
+        # get image and label
+        img = Image.open(self.images[idx]).convert('RGB')
+        label = 1 if self.image_attributes[idx][self.label]>0 else 0
+
+        return img, label
 
 
 class ImageFolderDataset(Dataset):

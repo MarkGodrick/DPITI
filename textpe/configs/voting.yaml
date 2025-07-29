@@ -100,7 +100,7 @@ embedding:
       enable_model_cache: true
 
 running:
-  max_length: 300000
+  max_length: 10240
   lookahead_degree: 0
   initial_variation_api_fold: 6
   next_variation_api_fold: 6

@@ -32,7 +32,7 @@ def to_uint8(x, min, max):
     return x
 
 def load_model_from_config(config, ckpt):
-    pl_sd = torch.load(ckpt, map_location="cpu")
+    pl_sd = torch.load(ckpt, map_location="cpu",weights_only=False)
     sd = pl_sd["state_dict"]
     try:
         config.model.params.ignore_keys = []

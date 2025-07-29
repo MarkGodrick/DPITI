@@ -1,0 +1,11 @@
+python==3.12
+numpy==1.26.4
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+pytorch-lightning==1.8.6
+opencv-python==4.9.0.80
+ninja==1.11.1
+flash-attn==2.7.1.post4
+timm==1.0.15
+lmdb==1.6.2
