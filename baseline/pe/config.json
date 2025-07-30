@@ -41,6 +41,25 @@
         "imagenet100":{
             "root_dir":"datasets/imagenet100",
             "split":"train"
+        },
+        "celeba":{
+            "target_label": "Wearing_Lipstick"
+        },
+        "bird":{
+            "root_dir":"datasets",
+            "split":"bird"
+        },
+        "mixed_bird":{
+            "root_dir":"datasets",
+            "split":"mixed_bird"
+        },
+        "thousand_bird":{
+            "root_dir":"datasets",
+            "split":"thousand_bird"
+        },
+        "mixed_thousand_bird":{
+            "root_dir":"datasets",
+            "split":"mixed_thousand_bird"
         }
     },
     "prompt":{
@@ -171,6 +190,22 @@
             "hornbill": "A photo of hornbill",
             "green snake, grass snake": "A photo of green snake, grass snake",
             "prairie chicken, prairie grouse, prairie fowl": "A photo of prairie chicken, prairie grouse, prairie fowl"
+        },
+        "celeba":{
+            "Not_Wearing_Lipstick":"A headshot of a celebrity who is not wearing lipstick",
+            "Wearing_Lipstick":"A headshot of a celebrity wearing lipstick"
+        },
+        "bird":{
+            "image":"A photo of a bird"
+        },
+        "mixed_bird":{
+            "image":"A photo of a bird"
+        },
+        "thousand_bird":{
+            "image":"A photo of a bird"
+        },
+        "mixed_thousand_bird":{
+            "image":"A photo of a bird"
         }
     }
 }

@@ -80,7 +80,7 @@ def data_from_dataset(dataset, length = float("inf"), save_path = "datasets/embe
         metadata = {
             "label_columns":["label"],
             "text_column":"text",
-            "label_info":[{"name": f"label: {label_dict[i]}","column_values":{"label": label_dict[i]}} for i in range(len(label_set))]
+            "label_info":[{"name": f"label: {label_dict[i].lower()}","column_values":{"label": label_dict[i].lower()}} for i in range(len(label_set))]
             }
     execution_logger.info("embedding computation complete. Saving computed data.")
 

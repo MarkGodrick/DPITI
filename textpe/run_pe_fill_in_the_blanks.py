@@ -12,7 +12,7 @@ from pe.embedding.text import SentenceTransformer
 from pe.embedding.image import Inception
 from textpe.utils.embedding import *
 from pe.histogram import NearestNeighbors
-from textpe.utils.old_histogram import ImageVotingNN
+from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
 from textpe.utils.dataset import *

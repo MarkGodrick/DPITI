@@ -316,6 +316,58 @@ class imagenet100(Data):
 
 
 
+
+class celeba(Data):
+    def __init__(self, target_label, folder = "datasets/celeba", split="train", res = 256, ratio = 0.95):
+        split = split
+        ratio = ratio
+        # attr process
+        with open(os.path.join(folder,"list_attr_celeba.txt"), 'r') as f:
+            lines = f.readlines()
+            num_images = int(lines[0])
+            attributes = lines[1].split()
+            # Store the attributes for each image in a dictionary
+            image_attributes = {}
+            for i in range(num_images):
+                image_id, *attr_values = lines[i+2].split()
+                image_attributes[image_id] = dict(zip(attributes, attr_values))
+
+        # image process
+        transform = transforms.Compose([
+            transforms.Resize(res),
+            transforms.CenterCrop(res)
+        ])
+
+        items = sorted([
+            (os.path.join(root, file),image_attributes[file])
+            for root, _, files in os.walk(os.path.join(folder,"img_align_celeba"))
+            for file in files
+            if file.lower().endswith((".jpg", ".png", ".jpeg"))
+        ])
+        # train test split
+        train_indices = np.random.choice(len(items),int(ratio*len(items)),replace=False)
+        test_indices = [idx for idx in range(len(items)) if idx not in train_indices]
+        self.target_indices = train_indices if split=="train" else test_indices
+        # prepare for Data init
+        images = [transform(Image.open(items[int(idx)][0]).convert('RGB')) for idx in self.target_indices]
+        labels = [1 if int(items[int(idx)][1][target_label])>0 else 0 for idx in self.target_indices]
+        
+        data_frame = pd.DataFrame({
+            IMAGE_DATA_COLUMN_NAME:images,
+            LABEL_ID_COLUMN_NAME:labels
+        })
+        metadata = {"label_info":[{"name": "_".join(["Not",target_label])}, {"name": target_label}]}
+        super().__init__(data_frame=data_frame,metadata=metadata)
+
+        self.save_checkpoint(os.path.join(folder,"preprocessed",target_label,split))
+
+    def __len__(self):
+        return len(self.data_frame)
+    
+    def __getitem__(self, index):
+        return self.data_frame[IMAGE_DATA_COLUMN_NAME][index],self.data_frame[LABEL_ID_COLUMN_NAME][index]
+
+
 class ImageFolderDataset(Data):
     """The ImageFolderDataset dataset."""
 

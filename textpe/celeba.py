@@ -65,8 +65,8 @@ def main(args, config):
     dataset = celeba(**config['dataset'].get(args.dataset,{}))
     embeded_data = data_from_dataset(dataset,
                                      length=config.running.max_length,
-                                     label_dict = {0:"Not_Wearing_Lipstick",
-                                                   1:"Wearing_Lipstick"},
+                                     label_dict = {0:"Not Wearing Lipstick",
+                                                   1:"Wearing Lipstick"},
                                      save_path=os.path.join("datasets",args.dataset,config.dataset[args.dataset].target_label,"embedding"))
 
     llm = llm_dict.get(args.llm)(**config["model"].get(args.llm))
