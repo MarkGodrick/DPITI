@@ -24,7 +24,6 @@ class ImageVotingNN(Histogram):
         embedding,
         mode,
         lookahead_degree,
-        priv_dataset,
         lookahead_log_folder=None,
         voting_details_log_folder=None,
         api=None,
@@ -75,8 +74,6 @@ class ImageVotingNN(Histogram):
         self._voting_details_log_folder = voting_details_log_folder
         self._api = api
         self._num_nearest_neighbors = num_nearest_neighbors
-        self._priv_dataset = priv_dataset
-        self._priv_dataset_emb = np.stack(priv_dataset.data_frame[IMAGE_DATA_COLUMN_NAME].values, axis=0)
         if self._lookahead_degree > 0 and self._api is None:
             raise ValueError("API should be provided when lookahead_degree is greater than 0")
         if backend.lower() == "faiss":
@@ -177,7 +174,7 @@ class ImageVotingNN(Histogram):
         :rtype: tuple[:py:class:`pe.data.data.Data`, :py:class:`pe.data.data.Data`]
         """
         execution_logger.info(
-            f"Histogram: computing nearest neighbors histogram for {len(self._priv_dataset.data_frame)} private "
+            f"Histogram: computing nearest neighbors histogram for {len(priv_data.data_frame)} private "
             f"samples and {len(syn_data.data_frame)} synthetic samples"
         )
 
@@ -185,10 +182,8 @@ class ImageVotingNN(Histogram):
         syn_data = self._compute_lookahead_embedding(syn_data)
 
         # priv_embedding = np.stack(priv_data.data_frame[self._embedding.column_name].values, axis=0).astype(np.float32)
-        priv_embedding = self._priv_dataset_emb.astype(np.float32)
-        syn_embedding = np.stack(syn_data.data_frame[LOOKAHEAD_EMBEDDING_COLUMN_NAME].values, axis=0).astype(
-            np.float32
-        )
+        priv_embedding = np.stack(priv_data.data_frame[IMAGE_DATA_COLUMN_NAME].values, axis=0).astype(np.float32)
+        syn_embedding = np.stack(syn_data.data_frame[LOOKAHEAD_EMBEDDING_COLUMN_NAME].values, axis=0).astype(np.float32)
 
         _, ids = self._search(
             syn_embedding=syn_embedding,
@@ -196,7 +191,7 @@ class ImageVotingNN(Histogram):
             num_nearest_neighbors=self._num_nearest_neighbors,
             mode=self._mode,
         )
-        self._log_voting_details(priv_data=self._priv_dataset, syn_data=syn_data, ids=ids)
+        self._log_voting_details(priv_data=priv_data, syn_data=syn_data, ids=ids)
 
         counter = Counter(list(ids.flatten()))
         count = np.zeros(shape=syn_embedding.shape[0], dtype=np.float32)
@@ -206,7 +201,7 @@ class ImageVotingNN(Histogram):
         syn_data.data_frame[CLEAN_HISTOGRAM_COLUMN_NAME] = count
 
         execution_logger.info(
-            f"Histogram: finished computing nearest neighbors histogram for {len(self._priv_dataset.data_frame)} private "
+            f"Histogram: finished computing nearest neighbors histogram for {len(priv_data.data_frame)} private "
             f"samples and {len(syn_data.data_frame)} synthetic samples"
         )
 

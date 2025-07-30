@@ -12,7 +12,7 @@ from pe.embedding.text import SentenceTransformer
 from pe.embedding.image import Inception
 from textpe.utils.embedding import *
 from pe.histogram import NearestNeighbors
-from textpe.utils.histogram import ImageVotingNN
+from textpe.utils.old_histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
 from textpe.utils.dataset import *
@@ -97,7 +97,6 @@ def main(args, config):
             embedding=embedding_syn,
             mode="L2",
             lookahead_degree=config.running.lookahead_degree,
-            priv_dataset=embeded_data,
             api = api
         )
     elif args.voting == "text":
@@ -128,7 +127,7 @@ def main(args, config):
     delta = 1.0 / num_private_samples / np.log(num_private_samples)
 
     pe_runner = PE(
-        priv_data=data,
+        priv_data=embeded_data if args.voting=="image" else data,
         population=population,
         histogram=histogram,
         # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],

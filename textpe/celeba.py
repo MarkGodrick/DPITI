@@ -62,9 +62,12 @@ def main(args, config):
 
     OmegaConf.save(config,os.path.join(exp_folder,"config.yaml"))
 
-    data = text(root_dir=args.data)
-    dataset = mmcelebahq(**config['dataset'].get(args.dataset,{}))
-    embeded_data = data_from_dataset(dataset,length=config.running.max_length,save_path=os.path.join("datasets",args.dataset,"embedding"))
+    dataset = celeba(**config['dataset'].get(args.dataset,{}))
+    embeded_data = data_from_dataset(dataset,
+                                     length=config.running.max_length,
+                                     label_dict = {0:"Not_Wearing_Lipstick",
+                                                   1:"Wearing_Lipstick"},
+                                     save_path=os.path.join("datasets",args.dataset,config.dataset[args.dataset].target_label,"embedding"))
 
     llm = llm_dict.get(args.llm)(**config["model"].get(args.llm))
     
@@ -84,7 +87,6 @@ def main(args, config):
             embedding=embedding_syn,
             mode="L2",
             lookahead_degree=config.running.lookahead_degree,
-            priv_dataset=embeded_data,
             api = api
         )
     elif args.voting == "text":
@@ -103,23 +105,23 @@ def main(args, config):
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    # compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
-    compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-    compute_fid_variation = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
+    compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
+    # compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
+    # compute_fid_variation = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
     log_print = LogPrint()
 
-    num_private_samples = len(data.data_frame)
+    num_private_samples = len(embeded_data.data_frame)
     delta = 1.0 / num_private_samples / np.log(num_private_samples)
 
     pe_runner = PE(
-        priv_data=data,
+        priv_data=embeded_data,
         population=population,
         histogram=histogram,
-        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
-        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
+        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
+        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
         loggers=[csv_print, log_print],
     )
     pe_runner.run(
@@ -135,11 +137,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     
     parser.add_argument('--output',type=str,default="results/text")
-    parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface','qwen'],default='huggingface')
     parser.add_argument('--embedding',type=str,choices=['huggingface','dpldm','infinity'],default='huggingface')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
-    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100','omni'],default='lsun')
+    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','celeba','wingit','spritefright','imagenet100','omni'],default='celeba')
     parser.add_argument('--config',type=str,default="textpe/configs/ordinary.yaml")
 
     args = parser.parse_args()

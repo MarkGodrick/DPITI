@@ -36,6 +36,9 @@ api_prompt:
   mmcelebahq:
     random: random_api_prompt/mmcelebahq/diverse_mmcelebahq.json
     variation: variation_api_prompt/mmcelebahq/few_shot_chat_fill_in_the_blanks.json
+  celeba:
+    random: random_api_prompt/celeba/diverse_celeba.json
+    variation: variation_api_prompt/celeba/few_shot_chat_fill_in_the_blanks.json
   wingit:
     random: random_api_prompt/wingit.json
     variation: variation_api_prompt/wingit/few_shot_chat_fill_in_the_blanks.json
@@ -50,21 +53,9 @@ api_prompt:
     variation: variation_api_prompt/omni/few_shot_chat_fill_in_the_blanks.json
 
 dataset:
-  lsun:
-    root_dir: datasets/lsun
-    classes:
-      - bedroom_train
-  cat:
-    root_dir: datasets/cat
-    res: 512
-  imagenet100:
-    split: train
-  mmcelebahq:
-    folder: datasets/mmcelebahq/images
-  wingit:
-    folder: datasets/selected_wingit/selected_frames
-  spritefright:
-    folder: datasets/spritefright/selected_frames
+  celeba:
+    folder: datasets/celeba
+    target_label: Wearing_Lipstick
 
 embedding:
   huggingface:
@@ -102,10 +93,10 @@ embedding:
 running:
   max_length: 300000
   lookahead_degree: 0
-  initial_variation_api_fold: 6
-  next_variation_api_fold: 6
+  initial_variation_api_fold: 0
+  next_variation_api_fold: 1
   blank_probabilities: 0.5
-  epsilon: 1.0
+  epsilon: 10.0
   noise_multiplier: null
-  num_samples: 2000
+  num_samples: 15000
   total_iterations: 10

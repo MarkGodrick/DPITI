@@ -12,7 +12,7 @@ from pe.embedding.text import SentenceTransformer
 from pe.embedding.image import Inception
 from textpe.utils.embedding import *
 from pe.histogram import NearestNeighbors
-from textpe.utils.histogram import ImageVotingNN
+from textpe.utils.old_histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
 from textpe.utils.dataset import *
@@ -95,7 +95,6 @@ def main(args, config):
             embedding=embedding_syn,
             mode="L2",
             lookahead_degree=config.running.lookahead_degree,
-            priv_dataset=embeded_data,
             api = api
         )
     elif args.voting == "text":
@@ -114,23 +113,23 @@ def main(args, config):
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    # compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
-    compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-    compute_fid_variation = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
+    compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
+    # compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
+    # compute_fid_variation = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
     log_print = LogPrint()
 
-    num_private_samples = len(data.data_frame)
+    num_private_samples = len(embeded_data.data_frame) if args.voting=="image" else len(data.data_frame)
     delta = 1.0 / num_private_samples / np.log(num_private_samples)
 
     pe_runner = PE(
-        priv_data=data,
+        priv_data=embeded_data if args.voting=="image" else data,
         population=population,
         histogram=histogram,
-        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
-        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
+        callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
+        # callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote, compute_fid_variation],
         loggers=[csv_print, log_print],
     )
     pe_runner.run(

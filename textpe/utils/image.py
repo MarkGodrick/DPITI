@@ -19,7 +19,7 @@ import os
 IMAGE_SIZE = 256
 np.random.seed(42)
 
-def data_from_dataset(dataset, length = float("inf"), save_path = "datasets/embedding", batch_size = 1, random_shuffle = True)->Data:
+def data_from_dataset(dataset, length = float("inf"), save_path = "datasets/embedding", label_dict = None, batch_size = 1, random_shuffle = True)->Data:
     
     pe_data = Data()
     total_length = min(length, len(dataset))
@@ -73,8 +73,15 @@ def data_from_dataset(dataset, length = float("inf"), save_path = "datasets/embe
         IMAGE_DATA_COLUMN_NAME : list(all_embeddings),
         LABEL_ID_COLUMN_NAME : list(all_labels)
     })
+    
     metadata = {"label_info":[{"name":"None"}]}
-
+    if label_dict:
+        label_set = set(all_labels)
+        metadata = {
+            "label_columns":["label"],
+            "text_column":"text",
+            "label_info":[{"name": f"label: {label_dict[i]}","column_values":{"label": label_dict[i]}} for i in range(len(label_set))]
+            }
     execution_logger.info("embedding computation complete. Saving computed data.")
 
     pe_data = Data(data_frame=data_frame,metadata=metadata)

@@ -174,8 +174,8 @@ class omni(Dataset):
         return self.transform(self.dataset[int(index)]['input_images'][0]),0
 
 
-class mmcelebahq(Dataset):
-    def __init__(self, target_label, folder = "datasets/mmcelebahq", split="train", res = 256, ratio = 0.95):
+class celeba(Dataset):
+    def __init__(self, target_label, folder = "datasets/celeba", split="train", res = 256, ratio = 0.95):
         self.label = target_label
         self.split = split
         self.ratio = ratio
@@ -185,10 +185,10 @@ class mmcelebahq(Dataset):
             num_images = int(lines[0])
             attributes = lines[1].split()
             # Store the attributes for each image in a dictionary
-            self.image_attributes = {}
+            image_attributes = {}
             for i in range(num_images):
                 image_id, *attr_values = lines[i+2].split()
-                self.image_attributes[image_id] = dict(zip(attributes, attr_values))
+                image_attributes[image_id] = dict(zip(attributes, attr_values))
 
         # image process
         self.transform = transforms.Compose([
@@ -197,8 +197,8 @@ class mmcelebahq(Dataset):
         ])
 
         self.images = sorted([
-            os.path.join(root, file)
-            for root, _, files in os.walk(os.path.join(folder,"images"))
+            (os.path.join(root, file),image_attributes[file])
+            for root, _, files in os.walk(os.path.join(folder,"img_align_celeba"))
             for file in files
             if file.lower().endswith((".jpg", ".png", ".jpeg"))
         ])
@@ -213,8 +213,10 @@ class mmcelebahq(Dataset):
         # get index
         idx = self.train_indices[index] if self.split=="train" else self.test_indices[index]
         # get image and label
-        img = Image.open(self.images[idx]).convert('RGB')
-        label = 1 if self.image_attributes[idx][self.label]>0 else 0
+        item = self.images[idx]
+        
+        img = Image.open(item[0]).convert('RGB')
+        label = 1 if int(item[1][self.label])>0 else 0
 
         return img, label
 
