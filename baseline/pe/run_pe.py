@@ -32,8 +32,8 @@ import pandas as pd
 pd.options.mode.copy_on_write = True
 IMAGE_SIZE = 256
 ITERATIONS = 10
-# NUM_OF_PRIV_DATASET = 300000
-NUM_OF_PRIV_DATASET = 200
+NUM_OF_PRIV_DATASET = 300000
+# NUM_OF_PRIV_DATASET = 200
 
 dataset_dict = {
     "lsun":LSUN_bedroom,

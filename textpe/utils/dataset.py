@@ -46,7 +46,7 @@ class lsun(Dataset):
         return len(self.dataset)
     
     def __getitem__(self, index):
-        return self.dataset[index],0
+        return self.dataset[index][0],self.dataset[index][1]
     
 
 
@@ -216,6 +216,7 @@ class celeba(Dataset):
         item = self.images[idx]
         
         img = Image.open(item[0]).convert('RGB')
+        img = self.transform(img)
         label = 1 if int(item[1][self.label])>0 else 0
 
         return img, label

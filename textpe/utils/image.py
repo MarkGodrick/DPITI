@@ -74,11 +74,15 @@ def data_from_dataset(dataset, length = float("inf"), save_path = "datasets/embe
         LABEL_ID_COLUMN_NAME : list(all_labels)
     })
     
-    metadata = {"label_info":[{"name":"None"}]}
+    metadata = {
+        "label_columns":[],
+        "text_column":"text",
+        "label_info":[{"name":"","column_values":{}}]
+                }
     if label_dict:
         label_set = set(all_labels)
         metadata = {
-            "label_columns":["label"],
+            "label_columns":["label"] if label_dict else [],
             "text_column":"text",
             "label_info":[{"name": f"label: {label_dict[i].lower()}","column_values":{"label": label_dict[i].lower()}} for i in range(len(label_set))]
             }

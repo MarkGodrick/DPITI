@@ -71,7 +71,7 @@ embedding:
     model: stabilityai/sdxl-turbo
   dpldm:
     config_path: DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml
-    ckpt_path: DPLDM/logs/txt2img-large-finetune-eps1.0/eps1+last.ckpt
+    ckpt_path: DPLDM/models/ldm/text2img-large/model.ckpt
   infinity:
     batch_size: 16
     config:
