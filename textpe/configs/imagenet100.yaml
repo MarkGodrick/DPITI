@@ -36,9 +36,6 @@ api_prompt:
   mmcelebahq:
     random: random_api_prompt/mmcelebahq/diverse_mmcelebahq.json
     variation: variation_api_prompt/mmcelebahq/few_shot_chat_fill_in_the_blanks.json
-  celeba:
-    random: random_api_prompt/celeba/diverse_celeba.json
-    variation: variation_api_prompt/celeba/few_shot_chat_fill_in_the_blanks.json
   wingit:
     random: random_api_prompt/wingit.json
     variation: variation_api_prompt/wingit/few_shot_chat_fill_in_the_blanks.json
@@ -53,16 +50,29 @@ api_prompt:
     variation: variation_api_prompt/omni/few_shot_chat_fill_in_the_blanks.json
 
 dataset:
-  celeba:
-    folder: datasets/celeba
-    target_label: Wearing_Lipstick
+  lsun:
+    root_dir: datasets/lsun
+    classes:
+      - bedroom_train
+  cat:
+    root_dir: datasets/cat
+    res: 512
+  imagenet100:
+    split: train
+  mmcelebahq:
+    folder: datasets/mmcelebahq/images
+  wingit:
+    folder: datasets/selected_wingit/selected_frames
+  spritefright:
+    folder: datasets/spritefright/selected_frames
 
 embedding:
   huggingface:
+    # model: stabilityai/stable-diffusion-xl-base-1.0
     model: stabilityai/sdxl-turbo
   dpldm:
     config_path: DPLDM/configs/latent-diffusion/txt2img-1p4B-eval.yaml
-    ckpt_path: DPLDM/logs/txt2img-large-finetune-eps1.0/eps1+last.ckpt
+    ckpt_path: DPLDM/models/ldm/text2img-large/model.ckpt
   infinity:
     batch_size: 16
     config:
@@ -96,7 +106,7 @@ running:
   initial_variation_api_fold: 0
   next_variation_api_fold: 1
   blank_probabilities: 0.5
-  epsilon: 10.0
+  epsilon: 1.0
   noise_multiplier: null
-  num_samples: 202599
+  num_samples: 117000
   total_iterations: 10

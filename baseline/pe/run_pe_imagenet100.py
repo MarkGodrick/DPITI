@@ -109,7 +109,7 @@ def main(args, config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset",type=str,choices=['lsun','cat','waveui','wingit','celeba','europeart','spritefright','imagenet100'],default='lsun')
+    parser.add_argument("--dataset",type=str,choices=['lsun','cat','waveui','wingit','celeba','europeart','spritefright','imagenet100'],default='imagenet100')
     parser.add_argument("--api",type=str,choices=["StableDiffusion","ImprovedDiffusion"],default="StableDiffusion")
     parser.add_argument("--output",type=str,default="results/baseline/pe")
 

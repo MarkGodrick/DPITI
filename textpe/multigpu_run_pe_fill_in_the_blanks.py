@@ -30,7 +30,7 @@ import numpy as np
 from omegaconf import OmegaConf
 
 from utils.embedding_multigpu import *
-import multiprocess as mp
+import multiprocessing as mp
 
 pd.options.mode.copy_on_write = True
 IMAGE_SIZE = 256
@@ -76,6 +76,7 @@ def main(args, config):
     data = text(root_dir=args.data)
     dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset,{}))
     embeded_data = data_from_dataset(dataset,length=config.running.max_length,save_path=os.path.join("datasets",args.dataset,"embedding"))
+    full_embeded_data = data_from_dataset(dataset,save_path=os.path.join("datasets",args.dataset,"embedding"))
 
     llm = llm_dict.get(args.llm)(**config["model"].get(args.llm))
     
@@ -113,9 +114,9 @@ def main(args, config):
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
-    # compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
-    # compute_fid_variation = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
+    compute_fid_vote = _ComputeFID(priv_data=full_embeded_data, embedding=embedding_syn)
+    # compute_fid_vote = _ComputeFID(priv_data=full_embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
+    # compute_fid_variation = _ComputeFID(priv_data=full_embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)

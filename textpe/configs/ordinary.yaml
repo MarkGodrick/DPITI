@@ -2,7 +2,7 @@ model:
   openaI:
     model: gpt-4o-mini-2024-07-18
     max_completion_tokens: 100
-    temperature: 1.2
+    temperature: 1.0
     num_threads: 4
   huggingface:
     model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
@@ -11,7 +11,7 @@ model:
   qwen:
     model: qwen-plus
     max_completion_tokens: 100
-    temperature: 1.2
+    temperature: 1.0
     num_threads: 16
 
 api_prompt:

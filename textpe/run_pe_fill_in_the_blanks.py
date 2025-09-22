@@ -116,7 +116,7 @@ def main(args, config):
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    # compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
+    # compute_fid_vote = _ComputeFID(priv_data=full_embeded_data, embedding=embedding_syn)
     compute_fid_vote = _ComputeFID(priv_data=full_embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: -1})
     compute_fid_variation = _ComputeFID(priv_data=full_embeded_data, embedding=embedding_syn, filter_criterion={VARIATION_API_FOLD_ID_COLUMN_NAME: 0})
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))

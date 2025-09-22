@@ -58,7 +58,7 @@ def generate_on_device_sdxl(device_id, prompts, batch_size, queue, model_name, s
     results = []
     for i in range(0, len(prompts), batch_size):
         batch_prompts = prompts[i:i + batch_size]
-        images = pipe(batch_prompts, num_inference_steps=4, guidance_scale=0.0).images
+        images = pipe(batch_prompts, num_inference_steps=4,guidance_scale=0.0).images
         results.extend(images)
 
     queue.put((start_idx, results))

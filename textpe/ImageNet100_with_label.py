@@ -15,7 +15,7 @@ from pe.histogram import NearestNeighbors
 from textpe.utils.histogram import ImageVotingNN
 from pe.callback import SaveCheckpoints
 from pe.callback import ComputeFID
-from textpe.utils.dataset import imagenet100
+from textpe.utils.dataset import *
 from textpe.utils.llm import *
 from textpe.utils.callbacks import _ComputeFID
 from pe.callback import SaveTextToCSV
@@ -35,6 +35,19 @@ import multiprocessing as mp
 pd.options.mode.copy_on_write = True
 IMAGE_SIZE = 256
 
+dataset_dict = {
+    "lsun":lsun,
+    "cat":cat,
+    "camelyon17":camelyon17,
+    "waveui":waveui,
+    "lex10k":lex10k,
+    "europeart":europeart,
+    "imagenet100":imagenet100,
+    "mmcelebahq":ImageFolderDataset,
+    "wingit":ImageFolderDataset,
+    "spritefright":ImageFolderDataset,
+    "omni":omni
+}
 
 llm_dict = {
     "openai":OpenAILLM,
@@ -42,8 +55,14 @@ llm_dict = {
     "qwen":QwenAILLM
 }
 
-multigpu_embedding_dict = {
-    "sdxl": multigpu_sdxl_embedding,
+embedding_dict_single_gpu = {
+    "huggingface": hfpipe_embedding,
+    "dpldm": dpldm_embedding,
+    "infinity":infinity_embedding
+}
+
+embedding_dict_multi_gpu = {
+    "huggingface": multigpu_sdxl_embedding,
     "infinity": multigpu_infinity_embedding
 }
 
@@ -61,9 +80,10 @@ def main(args, config):
 
     OmegaConf.save(config,os.path.join(exp_folder,"config.yaml"))
 
-    data = text(root_dir=args.data,label_columns=['label'])
-    dataset = imagenet100(**config['dataset'].get(args.dataset,{}))
-    embeded_data = data_from_dataset(dataset,length=config.running.max_length,save_path=os.path.join("datasets",args.dataset,"embedding"))
+    data = text(root_dir=args.data)
+    dataset = dataset_dict.get(args.dataset)(**config['dataset'].get(args.dataset,{}))
+    embeded_data = data_from_dataset(dataset,length=config.running.max_length,save_path=os.path.join("datasets",args.dataset,"embedding"),label_dict={})
+    full_embeded_data = data_from_dataset(dataset,save_path=os.path.join("datasets",args.dataset,"embedding"))
 
     llm = llm_dict.get(args.llm)(**config["model"].get(args.llm))
     
@@ -76,14 +96,14 @@ def main(args, config):
         blank_probabilities=config.running.blank_probabilities
     )
 
-    embedding_syn = multigpu_embedding_dict.get(args.embedding, None)(**config.embedding.get(args.embedding))
+    embedding_dict = embedding_dict_multi_gpu if args.multigpu else embedding_dict_single_gpu
+    embedding_syn = embedding_dict.get(args.embedding, None)(**config.embedding.get(args.embedding))
 
     if args.voting == "image":
         histogram = ImageVotingNN(
             embedding=embedding_syn,
             mode="L2",
             lookahead_degree=config.running.lookahead_degree,
-            priv_dataset=embeded_data,
             api = api
         )
     elif args.voting == "text":
@@ -101,7 +121,7 @@ def main(args, config):
     )
 
     save_checkpoints = SaveCheckpoints(os.path.join(exp_folder, "checkpoint"))
-    compute_fid_vote = _ComputeFID(priv_data=embeded_data, embedding=embedding_syn)
+    compute_fid_vote = _ComputeFID(priv_data=full_embeded_data, embedding=embedding_syn)
     save_text_to_csv = SaveTextToCSV(output_folder=os.path.join(exp_folder, "synthetic_text"))
 
     csv_print = CSVPrint(output_folder=exp_folder)
@@ -111,7 +131,7 @@ def main(args, config):
     delta = 1.0 / num_private_samples / np.log(num_private_samples)
 
     pe_runner = PE(
-        priv_data=data,
+        priv_data=embeded_data if args.voting=="image" else data,
         population=population,
         histogram=histogram,
         callbacks=[save_checkpoints, save_text_to_csv, compute_fid_vote],
@@ -123,23 +143,25 @@ def main(args, config):
         epsilon=config.running.epsilon,
         noise_multiplier=config.running.noise_multiplier,
         checkpoint_path=os.path.join(exp_folder, "checkpoint"),
-        fraction_per_label_id=[1]*100
     )
 
 
 if __name__ == "__main__":
-    mp.set_start_method("spawn", force = True)
     parser = argparse.ArgumentParser()
     
     parser.add_argument('--output',type=str,default="results/text")
     parser.add_argument('--data',type=str,default="lsun/bedroom_train")
     parser.add_argument('--llm',type=str,choices=['openai','huggingface','qwen'],default='huggingface')
-    parser.add_argument('--embedding',type=str,choices=['sdxl','infinity'],default='sdxl')
+    parser.add_argument('--embedding',type=str,choices=['huggingface','dpldm','infinity'],default='huggingface')
     parser.add_argument('--voting',type=str,choices=['image','text'],default='image')
-    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100'],default='lsun')
+    parser.add_argument('--dataset',type=str,choices=['lsun','cat','camelyon17','waveui','lex10k','europeart','mmcelebahq','wingit','spritefright','imagenet100','omni'],default='imagenet100')
     parser.add_argument('--config',type=str,default="textpe/configs/ordinary.yaml")
+    parser.add_argument('--multigpu',type=bool,default=False)
 
     args = parser.parse_args()
+    if args.multigpu:
+        mp.set_start_method("spawn", force = True)
+        
 
     config = OmegaConf.load(args.config)
 
